@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
-from .models import Game, Chain, Message
+from .models import Game
 
 class NewGameForm(forms.ModelForm):
     num_chains = forms.IntegerField(initial = 1, min_value = 1)
@@ -29,20 +29,3 @@ class NewGameForm(forms.ModelForm):
             message = chain.message_set.create()
 
         return game
-
-class UploadMessageForm(forms.ModelForm):
-
-    class Meta:
-        model = Message
-        fields = ('audio', )
-
-    def __init__(self, *args, **kwargs):
-        super(UploadMessageForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        self.helper.add_input(Submit('submit', 'Upload'))
-
-    def save(self, *args, **kwargs):
-        message = super(UploadMessageForm, self).save(*args, **kwargs)
-        message.replicate()
-        return message
