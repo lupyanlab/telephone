@@ -1,7 +1,4 @@
-import json
-
 from django.conf import settings
-from django.core.files import File
 from django.core.urlresolvers import reverse
 from django.test import TestCase, override_settings
 
@@ -12,7 +9,8 @@ from grunt.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
-@override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
+
+@override_settings(MEDIA_ROOT=TEST_MEDIA_ROOT)
 class ViewTest(TestCase):
     def setUp(self):
         self.audio_path = Path(
@@ -22,8 +20,8 @@ class ViewTest(TestCase):
     def tearDown(self):
         TEST_MEDIA_ROOT.rmtree()
 
-    def make_session(self, game, instructed = False, receipts = list(),
-                     messages = list()):
+    def make_session(self, game, instructed=False, receipts=list(),
+                     messages=list()):
         self.client.get(game.get_absolute_url())
         session = self.client.session
         session['instructed'] = instructed
@@ -36,7 +34,7 @@ class InspectViewTest(ViewTest):
     def test_game_inspect_url(self):
         """ Games should return a url for viewing the clusters """
         game = mommy.make(Game)
-        expected_url = reverse('inspect', kwargs = {'pk': game.pk})
+        expected_url = reverse('inspect', kwargs={'pk': game.pk})
         self.assertEquals(expected_url, game.get_inspect_url())
 
     def test_inspect_template(self):
@@ -52,17 +50,17 @@ class UploadMessageViewTest(ViewTest):
 
         self.assertEquals(empty_message.audio, '')
 
-        url = reverse('upload', kwargs = {'pk': empty_message.pk})
+        url = reverse('upload', kwargs={'pk': empty_message.pk})
         with open(self.audio_path, 'rb') as audio_handle:
             self.client.post(url, {'audio': audio_handle})
 
-        seed_message = Message.objects.get(pk = empty_message.pk)
+        seed_message = Message.objects.get(pk=empty_message.pk)
         self.assertNotEqual(seed_message.audio, '')
 
     def test_uploading_audio_to_empty_message_sprouts_new_message(self):
         chain = mommy.make(Chain)
-        seed_message = mommy.make(Message, chain = chain)
-        url = reverse('upload', kwargs = {'pk': seed_message.pk})
+        seed_message = mommy.make(Message, chain=chain)
+        url = reverse('upload', kwargs={'pk': seed_message.pk})
         with open(self.audio_path, 'rb') as audio_handle:
             self.client.post(url, {'audio': audio_handle})
 
@@ -76,13 +74,13 @@ class UploadMessageViewTest(ViewTest):
 class CloseViewTest(ViewTest):
     def test_close_message_chain(self):
         chain = mommy.make(Chain)
-        seed = mommy.make(Message, chain = chain)
-        child = mommy.make(Message, parent = seed, chain = chain)
+        seed = mommy.make(Message, chain=chain)
+        child = mommy.make(Message, parent=seed, chain=chain)
 
         seed_children = seed.message_set.all()
         self.assertEquals(len(seed_children), 1)
 
-        url = reverse('close', kwargs = {'pk': child.pk})
+        url = reverse('close', kwargs={'pk': child.pk})
         self.client.post(url)
 
         chain_messages = chain.message_set.all()
