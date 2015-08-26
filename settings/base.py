@@ -32,9 +32,11 @@ INSTALLED_APPS = (
 
     # Third-party apps
     'crispy_forms',
+    'djangobower',
 
     # Local apps
     'grunt',
+    'inspector',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -72,9 +74,10 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = Path(PROJ_DIR, 'static')
 
-STATICFILES_DIRS = (
-    Path(APP_DIR, 'telephone/static'),
-    Path(APP_DIR, 'grunt/static'),
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'djangobower.finders.BowerFinder',
 )
 
 MEDIA_URL = '/media/'
@@ -100,3 +103,12 @@ MOMMY_CUSTOM_FIELDS_GEN = {
 }
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+BOWER_COMPONENTS_ROOT = Path(APP_DIR, 'components')
+
+BOWER_INSTALLED_APPS = (
+    'bootstrap',
+    'd3',
+    'colorbrewer',
+    'soundmanager2',
+)

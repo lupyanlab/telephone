@@ -3,7 +3,7 @@
 
 
 {% block styling %}
-  <link href="{% static 'grunt/css/inspect.css' %}" rel="stylesheet">
+  <link href="{% static 'inspector/css/inspect.css' %}" rel="stylesheet">
 {% endblock styling %}
 
 
@@ -39,10 +39,10 @@
 
 
 {% block javascript %}
-  <script src="{% static 'd3/d3.v3.min.js' %}" type="text/JavaScript"></script>
-  <script src="{% static 'd3/colorbrewer.js' %}" type="text/JavaScript"></script>
+  <script src="{% static 'd3/d3.min.js' %}" type="text/JavaScript"></script>
+  <script src="{% static 'colorbrewer/colorbrewer.js' %}" type="text/JavaScript"></script>
   <script src="{% static 'grunt/js/ajax.js' %}" type="text/javascript"></script>
-  <script src="{% static 'grunt/js/inspect.js' %}" type="text/JavaScript"></script>
+  <script src="{% static 'inspector/js/inspect.js' %}" type="text/JavaScript"></script>
   <script>
 var csrf_token = "{{ csrf_token }}",
     message_data = "{% url 'message_data' pk=game.pk %}",
