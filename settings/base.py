@@ -107,8 +107,9 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 BOWER_COMPONENTS_ROOT = Path(APP_DIR, 'components')
 
 BOWER_INSTALLED_APPS = (
-    'bootstrap',
-    'd3',
-    'colorbrewer',
-    'soundmanager2',
+    'soundmanager2#e6394dafc3cdc99596a18a6625d32bd5831345ab',
+    'bootstrap#3.3.5',
+    'jquery#2.1.4',
+    'd3#3.5.6',
+    'colorbrewer#1.0.0',
 )
