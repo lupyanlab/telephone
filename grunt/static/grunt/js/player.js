@@ -115,6 +115,7 @@ function toggleRecording() {
           audioRecorder.clear();
           audioRecorder.record();
         } else {
+          showAlert("Sending message. Please wait.", "alert-info")
           audioRecorder.stop();
           audioRecorder.exportWAV();
         }
