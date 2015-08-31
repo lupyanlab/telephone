@@ -40,10 +40,13 @@ class SingleUserTest(FunctionalTest):
 
         # He passes the microphone check, and is taken on to the
         # game page.
-        title = self.browser.find_element_by_tag_name('h2').text
-        self.assertEquals(title, 'Message #1')
 
-        # The recorder is available because he already shared his mic
+        # The recorder is not available because he hasn't shared it on this page
+        recorder = self.browser.find_element_by_id('record')
+        self.assertIn('unavailable', recorder.get_attribute('class'))
+
+        # He shares his microphone again
+        self.simulate_sharing_mic()
         recorder = self.browser.find_element_by_id('record')
         self.assertNotIn('unavailable', recorder.get_attribute('class'))
 
@@ -83,6 +86,9 @@ class SingleUserTest(FunctionalTest):
 
         # She agrees to participate
         self.accept_instructions()
+
+        # She completes a microphone check
+        self.pass_mic_check()
 
         # The correct audio file is presented on the page
         self.assert_audio_src('0.wav')
@@ -135,6 +141,9 @@ class SingleUserTest(FunctionalTest):
 
         # She accepts the instructions
         self.accept_instructions()
+
+        # She completes a microphone check
+        self.pass_mic_check()
 
         # The entry form is ready
         self.assert_audio_src(r'0.wav')

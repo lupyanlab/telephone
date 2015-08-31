@@ -77,7 +77,6 @@ def play_game(request, pk):
 
     # Check if the user has completed a microphone check
     if not request.session['mic_checked']:
-        print 'mic not checked'
         return render(request, 'grunt/mic_check.html', {'game': game})
 
     try:

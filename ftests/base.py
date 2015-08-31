@@ -109,6 +109,12 @@ class FunctionalTest(LiveServerTestCase):
             sendRecorderMessage(blob);
         ''')
 
+    def pass_mic_check(self):
+        self.simulate_sharing_mic()
+        self.upload_file()
+        self.wait_for(tag='body')
+
+
     def wait_for(self, tag = None, id = None, text = None, timeout = 10):
         locator = (By.TAG_NAME, tag) if tag else (By.ID, id)
 

@@ -26,6 +26,7 @@ class MultiUserTest(FunctionalTest):
         self.nav_to_games_list()
         self.play_game(game_name)
         self.accept_instructions()
+        self.pass_mic_check()
         self.simulate_sharing_mic()
         self.assert_audio_src('0.wav')
         self.simulate_listening_to_sound()
@@ -37,6 +38,7 @@ class MultiUserTest(FunctionalTest):
         self.nav_to_games_list()
         self.play_game(game_name)
         self.accept_instructions()
+        self.pass_mic_check()
         self.simulate_sharing_mic()
 
         # She listens to Marcus's recording (first generation)
@@ -89,6 +91,7 @@ class MultiUserTest(FunctionalTest):
         self.nav_to_games_list()
         self.play_game(game_name)
         self.accept_instructions()
+        self.pass_mic_check()
 
         # He shares his mic
         self.simulate_sharing_mic()
@@ -111,6 +114,7 @@ class MultiUserTest(FunctionalTest):
         self.nav_to_games_list()
         self.play_game(game_name)
         self.accept_instructions()
+        self.pass_mic_check()
 
         # She shares her mic
         self.simulate_sharing_mic()
