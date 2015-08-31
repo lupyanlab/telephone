@@ -78,6 +78,7 @@ class FunctionalTest(LiveServerTestCase):
         game_list_item.find_element_by_class_name('play').click()
 
     def accept_instructions(self):
+        """ Click accept on the instructions page """
         self.browser.find_element_by_id('accept').click()
 
     def simulate_sharing_mic(self):

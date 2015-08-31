@@ -23,11 +23,12 @@ class ViewTest(TestCase):
     def tearDown(self):
         TEST_MEDIA_ROOT.rmtree()
 
-    def make_session(self, game, instructed = False, receipts = list(),
-                     messages = list()):
+    def make_session(self, game, instructed=False, mic_checked=False,
+                     receipts=list(), messages=list()):
         self.client.get(game.get_absolute_url())
         session = self.client.session
         session['instructed'] = instructed
+        session['mic_checked'] = mic_checked
         session['receipts'] = receipts
         session['messages'] = messages
         session.save()
@@ -84,15 +85,21 @@ class PlayViewTest(ViewTest):
         response = self.client.get(self.game.get_absolute_url())
         self.assertTemplateUsed(response, 'grunt/instruct.html')
 
+    def test_mic_check_page(self):
+        """ After accepting instructions players should see a mic check page """
+        self.make_session(self.game, instructed=True)
+        response = self.client.get(self.game.get_absolute_url())
+        self.assertTemplateUsed(response, 'grunt/mic_check.html')
+
     def test_get_game_play_page(self):
-        """ Instructed users should get the play template """
-        self.make_session(self.game, instructed = True)
+        """ Instructed and mic checked players should get the play template """
+        self.make_session(self.game, instructed=True, mic_checked=True)
         response = self.client.get(self.game.get_absolute_url())
         self.assertTemplateUsed(response, 'grunt/play.html')
 
     def test_initial_message_data(self):
         """ The template should be populated with the correct message obj """
-        self.make_session(self.game, instructed = True)
+        self.make_session(self.game, instructed=True, mic_checked=True)
         response = self.client.get(self.game.get_absolute_url())
 
         initial_message = response.context['message']
@@ -103,7 +110,7 @@ class PlayViewTest(ViewTest):
         second_chain = mommy.make(Chain, game = self.game)
         mommy.make(Message, chain = second_chain)
 
-        self.make_session(self.game, instructed = True,
+        self.make_session(self.game, instructed=True, mic_checked=True,
                 receipts = [self.chain.pk, ])
 
         response = self.client.get(self.game.get_absolute_url())
@@ -113,7 +120,7 @@ class PlayViewTest(ViewTest):
 
     def test_redirect_to_completion_page_on_return_visit(self):
         """ Completed players should get the completion page """
-        self.make_session(self.game, instructed = True,
+        self.make_session(self.game, instructed=True, mic_checked=True,
                           receipts = [self.chain.pk, ])
         response = self.client.get(self.game.get_absolute_url())
 
@@ -156,7 +163,7 @@ class RespondViewTest(ViewTest):
 
     def test_posting_with_no_more_entries_returns_empty_json(self):
         """ Posting an entry should redirect to the completion page """
-        self.make_session(self.game, instructed = True)
+        self.make_session(self.game, instructed=True, mic_checked=True)
         response = self.post_response()
 
         response_json = json.loads(response._container[0])
@@ -167,7 +174,7 @@ class RespondViewTest(ViewTest):
         second_chain = mommy.make(Chain, game = self.game)
         second_message = mommy.make(Message, chain = second_chain)
 
-        self.make_session(self.game, instructed = True)
+        self.make_session(self.game, instructed=True, mic_checked=True)
         response = self.post_response()
 
         response_json = json.loads(response._container[0])

@@ -47,21 +47,26 @@ class CompletionView(DetailView):
 def play_game(request, pk):
     """ Determine what to do when a user requests the game page.
 
-    Outcomes
-    --------
-    1. First time users should get the instructions page.
-    2. Instructed users should get an entry form with the first
-       message rendered in the template.
+    1. First time users should read the instructions and complete a
+       microphone check.
+    2. Validated users should be selected a message to view and respond to.
     """
     game = get_object_or_404(Game, pk=pk)
 
+    # Initialize the player's session
     request.session['instructed'] = request.session.get('instructed', False)
+    request.session['mic_checked'] = request.session.get('mic_checked', False)
+    request.session['receipts'] = request.session.get('receipts', list())
+    request.session['messages'] = request.session.get('messages', list())
 
+    # Check if the player has accepted the instructions
     if not request.session['instructed']:
         return render(request, 'grunt/instruct.html', {'game': game})
 
-    request.session['receipts'] = request.session.get('receipts', list())
-    request.session['messages'] = request.session.get('messages', list())
+    # Check if the user has completed a microphone check
+    if not request.session['mic_checked']:
+        return render(request, 'grunt/mic_check.html')
+
     try:
         chain = game.pick_next_chain(request.session['receipts'])
         message = chain.select_empty_message()
@@ -70,10 +75,11 @@ def play_game(request, pk):
         # and returned to play it again without clearing the session.
         return redirect('complete', pk=game.pk)
     except Message.DoesNotExist:
-        # something weird happened
+        # Something weird happened
         raise Http404("The game is not configured properly.")
 
-    return render(request, 'grunt/play.html', {'game': game, 'message': message})
+    context_data = {'game': game, 'message': message}
+    return render(request, 'grunt/play.html', context_data)
 
 @require_POST
 def accept(request, pk):

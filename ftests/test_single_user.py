@@ -7,7 +7,7 @@ class SingleUserTest(FunctionalTest):
 
         # Simulate creating a game
         game_name = 'Fresh Game'
-        self.create_game(name = game_name)
+        self.create_game(name=game_name)
 
         # Marcus goes to play the game
         self.nav_to_games_list()
@@ -15,6 +15,10 @@ class SingleUserTest(FunctionalTest):
 
         # He agrees to participate in the game
         self.accept_instructions()
+
+        # He sees he needs to perform a mic check in order to play
+        title = self.browser.find_element_by_tag_name('h1').text
+        self.assertEquals(title, 'Microphone Check')
 
         # He tries to make a recording but it's unavailable
         recorder = self.browser.find_element_by_id('record')
@@ -32,7 +36,7 @@ class SingleUserTest(FunctionalTest):
 
         # He creates a recording
         self.upload_file()
-        self.wait_for(tag = 'body')
+        self.wait_for(tag='body')
 
         # His submission was successful,
         # and he lands on the completion page
