@@ -4,6 +4,12 @@ var audioContext = new AudioContext(),
     audioInput = null,
     audioRecorder = null;
 
+// Configure ajax to send audio blob
+$.ajaxSetup({
+  processData: false,
+  contentType: false
+});
+
 function showAlert(msg, type) {
   var alert = $("#alert");
   alert.text(msg);

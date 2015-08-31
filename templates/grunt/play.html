@@ -42,8 +42,6 @@ function sendRecorderMessage(blob) {
      url: "{% url 'respond' %}",
      type: "POST",
      data: messageForm,
-     processData: false,
-     contentType: false,
      success: function (data) {
 
        if (!data.message) {
