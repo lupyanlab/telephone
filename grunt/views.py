@@ -1,18 +1,11 @@
-import json
-from unipath import Path
-import StringIO
-import zipfile
-
-from django.conf import settings
-from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
-from django.http import JsonResponse, HttpResponse, Http404
+from django.http import JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_GET, require_POST
-from django.views.generic import ListView, CreateView, DetailView, UpdateView
+from django.views.generic import ListView, CreateView, DetailView
 
 from .models import Game, Chain, Message
 from .forms import NewGameForm
+
 
 class GameListView(ListView):
     template_name = 'grunt/games.html'
@@ -24,10 +17,12 @@ class GameListView(ListView):
         newest_first = active_games.order_by('-id')
         return newest_first
 
+
 class NewGameView(CreateView):
     template_name = 'grunt/new-game.html'
     form_class = NewGameForm
     success_url = '/'
+
 
 class CompletionView(DetailView):
     template_name = 'grunt/complete.html'
@@ -42,6 +37,7 @@ class CompletionView(DetailView):
                                                     receipts=receipt_code)
         context_data['completion_code'] = completion_code
         return context_data
+
 
 @require_GET
 def play_game(request, pk):
@@ -81,10 +77,12 @@ def play_game(request, pk):
     context_data = {'game': game, 'message': message}
     return render(request, 'grunt/play.html', context_data)
 
+
 @require_POST
 def accept(request, pk):
     request.session['instructed'] = True
     return redirect('play', pk=pk)
+
 
 @require_POST
 def clear(request, pk):
