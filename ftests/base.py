@@ -105,7 +105,7 @@ class FunctionalTest(LiveServerTestCase):
         # Take the file from the file input and post it
         self.browser.execute_script('''
             blob = document.getElementById("tmpInput").files[0];
-            $( "#tmpInput ").remove();
+            $( "#tmpInput" ).remove();
             sendRecorderMessage(blob);
         ''')
 

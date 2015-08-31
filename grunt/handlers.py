@@ -2,7 +2,7 @@ from unipath import Path
 
 
 def check_volume(recording):
-    return False
+    return True
 
 
 def message_path(instance, filename):

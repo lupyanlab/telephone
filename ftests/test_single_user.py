@@ -38,6 +38,19 @@ class SingleUserTest(FunctionalTest):
         self.upload_file()
         self.wait_for(tag='body')
 
+        # He passes the microphone check, and is taken on to the
+        # game page.
+        title = self.browser.find_element_by_tag_name('h2').text
+        self.assertEquals(title, 'Message #1')
+
+        # The recorder is available because he already shared his mic
+        recorder = self.browser.find_element_by_id('record')
+        self.assertNotIn('unavailable', recorder.get_attribute('class'))
+
+        # He makes a recording
+        self.upload_file()
+        self.wait_for(tag='body')
+
         # His submission was successful,
         # and he lands on the completion page
         self.assert_completion_page()

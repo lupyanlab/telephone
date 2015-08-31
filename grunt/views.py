@@ -5,6 +5,7 @@ from django.views.generic import ListView, CreateView, DetailView
 
 from .models import Game, Chain, Message
 from .forms import NewGameForm
+from .handlers import check_volume
 
 
 class GameListView(ListView):
@@ -51,7 +52,7 @@ def mic_check(request, pk):
     recording = request.FILES.get('audio', None)
     mic_checked = check_volume(recording)
     request.session['mic_checked'] = mic_checked
-    return redirect('play', pk=pk)
+    return JsonResponse({'mic_checked': mic_checked})
 
 
 @require_GET
@@ -76,7 +77,8 @@ def play_game(request, pk):
 
     # Check if the user has completed a microphone check
     if not request.session['mic_checked']:
-        return render(request, 'grunt/mic_check.html')
+        print 'mic not checked'
+        return render(request, 'grunt/mic_check.html', {'game': game})
 
     try:
         chain = game.pick_next_chain(request.session['receipts'])
