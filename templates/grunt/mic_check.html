@@ -40,8 +40,7 @@ config = {
 
 function sendRecorderMessage(blob) {
    var messageForm = new FormData();
-   //messageForm.append("audio", blob);
-   messageForm.append("audio", "test");
+   messageForm.append("audio", blob);
 
    $.ajax({
      url: "{% url 'mic_check' pk=game.pk %}",
