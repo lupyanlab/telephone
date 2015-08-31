@@ -39,6 +39,21 @@ class CompletionView(DetailView):
         return context_data
 
 
+@require_POST
+def accept(request, pk):
+    """ Record that the player accepted the instructions in the session """
+    request.session['instructed'] = True
+    return redirect('play', pk=pk)
+
+
+@require_POST
+def mic_check(request, pk):
+    recording = request.FILES.get('audio', None)
+    mic_checked = check_volume(recording)
+    request.session['mic_checked'] = mic_checked
+    return redirect('play', pk=pk)
+
+
 @require_GET
 def play_game(request, pk):
     """ Determine what to do when a user requests the game page.
@@ -76,12 +91,6 @@ def play_game(request, pk):
 
     context_data = {'game': game, 'message': message}
     return render(request, 'grunt/play.html', context_data)
-
-
-@require_POST
-def accept(request, pk):
-    request.session['instructed'] = True
-    return redirect('play', pk=pk)
 
 
 @require_POST

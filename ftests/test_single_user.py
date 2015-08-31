@@ -17,7 +17,7 @@ class SingleUserTest(FunctionalTest):
         self.accept_instructions()
 
         # He sees he needs to perform a mic check in order to play
-        title = self.browser.find_element_by_tag_name('h1').text
+        title = self.browser.find_element_by_tag_name('h2').text
         self.assertEquals(title, 'Microphone Check')
 
         # He tries to make a recording but it's unavailable

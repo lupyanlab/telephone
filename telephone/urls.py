@@ -18,6 +18,7 @@ urlpatterns = patterns(
     url(r'^(?P<pk>\d+)/$', grunt_views.play_game, name='play'),
     url(r'^messages/$', grunt_views.respond, name='respond'),
     url(r'^(?P<pk>\d+)/accept$', grunt_views.accept, name='accept'),
+    url(r'^mic_check', grunt_views.mic_check, name='mic_check'),
     url(r'^(?P<pk>\d+)/complete/$', grunt_views.CompletionView.as_view(),
         name='complete'),
     url(r'^(?P<pk>\d+)/clear$', grunt_views.clear, name='clear'),

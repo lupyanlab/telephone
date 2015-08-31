@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block styling %}
+    <link href="{% static "grunt/css/recorder.css" %}" rel="stylesheet" type="text/css">
+{% endblock styling %}
+
+{% block navbar %}
+  <li class="navbar-brand navbar-left">{{ game }}</li>
+  <li class="btn btn-default pull-right" role="presentation">
+    <a id="share" href="#">Share Mic</a>
+  </li>
+{% endblock navbar %}
+
+{% block jumbotron %}
+
+  {{ block.super }}
+
+  <h2>Microphone Check</h2>
+
+  <p>
+      Blah, blah, blah.
+  </p>
+
+  {% include "grunt/_player.html" %}
+
+{% endblock jumbotron %}
+
+{% block javascript %}
+    <script type="text/javascript" src="{% static "grunt/js/recorderjs/recorder.js" %}"></script>
+    <script type="text/javascript" src="{% static "grunt/js/ajax.js" %}"></script>
+    <script type="text/javascript" src="{% static "grunt/js/player.js" %}"></script>
+    <script>
+var config = {};
+
+config = {
+  workerPath: "{% static 'grunt/js/recorderjs/recorderWorker.js' %}",
+  callback: sendRecorderMessage
+}
+
+function sendRecorderMessage(blob) {
+   messageForm = new FormData();
+   messageForm.append("audio", blob);
+
+   $.ajax({
+     url: "{% url 'mic_check' %}",
+     type: "POST",
+     data: messageForm,
+     success: function (data) {
+       console.log("Successful Ajax POST");
+       console.log(data);
+     },
+     error: function (xhr, msg, error) {
+       console.log("Error in Ajax POST");
+       console.log(error);
+     }
+   });
+}
+
+$(function () {
+  var src = "";
+
+  $("#share").click(shareMic);
+  $("#listen").click(listenToMessage);
+  $("#record").click(toggleRecording);
+
+  $("#sound").bind("ended", function () {
+    $("#listen").removeClass("button-on");
+    $("#listen").addClass("played");
+    $("#record").removeClass("unavailable");
+  });
+
+  $("#sound").attr("src", src);
+  setPlayer();
+});
+    </script>
+{% endblock javascript %}
