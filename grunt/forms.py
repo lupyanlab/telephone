@@ -1,14 +1,13 @@
 from django import forms
-from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
 from .models import Game
 
+
 class NewGameForm(forms.ModelForm):
-    num_chains = forms.IntegerField(initial = 1, min_value = 1)
+    num_chains = forms.IntegerField(initial=1, min_value=1)
 
     class Meta:
         model = Game
@@ -26,6 +25,6 @@ class NewGameForm(forms.ModelForm):
 
         for i in range(self.cleaned_data['num_chains']):
             chain = game.chain_set.create()
-            message = chain.message_set.create()
+            chain.message_set.create()
 
         return game
