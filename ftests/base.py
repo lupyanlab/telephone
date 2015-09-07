@@ -1,5 +1,4 @@
 import time
-import sys
 from unipath import Path
 
 from django.conf import settings
@@ -15,7 +14,8 @@ from grunt.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
-@override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT, MEDIA_URL = '/media-test/')
+
+@override_settings(MEDIA_ROOT=TEST_MEDIA_ROOT, MEDIA_URL='/media-test/')
 class FunctionalTest(LiveServerTestCase):
     def setUp(self):
         super(FunctionalTest, self).setUp()
@@ -30,18 +30,19 @@ class FunctionalTest(LiveServerTestCase):
 
         TEST_MEDIA_ROOT.rmtree()
 
-    def create_game(self, name, nchains = 1, with_seed = False):
-        game = Game.objects.create(name = name)
+    def create_game(self, name, nchains=1, with_seed=False):
+        game = Game.objects.create(name=name)
 
         for _ in range(nchains):
-            chain = Chain.objects.create(game = game) # will use defaults
+            chain = Chain.objects.create(game=game)  # will use defaults
 
             if not with_seed:
-                Message.objects.create(chain = chain) # ready for upload
+                Message.objects.create(chain=chain)  # ready for upload
             else:
                 with open(self.path_to_test_audio(), 'rb') as seed_handle:
                     seed_file = File(seed_handle)
-                    message = Message.objects.create(chain = chain, audio = seed_file)
+                    message = Message.objects.create(chain=chain,
+                                                     audio=seed_file)
                     message.replicate()
 
     def new_user(self):
@@ -58,7 +59,7 @@ class FunctionalTest(LiveServerTestCase):
         self.browser.get(self.live_server_url)
 
     def select_game_items(self):
-        """ Simply return the list elements corresponding to available games """
+        """ Return the list elements corresponding to available games """
         game_list = self.browser.find_element_by_id('id_game_list')
         return game_list.find_elements_by_tag_name('li')
 
@@ -114,14 +115,14 @@ class FunctionalTest(LiveServerTestCase):
         self.upload_file()
         self.wait_for(tag='body')
 
-
-    def wait_for(self, tag = None, id = None, text = None, timeout = 10):
+    def wait_for(self, tag=None, id=None, text=None, timeout=10):
         locator = (By.TAG_NAME, tag) if tag else (By.ID, id)
 
         if text:
-            ec=expected_conditions.text_to_be_present_in_element(locator,text)
+            ec = expected_conditions.text_to_be_present_in_element(
+                locator, text)
         else:
-            ec=expected_conditions.presence_of_element_located(locator)
+            ec = expected_conditions.presence_of_element_located(locator)
 
         WebDriverWait(self.browser, timeout).until(
             ec, 'Unable to find element {}'.format(locator))
@@ -147,7 +148,8 @@ class FunctionalTest(LiveServerTestCase):
         self.assertEquals(code, expected)
 
     def assert_audio_src(self, expected):
-        audio_src = self.browser.find_element_by_id('sound').get_attribute('src')
+        audio_el = self.browser.find_element_by_id('sound')
+        audio_src = audio_el.get_attribute('src')
         self.assertRegexpMatches(audio_src, expected)
 
     def inspect_game(self, name):
@@ -155,14 +157,16 @@ class FunctionalTest(LiveServerTestCase):
         game_list_item.find_element_by_class_name('inspect').click()
 
     def select_svg_messages(self):
-        svg = self.browser.find_element_by_tag_name('svg')
+        svg = self.browser.find_element_by_css_selector('svg.chain')
         return svg.find_elements_by_css_selector('g.message')
 
     def assert_filled_message(self, message_group):
-        self.assertEquals(message_group.get_attribute('class'), 'message filled')
+        self.assertEquals(message_group.get_attribute('class'),
+                          'message filled')
 
     def assert_empty_message(self, message_group):
-        self.assertEquals(message_group.get_attribute('class'), 'message empty')
+        self.assertEquals(message_group.get_attribute('class'),
+                          'message empty')
 
     def assert_chain_name(self, expected):
         """ Assert that a chain of the expected name is on the page

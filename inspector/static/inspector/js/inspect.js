@@ -30,7 +30,7 @@ function visualize(chain) {
   link
     .projection(function (message) { return [message.x, message.y + circleSize]; })
 
-  var svg = d3.select("svg");
+  var svg = d3.select("svg.chain");
 
   // Clear the previous chain
   svg

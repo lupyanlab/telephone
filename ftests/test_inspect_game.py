@@ -131,7 +131,7 @@ class InspectGameTest(FunctionalTest):
         self.assert_chain_name('Chain 0')
 
         # There is a single svg element on the page
-        svgs = self.browser.find_elements_by_tag_name('svg')
+        svgs = self.browser.find_elements_by_css_selector('svg.chain')
         self.assertEquals(len(svgs), 1)
 
         # He navigates to the second page
@@ -142,7 +142,7 @@ class InspectGameTest(FunctionalTest):
         self.assert_chain_name('Chain 1')
 
         # There is a single svg element on the page
-        svgs = self.browser.find_elements_by_tag_name('svg')
+        svgs = self.browser.find_elements_by_css_selector('svg.chain')
         self.assertEquals(len(svgs), 1)
 
         # He can go backwards to see the previous chain

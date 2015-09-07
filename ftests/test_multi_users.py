@@ -74,7 +74,7 @@ class MultiUserTest(FunctionalTest):
         self.assert_chain_name('Chain 0')
 
         # He splits the seed message
-        svg = self.browser.find_element_by_tag_name('svg')
+        svg = self.browser.find_element_by_css_selector('svg.chain')
         self.split_seed_message(svg)
 
         # He navigates to view the second chain
@@ -83,7 +83,7 @@ class MultiUserTest(FunctionalTest):
 
         # He splits the seed message for the second chain as well
         self.assert_chain_name('Chain 1')
-        svg = self.browser.find_element_by_tag_name('svg')
+        svg = self.browser.find_element_by_css_selector('svg.chain')
         self.split_seed_message(svg)
 
         # Marcus comes along to play the game
@@ -139,7 +139,7 @@ class MultiUserTest(FunctionalTest):
         self.nav_to_games_list()
         self.inspect_game(game_name)
 
-        svgs = self.browser.find_elements_by_tag_name('svg')
+        svgs = self.browser.find_elements_by_css_selector('svg.chain')
         for chain_svg in svgs:
             messages = chain_svg.find_elements_by_css_selector('g.message')
             self.assertEquals(len(messages), 5)
