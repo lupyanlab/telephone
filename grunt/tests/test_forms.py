@@ -72,3 +72,12 @@ class TrimMessageFormTest(FormTest):
         message = trim_form.trim()
         trimmed_segment = self.read_message_audio(message)
         self.assertEquals(trimmed_segment.duration_seconds, 1.0)
+
+    def test_start_comes_before_end(self):
+        trim_form_data = {
+            'message': self.message.id,
+            'start': 1.0,
+            'end': 0.0,
+        }
+        trim_form = TrimMessageForm(trim_form_data)
+        self.assertFalse(trim_form.is_valid())
