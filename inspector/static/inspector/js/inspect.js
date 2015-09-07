@@ -171,6 +171,8 @@ function visualize(chain) {
     .on("click", function (message) {
       var circle = d3.select(this);
       circle.classed("active", !circle.classed("active"));
+
+      createPlaybar(message);
     });
 
 }
@@ -185,4 +187,39 @@ function loadMessages() {
         url: message.audio
       });
     });
+}
+
+function createPlaybar(message) {
+  var divFocus = d3.select("#focus");
+
+  var svgFocus = divFocus.select("svg");
+
+  var playerWidth = 300,
+      playerHeight = 50;
+
+  svgFocus
+    .attr("width", playerWidth)
+    .attr("height", playerHeight);
+
+  var timeScale = d3.scale.linear();
+
+  var messageDuration = soundManager.sounds[message.soundId].duration;
+
+  timeScale
+    .domain([0, messageDuration])
+    .range([0, playerWidth]);
+
+  var timeAxis = d3.svg.axis();
+
+  timeAxis
+    .tickSize(10)
+    .ticks(50)
+    .scale(timeScale);
+
+  svgFocus
+    .append("g")
+    .attr("class", "time axis")
+    .attr("transform", "translate(0,10)")
+    .call(timeAxis);
+
 }

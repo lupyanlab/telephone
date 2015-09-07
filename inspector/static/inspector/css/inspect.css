@@ -38,3 +38,13 @@ g.empty > text.label {
 svg {
   background-color: #F0F0F0;
 }
+
+
+path.domain {
+  fill: none;
+  stroke: black;
+}
+
+line {
+  stroke: black;
+}
