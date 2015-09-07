@@ -27,16 +27,11 @@
       <input type="submit" class="btn btn-default" value="Download Selected">
     </form>
   </li>
-
 {% endblock navbar %}
 
 
 {% block body %}
   <div id="focus">
-    <button id="id_play_focused" type="button" class="btn btn-default" disabled>
-      <span class="glyphicon glyphicon-play"></span> Play
-      </span>
-    </button>
     <svg>
     </svg>
   </div>
@@ -67,7 +62,7 @@ soundManager.setup({
   flashVersion: 9,
   preferFlash: false,
   onready: function () {
-    console.log("soundManager ready");
+    loadMessages();
   },
   debugMode: true
 });
