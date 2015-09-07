@@ -1,3 +1,4 @@
+import pydub
 
 from django import forms
 
@@ -22,4 +23,28 @@ class UploadMessageForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         message = super(UploadMessageForm, self).save(*args, **kwargs)
         message.replicate()
+        return message
+
+
+class TrimMessageForm(forms.Form):
+    message = forms.ModelChoiceField(queryset=Message.objects.all())
+    start = forms.FloatField()
+    end = forms.FloatField()
+
+    def clean(self):
+        cleaned_data = super(TrimMessageForm, self).clean()
+        start = cleaned_data['start']
+        end = cleaned_data['end']
+
+        if start >= end:
+            raise forms.ValidationError('Trim start is not before trim end')
+
+    def trim(self):
+        message = self.cleaned_data['message']
+        start_msec = self.cleaned_data['start'] * 1000
+        end_msec = self.cleaned_data['end'] * 1000
+
+        audio_segment = pydub.AudioSegment.from_wav(message.audio.path)
+        trimmed_segment = audio_segment[start_msec:end_msec]
+        trimmed_segment.export(message.audio.path, format='wav')
         return message
