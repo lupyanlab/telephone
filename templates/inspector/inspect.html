@@ -32,8 +32,14 @@
 
 
 {% block body %}
-  <svg id="focus">
-  </svg>
+  <div id="focus">
+    <button id="id_play_focused" type="button" class="btn btn-default" disabled>
+      <span class="glyphicon glyphicon-play"></span> Play
+      </span>
+    </button>
+    <svg>
+    </svg>
+  </div>
   <svg class="chain">
   </svg>
   <audio src=""></audio>
@@ -43,6 +49,9 @@
 {% block javascript %}
   <script src="{% static 'd3/d3.min.js' %}" type="text/JavaScript"></script>
   <script src="{% static 'colorbrewer/colorbrewer.js' %}" type="text/JavaScript"></script>
+
+  <script src="{% static 'soundmanager2/script/soundmanager2.js' %}"></script>
+
   <script src="{% static 'grunt/js/ajax.js' %}" type="text/javascript"></script>
   <script src="{% static 'inspector/js/inspect.js' %}" type="text/JavaScript"></script>
   <script>
@@ -52,6 +61,16 @@ var csrf_token = "{{ csrf_token }}",
     current = 0;
 
 var globalVars = {};
+
+soundManager.setup({
+  url: "{% static 'soundmanager2/swf' %}",
+  flashVersion: 9,
+  preferFlash: false,
+  onready: function () {
+    console.log("soundManager ready");
+  },
+  debugMode: true
+});
 
 function getMessageData(chain) {
   var urlWithQuery = message_data + "?chain=" + chain;

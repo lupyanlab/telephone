@@ -168,6 +168,30 @@ function visualize(chain) {
     .on("click", function (message) {
       var circle = d3.select(this);
       circle.classed("active", !circle.classed("active"));
+
+      focusOnMessage(message);
     });
 
+}
+
+function focusOnMessage(message) {
+  var divFocus = d3.select("#focus");
+
+  var playButton = divFocus.select("#id_play_focused");
+
+  if (message.audio) {
+    playButton.attr("disabled", null);
+  } else {
+    playButton.attr("disabled", true);
+  }
+
+  playButton
+    .on("click", function () {
+      var soundId = "message" + message.pk;
+      var soundObj = soundManager.createSound({
+        url: message.audio,
+        autoLoad: true
+      });
+      soundObj.play();
+    });
 }
