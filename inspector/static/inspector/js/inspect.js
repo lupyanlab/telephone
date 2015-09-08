@@ -184,7 +184,8 @@ function loadMessages() {
       message.soundId = "message" + message.pk;
       soundManager.createSound({
         id: message.soundId,
-        url: message.audio
+        url: message.audio,
+        autoLoad: true
       });
     });
 }
@@ -203,6 +204,8 @@ function createPlaybar(message) {
 
   var timeScale = d3.scale.linear();
 
+  var now = Date.now();
+
   var messageDuration = soundManager.sounds[message.soundId].duration;
 
   timeScale
@@ -213,7 +216,7 @@ function createPlaybar(message) {
 
   timeAxis
     .tickSize(10)
-    .ticks(50)
+    .ticks(5)
     .scale(timeScale);
 
   svgFocus
