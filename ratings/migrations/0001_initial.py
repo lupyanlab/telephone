@@ -12,22 +12,13 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Choices',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('message', models.OneToOneField(related_name='messages', to='grunt.Message')),
-            ],
-            options={
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
             name='Question',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('answer', models.OneToOneField(related_name='answer', to='grunt.Message')),
+                ('answer', models.OneToOneField(related_name='answer', null=True, blank=True, to='grunt.Message')),
+                ('choices', models.ManyToManyField(to='grunt.Message')),
                 ('given', models.OneToOneField(related_name='given', to='grunt.Message')),
-                ('selection', models.OneToOneField(related_name='selection', to='grunt.Message')),
+                ('selection', models.OneToOneField(related_name='selection', null=True, blank=True, to='grunt.Message')),
             ],
             options={
             },
@@ -45,13 +36,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='question',
             name='survey',
-            field=models.ForeignKey(to='ratings.Survey'),
-            preserve_default=True,
-        ),
-        migrations.AddField(
-            model_name='choices',
-            name='question',
-            field=models.ForeignKey(to='ratings.Question'),
+            field=models.ForeignKey(related_name='questions', to='ratings.Survey'),
             preserve_default=True,
         ),
     ]
