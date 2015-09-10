@@ -59,4 +59,16 @@ class CreateQuestionForm(forms.ModelForm):
         question = super(CreateQuestionForm, self).save()
         messages = Message.objects.filter(id__in=self.cleaned_data['choices'])
         question.choices.add(*messages)
+
+        given_chain = question.given.chain
+        possible_answers = given_chain.message_set.all()
+        for choice in messages:
+            if choice in possible_answers:
+                question.answer = choice
+                question.save()
+                break
+
+        if not question.answer:
+            raise ValidationError('No descendant of given was found in choices')
+
         return question
