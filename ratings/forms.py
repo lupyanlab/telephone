@@ -20,7 +20,11 @@ class SurveyForm(forms.Form):
         self.verify_message_str(self.cleaned_data.get('choices'))
 
     def verify_message_str(self, message_str):
-        message_ids = map(int, message_str.split(','))
+        try:
+            message_ids = map(int, message_str.split(','))
+        except ValueError:
+            raise ValidationError('Messages must be given as ints')
+
         all_message_ids = Message.objects.values_list('id', flat=True)
         for message_id in message_ids:
             if message_id not in all_message_ids:
