@@ -8,9 +8,10 @@ class Survey(models.Model):
 
 
 class Question(models.Model):
-    survey = models.ForeignKey(Survey)
+    survey = models.ForeignKey(Survey, related_name='questions')
     given = models.OneToOneField(Message, related_name='given')
-    answer = models.OneToOneField(Message, related_name='answer')
+    answer = models.OneToOneField(Message, related_name='answer',
+                                  null=True, blank=True)
     selection = models.OneToOneField(Message, related_name='selection',
                                      null=True, blank=True)
 
