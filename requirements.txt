@@ -3,6 +3,7 @@ Django==1.7.2
 django-bower==5.0.4
 django-crispy-forms==1.4.0
 ecdsa==0.13
+flake8==2.4.1
 gunicorn==18.0
 Jinja2==2.7.3
 MarkupSafe==0.23
