@@ -183,5 +183,5 @@ class Message(models.Model):
         child.save()
         return child
 
-    def save(self, *args, **kwargs):
-        return super(Message, self).save(*args, **kwargs)
+    def seed(self):
+        return self.chain.message_set.first()

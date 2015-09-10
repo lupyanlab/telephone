@@ -178,3 +178,11 @@ class MessageTest(ModelTest):
     def test_str_default(self):
         message = mommy.make(Message)
         self.assertEquals(str(message), 'message-1')
+
+    def test_messages_can_retrieve_seed(self):
+        """ Each message should have quick access to it's seed """
+        chain = mommy.make(Chain)
+        seed = mommy.make(Message, chain=chain)
+        gen1 = mommy.make(Message, parent=seed, chain=chain)
+        gen2 = mommy.make(Message, parent=gen1, chain=chain)
+        self.assertEquals(gen2.seed(), seed)
