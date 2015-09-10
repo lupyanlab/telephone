@@ -69,6 +69,6 @@ class CreateQuestionForm(forms.ModelForm):
                 break
 
         if not question.answer:
-            raise ValidationError('No descendant of given was found in choices')
+            raise ValidationError('No descendant was found in choices')
 
         return question

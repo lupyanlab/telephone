@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from django.views.generic import ListView
 
-# Create your views here.
+from ratings.models import Survey
+
+
+class SurveyList(ListView):
+    model = Survey

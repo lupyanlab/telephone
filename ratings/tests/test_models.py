@@ -12,6 +12,7 @@ class SurveyModelTest(TestCase):
         survey = Survey()
         survey.full_clean()  # should not raise
 
+
 class QuestionModelTest(TestCase):
     def test_create_new_question(self):
         survey = mommy.make(Survey)

@@ -1,13 +1,11 @@
-from unipath import Path
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.test import TestCase, override_settings
+from django.test import TestCase
 
 from model_mommy import mommy
 
 from grunt.models import Message, Chain
-from ratings.models import Survey, Question
+from ratings.models import Survey
 from ratings.forms import SurveyForm, CreateQuestionForm
 
 

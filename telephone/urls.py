@@ -5,6 +5,7 @@ from django.contrib import admin
 
 from grunt import views as grunt_views
 from inspector import views as inspect_views
+from ratings import views as ratings_views
 
 
 urlpatterns = patterns(
@@ -34,6 +35,9 @@ urlpatterns = patterns(
         inspect_views.UploadMessageView.as_view(),
         name='upload'),
     url(r'^messages/download/$', inspect_views.download, name='download'),
+
+    # survey views
+    url(r'^surveys/$', ratings_views.SurveyList.as_view(), name='survey_list'),
 
     # admin site
     url(r'^admin/', include(admin.site.urls)),
