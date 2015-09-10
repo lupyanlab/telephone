@@ -1,26 +1,18 @@
-from unipath import Path
 
-from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import TestCase
 
 from model_mommy import mommy
 
 from grunt.models import Message
-from ratings.models import Survey, Question, Choice
-
-TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
+from ratings.models import Survey, Question
 
 
-@override_settings(MEDIA_ROOT=TEST_MEDIA_ROOT)
-class SurveyTest(TestCase):
-    def tearDown(self):
-        super(SurveyTest, self).tearDown()
-        TEST_MEDIA_ROOT.rmtree()
-
+class SurveyModelTest(TestCase):
     def test_create_new_survey(self):
         survey = Survey()
         survey.full_clean()  # should not raise
 
+class QuestionModelTest(TestCase):
     def test_create_new_question(self):
         survey = mommy.make(Survey)
         given = mommy.make(Message)
@@ -31,5 +23,15 @@ class SurveyTest(TestCase):
     def test_add_choices_to_question(self):
         num_choices = 3
         question = mommy.make(Question)
-        mommy.make(Choice, question=question, _quantity=num_choices)
+        messages = mommy.make(Message, _quantity=num_choices)
+        question.choices.add(*messages)
         self.assertEquals(question.choices.count(), num_choices)
+
+    def test_add_same_choices_to_multiple_questions(self):
+        num_choices = 3
+        question1, question2 = mommy.make(Question, _quantity=2)
+        messages = mommy.make(Message, _quantity=num_choices)
+        question1.choices.add(*messages)
+        question2.choices.add(*messages)
+        self.assertEquals(question1.choices.count(), num_choices)
+        self.assertEquals(question2.choices.count(), num_choices)

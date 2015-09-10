@@ -10,7 +10,7 @@ class MessageIdField(forms.Field):
         try:
             return map(int, value.split(','))
         except AttributeError:
-            # value is already a list of ints
+            # value is already a list, so just make sure they are ints
             return map(int, value)
         except ValueError:
             raise ValidationError('Messages must be given as ints')
@@ -54,3 +54,9 @@ class CreateQuestionForm(forms.ModelForm):
     class Meta:
         model = Question
         fields = ('survey', 'given', 'choices')
+
+    def save(self):
+        question = super(CreateQuestionForm, self).save()
+        messages = Message.objects.filter(id__in=self.cleaned_data['choices'])
+        question.choices.add(*messages)
+        return question

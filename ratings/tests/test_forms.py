@@ -5,19 +5,12 @@ from django.test import TestCase, override_settings
 
 from model_mommy import mommy
 
-from grunt.models import Message
-from ratings.models import Survey, Question, Choice
-from ratings.forms import SurveyForm
-
-TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
+from grunt.models import Message, Chain
+from ratings.models import Survey, Question
+from ratings.forms import SurveyForm, CreateQuestionForm
 
 
-@override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
-class SurveyTest(TestCase):
-    def tearDown(self):
-        super(SurveyTest, self).tearDown()
-        TEST_MEDIA_ROOT.rmtree()
-
+class SurveyFormTest(TestCase):
     def test_make_new_survey(self):
         num_questions = 10
         questions = mommy.make(Message, _quantity=num_questions)
@@ -58,3 +51,26 @@ class SurveyTest(TestCase):
         survey_form = SurveyForm({'questions': questions_str,
                                   'choices': choices_str})
         self.assertTrue(survey_form.is_valid())
+
+
+class CreateQuestionFormTest(TestCase):
+    def test_select_answer_from_choices(self):
+        chain1, chain2 = mommy.make(Chain, _quantity=2)
+        seed = mommy.make(Message, chain=chain1)
+        other_seed = mommy.make(Message, chain=chain2)
+
+        gen1 = mommy.make(Message, parent=seed, chain=chain1)
+
+        survey = mommy.make(Survey)
+        choices = [seed, other_seed]
+        question_data = {
+            'survey': survey.id,
+            'given': gen1.id,
+            'choices': [message.id for message in choices]
+        }
+        question_form = CreateQuestionForm(question_data)
+        self.assertTrue(question_form.is_valid())
+
+        question = question_form.save()
+        self.assertEquals(list(question.choices.all()), choices)
+        self.assertEquals(question.answer, seed)
