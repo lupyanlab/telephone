@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     # Local apps
     'grunt',
     'inspector',
+    'ratings',
 )
 
 MIDDLEWARE_CLASSES = (
