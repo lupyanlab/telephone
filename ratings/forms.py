@@ -1,24 +1,27 @@
 from django import forms
+from django.core.exceptions import ValidationError
+
+from grunt.models import Message
 
 
-class CreateRatingsForm(forms.Form):
+class SurveyForm(forms.Form):
     # message pks, comma-separated
     # A rating will be created for each message
-    messages_to_rate = forms.CharField()
+    questions = forms.CharField()
 
     # message pks, comma-separated
     # All choices are present for every rating
     choices = forms.CharField()
 
-    def save(self):
-        choices = self.cleaned_data['choices']
-        for message_pk in self.cleaned_data['messages_to_rate']:
-            rating = Rating(given=message_pk, choices=choices)
-            rating.full_clean()
-            rating.save()
+    def clean_questions(self):
+        self.verify_message_str(self.cleaned_data.get('questions'))
 
+    def clean_choices(self):
+        self.verify_message_str(self.cleaned_data.get('choices'))
 
-class RatingForm(forms.ModelForm):
-    class Meta:
-        model = Rating
-        fields = ('given', 'choices', 'match')
+    def verify_message_str(self, message_str):
+        message_ids = map(int, message_str.split(','))
+        all_message_ids = Message.objects.values_list('id', flat=True)
+        for message_id in message_ids:
+            if message_id not in all_message_ids:
+                raise ValidationError('Message not found')
