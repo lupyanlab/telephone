@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block jumbotron %}
+
+    <h1>{{ survey }}</h1>
+
+    <ul id="id_question_list" class="list-group" style="text-align: center;">
+
+        {% for question in questions %}
+        <li class="list-group-item">
+
+            <h2>{{ question.given }}<h2>
+
+        </li>
+        {% endfor %}
+    </ul>
+
+{% endblock jumbotron %}
