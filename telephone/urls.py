@@ -38,6 +38,8 @@ urlpatterns = patterns(
 
     # survey views
     url(r'^surveys/$', ratings_views.SurveyList.as_view(), name='survey_list'),
+    url(r'^surveys/new/$', ratings_views.NewSurveyView.as_view(),
+        name='new_survey'),
 
     # admin site
     url(r'^admin/', include(admin.site.urls)),

@@ -4,6 +4,7 @@ from django.test import TestCase
 from model_mommy import mommy
 
 from ratings.models import Survey
+from ratings.forms import NewSurveyForm
 
 
 class ViewTest(TestCase):
@@ -19,3 +20,9 @@ class ViewTest(TestCase):
         response = self.client.get(self.survey_list_url)
         surveys = response.context['survey_list']
         self.assertEquals(len(surveys), num_surveys)
+
+    def test_new_survey_view_renders_new_survey_form(self):
+        new_survey_url = reverse('new_survey')
+        response = self.client.get(new_survey_url)
+        form = response.context['form']
+        self.assertIsInstance(form, NewSurveyForm)

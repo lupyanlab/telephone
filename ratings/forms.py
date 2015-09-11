@@ -22,7 +22,7 @@ class MessageIdField(forms.Field):
                 raise ValidationError('Message not found')
 
 
-class SurveyForm(forms.ModelForm):
+class NewSurveyForm(forms.ModelForm):
     questions = MessageIdField()
     choices = MessageIdField()
 
@@ -32,7 +32,7 @@ class SurveyForm(forms.ModelForm):
 
     def save(self):
         """ Create a survey and then create questions for that survey """
-        survey = super(SurveyForm, self).save()
+        survey = super(NewSurveyForm, self).save()
 
         choices = self.cleaned_data['choices']
         for message_id in self.cleaned_data.get('questions'):

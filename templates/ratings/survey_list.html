@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 
+{% block navbar %}
+  <li class="btn btn-default pull-right" role="presentation">
+    <a id="id_new_survey" href="{% url 'new_survey' %}">
+      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+      New Survey
+    </a>
+  </li>
+{% endblock navbar %}
+
 {% block jumbotron %}
 
     <h1>Surveys</h1>

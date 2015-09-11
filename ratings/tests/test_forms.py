@@ -6,10 +6,10 @@ from model_mommy import mommy
 
 from grunt.models import Message, Chain
 from ratings.models import Survey
-from ratings.forms import SurveyForm, CreateQuestionForm
+from ratings.forms import NewSurveyForm, CreateQuestionForm
 
 
-class SurveyFormTest(TestCase):
+class NewSurveyFormTest(TestCase):
     def test_make_new_survey(self):
         chains = mommy.make(Chain, _quantity=4)
 
@@ -27,8 +27,8 @@ class SurveyFormTest(TestCase):
         choices_str = ','.join([str(message.id) for message in choices])
         questions_str = ','.join([str(message.id) for message in questions])
 
-        survey_form = SurveyForm({'questions': questions_str,
-                                  'choices': choices_str})
+        survey_form = NewSurveyForm({'questions': questions_str,
+                                     'choices': choices_str})
         self.assertTrue(survey_form.is_valid())
         survey = survey_form.save()  # should not raise
         self.assertEquals(Survey.objects.count(), 1)
@@ -38,15 +38,15 @@ class SurveyFormTest(TestCase):
     def test_questions_must_be_actual_messages(self):
         questions_str = '1,2,3'
         choices_str = '4,5,6'
-        survey_form = SurveyForm({'questions': questions_str,
-                                  'choices': choices_str})
+        survey_form = NewSurveyForm({'questions': questions_str,
+                                     'choices': choices_str})
         self.assertFalse(survey_form.is_valid())
 
     def test_questions_must_be_csv_ints(self):
         questions_str = 'a,b,c'
         choices_str = 'd,e,f'
-        survey_form = SurveyForm({'questions': questions_str,
-                                  'choices': choices_str})
+        survey_form = NewSurveyForm({'questions': questions_str,
+                                     'choices': choices_str})
         self.assertFalse(survey_form.is_valid())
 
     def test_questions_can_contain_spaces(self):
@@ -56,8 +56,8 @@ class SurveyFormTest(TestCase):
         choices = mommy.make(Message, _quantity=4)
         choices_str = ',  '.join([str(message.id) for message in choices])
 
-        survey_form = SurveyForm({'questions': questions_str,
-                                  'choices': choices_str})
+        survey_form = NewSurveyForm({'questions': questions_str,
+                                     'choices': choices_str})
         self.assertTrue(survey_form.is_valid())
 
 
