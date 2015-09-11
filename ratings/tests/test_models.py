@@ -9,7 +9,7 @@ from ratings.models import Survey, Question
 
 class SurveyModelTest(TestCase):
     def test_create_new_survey(self):
-        survey = Survey()
+        survey = Survey(name='New Survey 1')
         survey.full_clean()  # should not raise
 
 

@@ -27,7 +27,8 @@ class NewSurveyFormTest(TestCase):
         choices_str = ','.join([str(message.id) for message in choices])
         questions_str = ','.join([str(message.id) for message in questions])
 
-        survey_form = NewSurveyForm({'questions': questions_str,
+        survey_form = NewSurveyForm({'name': 'Test Survey',
+                                     'questions': questions_str,
                                      'choices': choices_str})
         self.assertTrue(survey_form.is_valid())
         survey = survey_form.save()  # should not raise
@@ -38,14 +39,16 @@ class NewSurveyFormTest(TestCase):
     def test_questions_must_be_actual_messages(self):
         questions_str = '1,2,3'
         choices_str = '4,5,6'
-        survey_form = NewSurveyForm({'questions': questions_str,
+        survey_form = NewSurveyForm({'name': 'Bad Survey',
+                                     'questions': questions_str,
                                      'choices': choices_str})
         self.assertFalse(survey_form.is_valid())
 
     def test_questions_must_be_csv_ints(self):
         questions_str = 'a,b,c'
         choices_str = 'd,e,f'
-        survey_form = NewSurveyForm({'questions': questions_str,
+        survey_form = NewSurveyForm({'name': 'Str Message Survey',
+                                     'questions': questions_str,
                                      'choices': choices_str})
         self.assertFalse(survey_form.is_valid())
 
@@ -56,7 +59,8 @@ class NewSurveyFormTest(TestCase):
         choices = mommy.make(Message, _quantity=4)
         choices_str = ',  '.join([str(message.id) for message in choices])
 
-        survey_form = NewSurveyForm({'questions': questions_str,
+        survey_form = NewSurveyForm({'name': 'Spaced Survey',
+                                     'questions': questions_str,
                                      'choices': choices_str})
         self.assertTrue(survey_form.is_valid())
 

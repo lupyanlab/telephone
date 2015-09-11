@@ -4,8 +4,10 @@ from grunt.models import Message
 
 
 class Survey(models.Model):
-    pass
+    name = models.CharField(max_length=30)
 
+    def __str__(self):
+        return name
 
 class Question(models.Model):
     survey = models.ForeignKey(Survey, related_name='questions')
