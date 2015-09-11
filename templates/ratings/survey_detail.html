@@ -11,6 +11,10 @@
 
             <h2>{{ question.given }}<h2>
 
+            {% for choice in question.choices.all %}
+            <p>{{ choice }}</p>
+            {% endfor %}
+
         </li>
         {% endfor %}
     </ul>
