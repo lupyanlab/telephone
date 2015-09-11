@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from model_mommy import mommy
 
-from ratings.models import Survey
+from ratings.models import Survey, Question
 from ratings.forms import NewSurveyForm
 
 
@@ -26,3 +26,11 @@ class ViewTest(TestCase):
         response = self.client.get(new_survey_url)
         form = response.context['form']
         self.assertIsInstance(form, NewSurveyForm)
+
+    def test_questions_show_up_on_survey_view_page(self):
+        num_questions = 10
+        survey = mommy.make(Survey)
+        mommy.make(Question, survey=survey, _quantity=num_questions)
+        response = self.client.get(survey.get_inspect_url())
+        questions = response.context['questions']
+        self.assertEquals(len(questions), num_questions)

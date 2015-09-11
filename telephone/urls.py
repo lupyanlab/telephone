@@ -40,6 +40,8 @@ urlpatterns = patterns(
     url(r'^surveys/$', ratings_views.SurveyList.as_view(), name='survey_list'),
     url(r'^surveys/new/$', ratings_views.NewSurveyView.as_view(),
         name='new_survey'),
+    url(r'^surveys/(?P<pk>\d+)/inspect/$',
+        ratings_views.InspectSurveyView.as_view(), name='inspect_survey'),
 
     # admin site
     url(r'^admin/', include(admin.site.urls)),
