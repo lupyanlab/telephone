@@ -69,9 +69,9 @@ class CreateSurveyTest(FunctionalTest):
 
         # He fills out the survey form using the messages and choices
         # he jotted down earlier
-        messages_str = ','.join(messages)
-        choices_str = ','.join(choices)
-        self.browser.find_element_by_id('id_questions').send_keys(message_str)
+        messages_str = ','.join(map(str, messages))
+        choices_str = ','.join(map(str, choices))
+        self.browser.find_element_by_id('id_questions').send_keys(messages_str)
         self.browser.find_element_by_id('id_choices').send_keys(choices_str)
 
         # Then he submits the form

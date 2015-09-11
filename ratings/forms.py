@@ -1,6 +1,9 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
+
 from grunt.models import Message
 from ratings.models import Survey, Question
 
@@ -29,6 +32,12 @@ class NewSurveyForm(forms.ModelForm):
     class Meta:
         model = Survey
         fields = ('questions', 'choices')
+
+    def __init__(self, *args, **kwargs):
+        super(NewSurveyForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.add_input(Submit('submit', 'Create'))
 
     def save(self):
         """ Create a survey and then create questions for that survey """
