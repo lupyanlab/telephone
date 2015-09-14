@@ -12,23 +12,38 @@
 
 {% block javascript %}
   <script src="{% static 'd3/d3.min.js' %}" type="text/JavaScript"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js" type="text/Javascript"></script>
+  <script src="{% static 'soundmanager2/script/soundmanager2.js' %}"></script>
   <script src="{% static 'ratings/survey.js' %}" type="text/JavaScript"></script>
   <script>
-var choices = {{ question.choices_as_json | safe }};
+soundManager.setup({
+  onready: function () {
+    var radios = d3.selectAll("label.radio-inline");
+    radios
+      .each(function (choice) {
+        console.log(choice.audio);
+        soundManager.createSound({
+          id: 'message-'+choice.pk,
+          url: choice.audio
+        });
+      });
+  }
+})
+$(function () {
+  var choices = {{ question.choices_as_json | safe }};
 
-var radios = d3.selectAll("label.radio-inline");
+  var radios = d3.selectAll("label.radio-inline");
 
-radios
-  .data(choices);
+  radios
+    .data(choices);
 
-var play_message = function (choice) {
-  console.log("playing message " + choice.pk);
-  soundManager2.create
-}
+  var play_message = function (choice) {
+    console.log("playing message " + choice.pk);
+    soundManager.play('message-'+choice.pk);
+  }
 
-radios
-  .on("mouseover", play_message);
+  radios
+    .on("mouseover", play_message);
+});
 
   </script>
 {% endblock javascript %}
