@@ -84,6 +84,12 @@ class ResponseForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ResponseForm, self).__init__(*args, **kwargs)
+        print self.fields['question'].choices 
+
         self.helper = FormHelper()
         self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            'question',
+            InlineRadios('selection')
+        )
         self.helper.add_input(Submit('submit', 'Submit'))

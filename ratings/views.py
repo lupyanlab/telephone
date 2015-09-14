@@ -32,6 +32,8 @@ class TakeSurveyView(View):
                 request.session['completed_questions']
             )
             response_form = ResponseForm(initial = {'question': question})
+            response_form.fields['selection'].empty_label = None
+            response_form.fields['selection'].queryset = question.choices.all()
             context_data = {
                 'question': question,
                 'form': response_form
@@ -63,7 +65,6 @@ class TakeSurveyView(View):
                 'form': response_form,
             }
             render_to_response('ratings/question.html', context_data)
-
 
 
 class InspectSurveyView(DetailView):
