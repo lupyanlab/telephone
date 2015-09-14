@@ -136,7 +136,6 @@ class Chain(models.Model):
         }
         return '{game_dir}/{chain_dir}'.format(**path_kwargs)
 
-
 class Message(models.Model):
     """ Audio recordings """
     chain = models.ForeignKey(Chain)
@@ -196,3 +195,9 @@ class Message(models.Model):
                 return self.parent.find_ancestor(choices)
         except AttributeError:
             raise Message.DoesNotExist('Ancestor not found in choices')
+
+    def as_dict(self):
+        return {
+            'pk': self.pk,
+            'audio': self.audio.url,
+        }

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% load crispy_forms_tags %}
 
 {% block jumbotron %}
@@ -6,6 +7,28 @@
     <h1>Question</h1>
 
     {% crispy form form.helper %}
-    
 
 {% endblock jumbotron %}
+
+{% block javascript %}
+  <script src="{% static 'd3/d3.min.js' %}" type="text/JavaScript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js" type="text/Javascript"></script>
+  <script src="{% static 'ratings/survey.js' %}" type="text/JavaScript"></script>
+  <script>
+var choices = {{ question.choices_as_json | safe }};
+
+var radios = d3.selectAll("label.radio-inline");
+
+radios
+  .data(choices);
+
+var play_message = function (choice) {
+  console.log("playing message " + choice.pk);
+  soundManager2.create
+}
+
+radios
+  .on("mouseover", play_message);
+
+  </script>
+{% endblock javascript %}

@@ -1,3 +1,5 @@
+import json
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -44,6 +46,10 @@ class Question(models.Model):
     given = models.OneToOneField(Message, related_name='given')
     choices = models.ManyToManyField(Message)
     answer = models.OneToOneField(Message, related_name='answer', null=True)
+
+    def choices_as_json(self):
+        serialized_choices = [msg.as_dict() for msg in self.choices.all()]
+        return json.dumps(serialized_choices)
 
 class Response(models.Model):
     question = models.ForeignKey(Question, related_name = 'responses')

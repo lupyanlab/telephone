@@ -36,6 +36,7 @@ class TakeSurveyView(View):
             response_form.fields['selection'].queryset = question.choices.all()
             context_data = {
                 'question': question,
+                'choices': question.choices.all(),
                 'form': response_form
             }
             return render_to_response('ratings/question.html', context_data)
