@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import models
 
@@ -42,7 +43,8 @@ class Question(models.Model):
     survey = models.ForeignKey(Survey, related_name='questions')
     given = models.OneToOneField(Message, related_name='given')
     choices = models.ManyToManyField(Message)
-    answer = models.OneToOneField(Message, related_name='answer',
-                                  null=True, blank=True)
-    selection = models.OneToOneField(Message, related_name='selection',
-                                     null=True, blank=True)
+    answer = models.OneToOneField(Message, related_name='answer', null=True)
+
+class Response(models.Model):
+    question = models.ForeignKey(Question, related_name = 'responses')
+    selection = models.OneToOneField(Message)

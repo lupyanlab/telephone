@@ -1,6 +1,7 @@
 import json
 
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 from django.core.urlresolvers import reverse
 from django.test import TestCase, override_settings

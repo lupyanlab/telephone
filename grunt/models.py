@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import models
 
@@ -185,3 +186,13 @@ class Message(models.Model):
 
     def seed(self):
         return self.chain.message_set.first()
+
+    def find_ancestor(self, choices):
+        try:
+            if self.parent in choices:
+                return self.parent  # it's my parent!
+            else:
+                # recurse
+                return self.parent.find_ancestor(choices)
+        except AttributeError:
+            raise Message.DoesNotExist('Ancestor not found in choices')

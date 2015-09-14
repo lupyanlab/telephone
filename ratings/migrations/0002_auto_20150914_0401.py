@@ -11,10 +11,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='survey',
-            name='name',
-            field=models.CharField(default='Test Survey', max_length=30),
-            preserve_default=False,
+        migrations.AlterField(
+            model_name='question',
+            name='answer',
+            field=models.OneToOneField(related_name='answer', null=True, to='grunt.Message'),
+            preserve_default=True,
         ),
     ]

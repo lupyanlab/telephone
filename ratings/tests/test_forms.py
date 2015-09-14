@@ -102,5 +102,5 @@ class CreateQuestionFormTest(TestCase):
             'choices': [message.id for message in choices]
         }
         question_form = CreateQuestionForm(question_data)
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(Message.DoesNotExist):
             question_form.save()

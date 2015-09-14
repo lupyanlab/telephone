@@ -66,18 +66,11 @@ class CreateQuestionForm(forms.ModelForm):
 
     def save(self):
         question = super(CreateQuestionForm, self).save()
-        messages = Message.objects.filter(id__in=self.cleaned_data['choices'])
-        question.choices.add(*messages)
-
-        given_chain = question.given.chain
-        possible_answers = given_chain.message_set.all()
-        for choice in messages:
-            if choice in possible_answers:
-                question.answer = choice
-                question.save()
-                break
-
         if not question.answer:
-            raise ValidationError('No descendant was found in choices')
-
+            try:
+                choices = question.choices.all()
+                question.answer = question.given.find_ancestor(choices)
+            except Message.DoesNotExist, e:
+                question.delete()
+                raise e
         return question

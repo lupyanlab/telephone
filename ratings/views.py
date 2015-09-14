@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse_lazy
-from django.shortcuts import get_object_or_404
+from django.http import Http404
+from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.views.generic import ListView, CreateView, DetailView, View
 
 from ratings.models import Survey, Question
@@ -8,7 +9,6 @@ from ratings.forms import NewSurveyForm
 
 class SurveyList(ListView):
     model = Survey
-
 
 class NewSurveyView(CreateView):
     template_name = 'ratings/new_survey.html'
@@ -22,15 +22,28 @@ class TakeSurveyView(View):
 
         # Initialize the survey taker's session
         request.session['completed_questions'] = request.session.get(
-            'completed_questions', list()
+            'completed_questions', []
         )
+        request.session['receipts'] = request.session.get('receipts', [])
+
 
         try:
             question = survey.pick_next_question(
                 request.session['completed_questions']
             )
+            context_data = {'question': question}
+            return render_to_response('ratings/question.html', context_data)
         except Question.DoesNotExist:
-            return redirect('complete', pk=survey.pk)
+            receipts = request.session['receipts']
+            if receipts:
+                completion_code = '-'.join(map(str, receipts))
+                context_data = {'completion_code': completion_code}
+                return render_to_response('ratings/complete.html', context_data)
+            else:
+                raise Http404('No receipts found')
+
+    def post(self, request, pk):
+        pass
 
 
 class InspectSurveyView(DetailView):

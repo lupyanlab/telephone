@@ -15,10 +15,20 @@ class Migration(migrations.Migration):
             name='Question',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('answer', models.OneToOneField(related_name='answer', null=True, blank=True, to='grunt.Message')),
+                ('answer', models.OneToOneField(related_name='answer', to='grunt.Message')),
                 ('choices', models.ManyToManyField(to='grunt.Message')),
                 ('given', models.OneToOneField(related_name='given', to='grunt.Message')),
-                ('selection', models.OneToOneField(related_name='selection', null=True, blank=True, to='grunt.Message')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Response',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('question', models.ForeignKey(related_name='responses', to='ratings.Question')),
+                ('selection', models.OneToOneField(to='grunt.Message')),
             ],
             options={
             },
@@ -28,6 +38,7 @@ class Migration(migrations.Migration):
             name='Survey',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=30)),
             ],
             options={
             },
