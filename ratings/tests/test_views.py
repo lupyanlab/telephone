@@ -7,7 +7,7 @@ from model_mommy import mommy
 
 from grunt.models import Message
 from ratings.models import Survey, Question, Response
-from ratings.forms import NewSurveyForm
+from ratings.forms import NewSurveyForm, ResponseForm
 
 
 class SurveyViewTest(TestCase):
@@ -57,6 +57,14 @@ class TakeSurveyTest(SurveyViewTest):
     def test_taking_a_survey_renders_the_question_template(self):
         response = self.client.get(self.survey.get_survey_url())
         self.assertTemplateUsed(response, 'ratings/question.html')
+
+    def test_taking_a_survey_renders_the_question_obj(self):
+        response = self.client.get(self.survey.get_survey_url())
+        self.assertIsInstance(response.context['question'], Question)
+
+    def test_taking_a_survey_renders_the_question_form(self):
+        response = self.client.get(self.survey.get_survey_url())
+        self.assertIsInstance(response.context['form'], ResponseForm)
 
     def test_completed_survey_takers_get_the_completion_page(self):
         self.add_question_to_session()

@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.views.generic import ListView, CreateView, DetailView, View
 
 from ratings.models import Survey, Question
-from ratings.forms import NewSurveyForm
+from ratings.forms import NewSurveyForm, ResponseForm
 
 
 class SurveyList(ListView):
@@ -31,7 +31,11 @@ class TakeSurveyView(View):
             question = survey.pick_next_question(
                 request.session['completed_questions']
             )
-            context_data = {'question': question}
+            response_form = ResponseForm(initial = {'question': question})
+            context_data = {
+                'question': question,
+                'form': response_form
+            }
             return render_to_response('ratings/question.html', context_data)
         except Question.DoesNotExist:
             receipts = request.session['receipts']

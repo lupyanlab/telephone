@@ -1,11 +1,12 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
+from crispy_forms.bootstrap import InlineRadios
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from crispy_forms.layout import Layout, Field, Submit
 
 from grunt.models import Message
-from ratings.models import Survey, Question
+from ratings.models import Survey, Question, Response
 
 
 class MessageIdField(forms.Field):
@@ -74,3 +75,15 @@ class CreateQuestionForm(forms.ModelForm):
                 question.delete()
                 raise e
         return question
+
+class ResponseForm(forms.ModelForm):
+
+    class Meta:
+        model = Response
+        fields = ('question', 'selection')
+
+    def __init__(self, *args, **kwargs):
+        super(ResponseForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.add_input(Submit('submit', 'Submit'))
