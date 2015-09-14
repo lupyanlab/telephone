@@ -53,4 +53,4 @@ class Question(models.Model):
 
 class Response(models.Model):
     question = models.ForeignKey(Question, related_name='responses')
-    selection = models.OneToOneField(Message, unique=False)
+    selection = models.ForeignKey(Message)
