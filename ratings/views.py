@@ -10,6 +10,7 @@ from ratings.forms import NewSurveyForm, ResponseForm
 class SurveyList(ListView):
     model = Survey
 
+
 class NewSurveyView(CreateView):
     template_name = 'ratings/new_survey.html'
     form_class = NewSurveyForm

@@ -48,8 +48,9 @@ class TakeSurveyTest(SurveyViewTest):
     def setUp(self):
         super(TakeSurveyTest, self).setUp()
         self.survey = mommy.make(Survey)
-        self.question = mommy.make(Question, survey=self.survey)
-        self.question.choices.add(mommy.make(Message, _fill_optional='audio'))
+        given, choice = mommy.make(Message, _fill_optional='audio', _quantity=2)
+        self.question = mommy.make(Question, given=given, survey=self.survey)
+        self.question.choices.add(choice)
 
     def tearDown(self):
         super(TakeSurveyTest, self).tearDown()
