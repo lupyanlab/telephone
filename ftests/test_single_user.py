@@ -161,3 +161,43 @@ class SingleUserTest(FunctionalTest):
 
         # Her entry was successful
         self.assert_completion_page()
+
+    def test_session_is_cleared_on_completion_page(self):
+        """ A player completes the game once and wants to go again """
+        game_name = 'Short game'
+        self.create_game(game_name, nchains=1)
+
+        # Marcus navigates to the game page and plays the Game
+        self.nav_to_games_list()
+        self.play_game(game_name)
+
+        # He accepts the instructions and passes a
+        # microphone check
+        self.accept_instructions()
+        self.pass_mic_check()
+
+        # He shares his microphone
+        self.simulate_sharing_mic()
+
+        # He creates a recording
+        self.upload_file()
+        self.wait_for(tag='body')
+
+        # He lands on the completion page
+        self.assert_completion_page()
+
+        # He navigates back to the game list to play the game again
+        self.nav_to_games_list()
+        self.play_game(game_name)
+
+        # He's back at the player page
+        title = self.browser.find_element_by_tag_name('h1').text
+        self.assertEquals(title, 'Telephone Game')
+
+        # He shares his mic again and makes another entry
+        self.simulate_sharing_mic()
+        self.upload_file()
+        self.wait_for(tag='body')
+
+        # He lands back at the completion page for a second time
+        self.assert_completion_page()

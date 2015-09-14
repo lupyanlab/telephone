@@ -119,14 +119,21 @@ class PlayViewTest(ViewTest):
         selected_message = response.context['message']
         self.assertIn(selected_message, second_chain.message_set.all())
 
-    def test_redirect_to_completion_page_on_return_visit(self):
+    def test_return_visit_renders_complete_template(self):
         """ Completed players should get the completion page """
         self.make_session(self.game, instructed=True, mic_checked=True,
                           receipts = [self.chain.pk, ])
         response = self.client.get(self.game.get_absolute_url())
+        self.assertTemplateUsed(response, 'grunt/complete.html')
 
-        complete_url = reverse('complete', kwargs = {'pk': self.game.pk})
-        self.assertRedirects(response, complete_url)
+    def test_redirecting_to_completion_page_clears_session(self):
+        """ Once players hit the completion page their session is cleared """
+        receipts = [self.chain.pk, ]
+        self.make_session(self.game, instructed=True, mic_checked=True,
+                          receipts=receipts)
+        self.assertEquals(self.client.session['receipts'], receipts)
+        response = self.client.get(self.game.get_absolute_url())
+        self.assertEquals(len(self.client.session['receipts']), 0)
 
 
 class RespondViewTest(ViewTest):

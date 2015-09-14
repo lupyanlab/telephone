@@ -1,7 +1,7 @@
 from django.http import JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_GET, require_POST
-from django.views.generic import ListView, CreateView, DetailView
+from django.views.generic import View, ListView, CreateView, DetailView
 
 from .models import Game, Chain, Message
 from .forms import NewGameForm
@@ -25,19 +25,13 @@ class NewGameView(CreateView):
     success_url = '/'
 
 
-class CompletionView(DetailView):
-    template_name = 'grunt/complete.html'
-    model = Game
-
-    def get_context_data(self, **kwargs):
-        context_data = super(CompletionView, self).get_context_data(**kwargs)
-        game = context_data['game']
-        message_receipts = self.request.session.get('messages', list())
-        receipt_code = '-'.join(map(str, message_receipts))
-        completion_code = 'G{pk}-{receipts}'.format(pk=game.pk,
-                                                    receipts=receipt_code)
-        context_data['completion_code'] = completion_code
-        return context_data
+class CompletionView(View):
+    def get(self, request, pk):
+        game = get_object_or_404(Game, pk=pk)
+        completion_code = get_completion_code(request)
+        request = clear_receipts_from_session(request)
+        return render(request, 'grunt/complete.html',
+                      {'game': game, 'completion_code': completion_code})
 
 
 @require_POST
@@ -85,7 +79,10 @@ def play_game(request, pk):
     except Chain.DoesNotExist:
         # It's likely that this player has already played the game
         # and returned to play it again without clearing the session.
-        return redirect('complete', pk=game.pk)
+        completion_code = get_completion_code(request)
+        request = clear_receipts_from_session(request)
+        return render(request, 'grunt/complete.html',
+                      {'game': game, 'completion_code': completion_code})
     except Message.DoesNotExist:
         # Something weird happened
         raise Http404("The game is not configured properly.")
@@ -94,12 +91,15 @@ def play_game(request, pk):
     return render(request, 'grunt/play.html', context_data)
 
 
-@require_POST
-def clear(request, pk):
-    request.session['instructed'] = False
-    request.session['receipts'] = list()
-    request.session['messages'] = list()
-    return redirect('complete', pk=pk)
+def get_completion_code(request):
+    message_receipts = request.session.get('messages', [])
+    completion_code = '-'.join(map(str, message_receipts))
+    return completion_code
+
+
+def clear_receipts_from_session(request):
+    request.session['receipts'] = []
+    return request
 
 
 @require_POST

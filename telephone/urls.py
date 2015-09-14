@@ -22,7 +22,6 @@ urlpatterns = patterns(
     url(r'^(?P<pk>\d+)/mic_check', grunt_views.mic_check, name='mic_check'),
     url(r'^(?P<pk>\d+)/complete/$', grunt_views.CompletionView.as_view(),
         name='complete'),
-    url(r'^(?P<pk>\d+)/clear$', grunt_views.clear, name='clear'),
 
     # inspect views
     url(r'^(?P<pk>\d+)/inspect/$', inspect_views.InspectView.as_view(),
