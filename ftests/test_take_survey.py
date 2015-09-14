@@ -1,3 +1,5 @@
+import random
+
 from .base import FunctionalTest
 
 class TakeSurveyTest(FunctionalTest):
@@ -9,7 +11,8 @@ class TakeSurveyTest(FunctionalTest):
         """ Simulate a person taking a survey """
         # Simulate an ongoing game and a survey created from those messages
         game_name = 'Ongoing Game'
-        self.create_game(game_name, nchains=4, with_seed=True,
+        num_questions = 4
+        self.create_game(game_name, nchains=num_questions, with_seed=True,
                          depth=3)
         survey_name = 'Test Survey'
         survey = self.create_survey(survey_name, from_game=game_name)
@@ -33,10 +36,28 @@ class TakeSurveyTest(FunctionalTest):
         # by mousing over the labels
 
         # He selects the second choice by clicking the radio button
-        choices_css = 'input.radio-inline'
+        choices_css = "[type='radio']"
         choices = self.browser.find_elements_by_css_selector(choices_css)
-        print len(choices_css)
         choices[1].click()
 
         # He submits the survey
         self.browser.find_element_by_id('submit-id-submit').click()
+
+        # He sees an alert message telling him that his submission was
+        # successful
+        messages = self.browser.find_elements_by_class_name('alert-success')
+        self.assertEquals(len(messages), 1)
+
+        # He selects choices for the remaining three questions
+        num_remaining = num_questions - 1
+        for _ in range(num_remaining):
+            choices = self.browser.find_elements_by_css_selector(choices_css)
+            random.choice(choices).click()
+            self.browser.find_element_by_id('submit-id-submit').click()
+
+        # He gets to the completion page
+        # His completion code comprises the four pks for his responses,
+        # separated by hyphens
+        completion_code = self.browser.find_element_by_tag_name('code').text
+        parts = completion_code.split('-')
+        self.assertEquals(len(parts), num_questions)

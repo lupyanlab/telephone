@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
 from django.views.generic import ListView, CreateView, DetailView, View
@@ -22,11 +23,9 @@ class TakeSurveyView(View):
         survey = get_object_or_404(Survey, pk=pk)
 
         # Initialize the survey taker's session
-        request.session['completed_questions'] = request.session.get(
-            'completed_questions', []
-        )
+        question_key = 'completed_questions'
+        request.session[question_key] = request.session.get(question_key, [])
         request.session['receipts'] = request.session.get('receipts', [])
-
 
         try:
             question = survey.pick_next_question(
@@ -49,7 +48,7 @@ class TakeSurveyView(View):
                 request = self.clear_survey_from_session(request)
                 return render(request, 'ratings/complete.html', context_data)
             else:
-                raise Http404('No receipts found')
+                raise Http404('The survey was not configured properly')
 
     def post(self, request, pk):
         survey = get_object_or_404(Survey, pk=pk)
@@ -61,6 +60,10 @@ class TakeSurveyView(View):
             response = response_form.save()
             request.session['receipts'].append(response.pk)
             request.session['completed_questions'].append(response.question.pk)
+
+            validation_msg = ('Your response was saved! '
+                              'Another message was loaded.')
+            messages.add_message(request, messages.SUCCESS, validation_msg)
             return redirect('take_survey', pk=survey.pk)
         else:
             question = Question.objects.get(pk=request.POST['question'])
