@@ -1,3 +1,5 @@
+import json
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -199,5 +201,9 @@ class Message(models.Model):
     def as_dict(self):
         return {
             'pk': self.pk,
+            'soundId': 'message-'+str(self.pk),
             'audio': self.audio.url,
         }
+
+    def as_json(self):
+        return json.dumps(self.as_dict())

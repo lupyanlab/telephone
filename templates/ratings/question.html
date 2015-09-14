@@ -6,6 +6,10 @@
 
     <h1>Question</h1>
 
+    <div id="id_target_audio" class="btn btn-default">
+      <span class="glyphicon glyphicon-play"></span>
+    </div>
+
     {% crispy form form.helper %}
 
 {% endblock jumbotron %}
@@ -15,21 +19,32 @@
   <script src="{% static 'soundmanager2/script/soundmanager2.js' %}"></script>
   <script src="{% static 'ratings/survey.js' %}" type="text/JavaScript"></script>
   <script>
+var question = {{ question.given.as_json | safe }},
+    choices = {{ question.choices_as_json | safe }};
+
 soundManager.setup({
   onready: function () {
+    soundManager.createSound({
+        id: "target",
+        url: question.audio
+    });
+
     var radios = d3.selectAll("label.radio-inline");
     radios
       .each(function (choice) {
-        console.log(choice.audio);
-        soundManager.createSound({
-          id: 'message-'+choice.pk,
+        choice.soundObj = soundManager.createSound({
+          id: choice.soundId,
           url: choice.audio
         });
       });
   }
 })
+
 $(function () {
-  var choices = {{ question.choices_as_json | safe }};
+  var target = d3.select("#id_target_audio");
+
+  target
+    .on("click", function () { soundManager.play("target"); });
 
   var radios = d3.selectAll("label.radio-inline");
 
@@ -37,12 +52,16 @@ $(function () {
     .data(choices);
 
   var play_message = function (choice) {
-    console.log("playing message " + choice.pk);
-    soundManager.play('message-'+choice.pk);
+    choice.soundObj.play();
+  }
+
+  var pause_all = function () {
+    soundManager.stopAll();
   }
 
   radios
-    .on("mouseover", play_message);
+    .on("mouseover", play_message)
+    .on("mouseout", pause_all);
 });
 
   </script>

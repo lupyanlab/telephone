@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render_to_response, redirect
 from django.views.generic import ListView, CreateView, DetailView, View
+from django.shortcuts import get_object_or_404, render, redirect
 
 from ratings.models import Survey, Question
 from ratings.forms import NewSurveyForm, ResponseForm
@@ -39,13 +39,13 @@ class TakeSurveyView(View):
                 'choices': question.choices.all(),
                 'form': response_form
             }
-            return render_to_response('ratings/question.html', context_data)
+            return render(request, 'ratings/question.html', context_data)
         except Question.DoesNotExist:
             receipts = request.session['receipts']
             if receipts:
                 completion_code = '-'.join(map(str, receipts))
                 context_data = {'completion_code': completion_code}
-                return render_to_response('ratings/complete.html', context_data)
+                return render(request, 'ratings/complete.html', context_data)
             else:
                 raise Http404('No receipts found')
 
@@ -65,7 +65,7 @@ class TakeSurveyView(View):
                 'question': question,
                 'form': response_form,
             }
-            render_to_response('ratings/question.html', context_data)
+            return render(request, 'ratings/question.html', context_data)
 
 
 class InspectSurveyView(DetailView):

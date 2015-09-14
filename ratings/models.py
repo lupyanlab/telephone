@@ -52,5 +52,5 @@ class Question(models.Model):
         return json.dumps(serialized_choices)
 
 class Response(models.Model):
-    question = models.ForeignKey(Question, related_name = 'responses')
-    selection = models.OneToOneField(Message)
+    question = models.ForeignKey(Question, related_name='responses')
+    selection = models.OneToOneField(Message, unique=False)
