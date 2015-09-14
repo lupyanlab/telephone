@@ -47,7 +47,23 @@ class TakeSurveyView(View):
                 raise Http404('No receipts found')
 
     def post(self, request, pk):
-        pass
+        survey = get_object_or_404(Survey, pk=pk)
+
+        request.session['receipts'] = request.session.get('receipts', [])
+
+        response_form = ResponseForm(request.POST)
+        if response_form.is_valid():
+            response = response_form.save()
+            request.session['receipts'].append(response.pk)
+            return redirect('take_survey', pk=survey.pk)
+        else:
+            question = Question.objects.get(pk=request.POST['question'])
+            context_data = {
+                'question': question,
+                'form': response_form,
+            }
+            render_to_response('ratings/question.html', context_data)
+
 
 
 class InspectSurveyView(DetailView):

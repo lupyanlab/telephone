@@ -44,6 +44,7 @@ class TakeSurveyTest(SurveyViewTest):
         super(TakeSurveyTest, self).setUp()
         self.survey = mommy.make(Survey)
         self.question = mommy.make(Question, survey=self.survey)
+        self.question.choices.add(mommy.make(Message))
 
     def add_question_to_session(self):
         response = mommy.make(Response, question=self.question)
@@ -65,6 +66,11 @@ class TakeSurveyTest(SurveyViewTest):
     def test_taking_a_survey_renders_the_question_form(self):
         response = self.client.get(self.survey.get_survey_url())
         self.assertIsInstance(response.context['form'], ResponseForm)
+
+    def test_post_a_response(self):
+        post_data = {'question': self.question.pk,
+                     'selection': self.question.choices.first().pk}
+        self.client.post(self.survey.get_survey_url(), post_data)
 
     def test_completed_survey_takers_get_the_completion_page(self):
         self.add_question_to_session()
