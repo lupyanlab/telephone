@@ -1,24 +1,6 @@
 from .base import FunctionalTest
 
 class CreateSurveyTest(FunctionalTest):
-    def setUp(self):
-        super(CreateSurveyTest, self).setUp()
-
-    def select_survey_items(self):
-        survey_list = self.browser.find_element_by_id('id_survey_list')
-        return survey_list.find_elements_by_tag_name('li')
-
-    def select_survey_item_by_survey_name(self, name):
-        surveys = self.select_survey_items()
-
-        selected = None
-        for survey in surveys:
-            if survey.find_element_by_tag_name('h2').text == name:
-                selected = survey
-                break
-
-        return selected
-
     def extract_id_from_message_group(self, message_group):
         """ Get the message ids from the svg text element """
         svg_text_element = message_group.find_element_by_tag_name('text')

@@ -12,6 +12,7 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
 
 from grunt.models import Game, Chain, Message
+from ratings.forms import NewSurveyForm
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
@@ -51,6 +52,30 @@ class FunctionalTest(LiveServerTestCase):
                         empty.audio = msg_file
                         empty.save()
                         empty.replicate()
+
+    def create_survey(self, survey_name, from_game):
+        game = Game.objects.get(name=from_game)
+        chains = game.chain_set.all()
+
+        questions = []
+        choices = []
+
+        for chain in chains:
+            filled_messages = list(chain.message_set.exclude(audio=''))
+            choices.append(filled_messages[0].id)
+            questions.append(filled_messages[-1].id)
+
+        questions_str = ','.join(map(str, questions))
+        choices_str = ','.join(map(str, choices))
+
+        survey_form = NewSurveyForm({
+            'name': survey_name,
+            'questions': questions_str,
+            'choices': choices_str,
+        })
+        survey_form.full_clean()
+        survey = survey_form.save()
+        return survey
 
     def new_user(self):
         if self.browser:
@@ -181,3 +206,20 @@ class FunctionalTest(LiveServerTestCase):
         """
         chain_name = self.browser.find_element_by_id('id_chain_name').text
         self.assertEquals(chain_name, expected)
+
+    def select_survey_items(self):
+        """ Select the survey list items from the survey list """
+        survey_list = self.browser.find_element_by_id('id_survey_list')
+        return survey_list.find_elements_by_tag_name('li')
+
+    def select_survey_item_by_survey_name(self, name):
+        """ Select a survey item by survey name """
+        surveys = self.select_survey_items()
+
+        selected = None
+        for survey in surveys:
+            if survey.find_element_by_tag_name('h2').text == name:
+                selected = survey
+                break
+
+        return selected
