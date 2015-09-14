@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name='Question',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('answer', models.OneToOneField(related_name='answer', to='grunt.Message')),
+                ('answer', models.OneToOneField(related_name='answer', null=True, to='grunt.Message')),
                 ('choices', models.ManyToManyField(to='grunt.Message')),
                 ('given', models.OneToOneField(related_name='given', to='grunt.Message')),
             ],
@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('question', models.ForeignKey(related_name='responses', to='ratings.Question')),
-                ('selection', models.OneToOneField(to='grunt.Message')),
+                ('selection', models.ForeignKey(to='grunt.Message')),
             ],
             options={
             },
