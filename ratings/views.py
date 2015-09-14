@@ -59,9 +59,15 @@ class TakeSurveyView(View):
         if response_form.is_valid():
             response = response_form.save()
             request.session['receipts'].append(response.pk)
+            request.session['completed_questions'].append(response.question.pk)
             return redirect('take_survey', pk=survey.pk)
         else:
             question = Question.objects.get(pk=request.POST['question'])
+
+            # For some reason these are getting reset when there is an error
+            response_form.fields['selection'].empty_label = None
+            response_form.fields['selection'].queryset = question.choices.all()
+
             context_data = {
                 'question': question,
                 'form': response_form,
