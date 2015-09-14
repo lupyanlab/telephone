@@ -46,6 +46,7 @@ class TakeSurveyView(View):
             if receipts:
                 completion_code = '-'.join(map(str, receipts))
                 context_data = {'completion_code': completion_code}
+                request = self.clear_survey_from_session(request)
                 return render(request, 'ratings/complete.html', context_data)
             else:
                 raise Http404('No receipts found')
@@ -73,6 +74,16 @@ class TakeSurveyView(View):
                 'form': response_form,
             }
             return render(request, 'ratings/question.html', context_data)
+
+    def clear_survey_from_session(self, request):
+        """ Clears the completed questions from the session.
+
+        Typically questions are cleared after completing a survey. Then
+        revisits to the survey will repopulate with questions. A player's
+        receipts, also stored in the session, are not cleared.
+        """
+        request.session['completed_questions'] = []
+        return request
 
 
 class InspectSurveyView(DetailView):

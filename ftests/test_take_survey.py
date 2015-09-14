@@ -30,12 +30,13 @@ class TakeSurveyTest(FunctionalTest):
         target.click()
 
         # Then he listens to the four choices
-        choices = self.browser.find_elements_by_class_name('play choice')
-        for choice in choices:
-            choice.click()
+        # by mousing over the labels
 
         # He selects the second choice by clicking the radio button
-        self.browser.find_elements_by_class_name('select choice')[1].click()
+        choices_css = 'input.radio-inline'
+        choices = self.browser.find_elements_by_css_selector(choices_css)
+        print len(choices_css)
+        choices[1].click()
 
         # He submits the survey
         self.browser.find_element_by_id('submit-id-submit').click()

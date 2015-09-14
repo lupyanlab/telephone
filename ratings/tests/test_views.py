@@ -52,6 +52,8 @@ class TakeSurveyTest(SurveyViewTest):
         self.question = mommy.make(Question, given=given, survey=self.survey)
         self.question.choices.add(choice)
 
+        self.survey_url = self.survey.get_survey_url()
+
     def tearDown(self):
         super(TakeSurveyTest, self).tearDown()
         TEST_MEDIA_ROOT.rmtree()
@@ -59,30 +61,40 @@ class TakeSurveyTest(SurveyViewTest):
     def add_question_to_session(self):
         response = mommy.make(Response, question=self.question)
 
-        self.client.get(self.survey.get_survey_url())
+        self.client.get(self.survey_url)
         session = self.client.session
         session['completed_questions'] = [self.question.pk, ]
         session['receipts'] = [response.pk, ]
         session.save()
 
     def test_taking_a_survey_renders_the_question_template(self):
-        response = self.client.get(self.survey.get_survey_url())
+        response = self.client.get(self.survey_url)
         self.assertTemplateUsed(response, 'ratings/question.html')
 
     def test_taking_a_survey_renders_the_question_obj(self):
-        response = self.client.get(self.survey.get_survey_url())
+        response = self.client.get(self.survey_url)
         self.assertIsInstance(response.context['question'], Question)
 
     def test_taking_a_survey_renders_the_question_form(self):
-        response = self.client.get(self.survey.get_survey_url())
+        response = self.client.get(self.survey_url)
         self.assertIsInstance(response.context['form'], ResponseForm)
 
     def test_post_a_response(self):
+        self.client.get(self.survey_url)  # populates session
         post_data = {'question': self.question.pk,
                      'selection': self.question.choices.first().pk}
-        self.client.post(self.survey.get_survey_url(), post_data)
+        self.client.post(self.survey_url, post_data)
 
-    def test_completed_survey_takers_get_the_completion_page(self):
+    def test_completed_players_get_the_completion_page(self):
         self.add_question_to_session()
+        response = self.client.get(self.survey_url)
+        self.assertTemplateUsed(response, 'ratings/complete.html')
+
+    def test_completed_players_get_their_sessions_cleared(self):
+        self.add_question_to_session()
+        completed = self.client.session['completed_questions']
+        self.assertIsNotNone(completed)
         response = self.client.get(self.survey.get_survey_url())
         self.assertTemplateUsed(response, 'ratings/complete.html')
+        completed = self.client.session['completed_questions']
+        self.assertEquals(len(completed), 0)
