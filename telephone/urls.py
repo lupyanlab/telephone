@@ -16,8 +16,7 @@ urlpatterns = patterns(
     url(r'^new/$', grunt_views.NewGameView.as_view(), name='new_game'),
 
     # gameplay views
-    url(r'^(?P<pk>\d+)/$', grunt_views.play_game, name='play'),
-    url(r'^messages/$', grunt_views.respond, name='respond'),
+    url(r'^(?P<pk>\d+)/$', grunt_views.PlayGameView.as_view(), name='play'),
     url(r'^(?P<pk>\d+)/accept$', grunt_views.accept, name='accept'),
     url(r'^(?P<pk>\d+)/mic_check', grunt_views.mic_check, name='mic_check'),
     url(r'^(?P<pk>\d+)/complete/$', grunt_views.CompletionView.as_view(),

@@ -86,12 +86,6 @@ class PlayViewTest(ViewTest):
         response = self.client.get(self.game.get_absolute_url())
         self.assertTemplateUsed(response, 'grunt/instruct.html')
 
-    def test_mic_check_page(self):
-        """ After accepting instructions players should see a mic check page """
-        self.make_session(self.game, instructed=True)
-        response = self.client.get(self.game.get_absolute_url())
-        self.assertTemplateUsed(response, 'grunt/mic_check.html')
-
     def test_get_game_play_page(self):
         """ Instructed and mic checked players should get the play template """
         self.make_session(self.game, instructed=True, mic_checked=True)
@@ -137,13 +131,14 @@ class PlayViewTest(ViewTest):
 
 
 class RespondViewTest(ViewTest):
-    post_url = reverse('respond')
 
     def setUp(self):
         super(RespondViewTest, self).setUp()
         self.game = mommy.make(Game)
         self.chain = mommy.make(Chain, game = self.game)
         self.message = mommy.make(Message, chain = self.chain)
+
+        self.post_url = reverse('play', kwargs={'pk': self.game.pk})
 
     def post_response(self):
         with open(self.audio_path, 'rb') as audio_handle:

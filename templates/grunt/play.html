@@ -39,7 +39,7 @@ function sendRecorderMessage(blob) {
    messageForm.append("audio", blob);
 
    $.ajax({
-     url: "{% url 'respond' %}",
+     url: "{% url 'play' pk=game.pk %}",
      type: "POST",
      data: messageForm,
      success: function (data) {

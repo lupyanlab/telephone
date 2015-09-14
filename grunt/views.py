@@ -49,105 +49,99 @@ def mic_check(request, pk):
     return JsonResponse({'mic_checked': mic_checked})
 
 
-@require_GET
-def play_game(request, pk):
-    """ Determine what to do when a user requests the game page.
+class PlayGameView(View):
+    def get(self, request, pk):
+        """ Determine what to do when a user requests the game page.
 
-    1. First time users should read the instructions and complete a
-       microphone check.
-    2. Validated users should be selected a message to view and respond to.
-    """
-    game = get_object_or_404(Game, pk=pk)
+        1. First time users should read the instructions and complete a
+           microphone check.
+        2. Validated users should be selected a message to view and respond to.
+        """
+        game = get_object_or_404(Game, pk=pk)
 
-    # Initialize the player's session
-    request.session['instructed'] = request.session.get('instructed', False)
-    request.session['mic_checked'] = request.session.get('mic_checked', False)
-    request.session['receipts'] = request.session.get('receipts', list())
-    request.session['messages'] = request.session.get('messages', list())
+        # Initialize the player's session
+        request.session['instructed'] = request.session.get('instructed', False)
+        request.session['receipts'] = request.session.get('receipts', list())
+        request.session['messages'] = request.session.get('messages', list())
 
-    # Check if the player has accepted the instructions
-    if not request.session['instructed']:
-        return render(request, 'grunt/instruct.html', {'game': game})
+        # Check if the player has accepted the instructions
+        if not request.session['instructed']:
+            return render(request, 'grunt/instruct.html', {'game': game})
 
-    # Check if the user has completed a microphone check
-    if not request.session['mic_checked']:
-        return render(request, 'grunt/mic_check.html', {'game': game})
+        try:
+            chain = game.pick_next_chain(request.session['receipts'])
+            message = chain.select_empty_message()
+        except Chain.DoesNotExist:
+            # It's likely that this player has already played the game
+            # and returned to play it again without clearing the session.
+            completion_code = get_completion_code(request)
+            request = clear_receipts_from_session(request)
+            return render(request, 'grunt/complete.html',
+                          {'game': game, 'completion_code': completion_code})
+        except Message.DoesNotExist:
+            # Something weird happened
+            raise Http404("The game is not configured properly.")
 
-    try:
-        chain = game.pick_next_chain(request.session['receipts'])
-        message = chain.select_empty_message()
-    except Chain.DoesNotExist:
-        # It's likely that this player has already played the game
-        # and returned to play it again without clearing the session.
-        completion_code = get_completion_code(request)
-        request = clear_receipts_from_session(request)
-        return render(request, 'grunt/complete.html',
-                      {'game': game, 'completion_code': completion_code})
-    except Message.DoesNotExist:
-        # Something weird happened
-        raise Http404("The game is not configured properly.")
+        context_data = {'game': game, 'message': message}
+        return render(request, 'grunt/play.html', context_data)
 
-    context_data = {'game': game, 'message': message}
-    return render(request, 'grunt/play.html', context_data)
+    def post(self, request, pk):
+        game = get_object_or_404(Game, pk=pk)
 
+        message_pk = request.POST['message']
+        try:
+            message = Message.objects.get(pk=message_pk)
+
+            # If the message already has an audio file, (i.e., someone
+            # has already submitted a response), then create a new
+            # branch from the parent, and add the new audio to that.
+            if message.audio:
+                parent = message.parent
+                message = parent.replicate()
+
+            # Update the message with the newly recorded audio
+            audio = request.FILES.get('audio', None)
+            if not audio:
+                raise Http404('No message attached to post')
+
+            message.audio = audio
+            message.save()
+            message.replicate()
+
+            # Add the successful message chain to session receipts
+            receipts = request.session.get('receipts', [])
+            receipts.append(message.chain.pk)
+            request.session['receipts'] = receipts
+
+            # Add the message to the message receipts
+            message_receipts = request.session.get('messages', [])
+            message_receipts.append(message.pk)
+            request.session['messages'] = message_receipts
+
+            # Search for the next message
+            game = message.chain.game
+            next_chain = game.pick_next_chain(receipts)
+            next_message = next_chain.select_empty_message()
+
+            data = {'message': next_message.pk}
+            if next_message.parent and next_message.parent.audio:
+                data['src'] = next_message.parent.audio.url
+        except Message.DoesNotExist:
+            # Something weird happened.
+            data = {}
+        except Chain.DoesNotExist:
+            # There are no more chains for this player to respond to.
+            # Returning an empty response will redirect the player
+            # to the completion page.
+            data = {}
+
+        return JsonResponse(data)
 
 def get_completion_code(request):
     message_receipts = request.session.get('messages', [])
     completion_code = '-'.join(map(str, message_receipts))
     return completion_code
 
-
 def clear_receipts_from_session(request):
     request.session['receipts'] = []
     return request
-
-
-@require_POST
-def respond(request):
-    pk = request.POST['message']
-    try:
-        message = Message.objects.get(pk=pk)
-
-        # If the message already has an audio file, (i.e., someone
-        # has already submitted a response), then create a new
-        # branch from the parent, and add the new audio to that.
-        if message.audio:
-            parent = message.parent
-            message = parent.replicate()
-
-        # Update the message with the newly recorded audio
-        message.audio = request.FILES.get('audio', None)
-        if not message.audio:
-            raise Http404('No message attached to post')
-
-        message.save()
-        message.replicate()
-
-        # Add the successful message chain to session receipts
-        receipts = request.session.get('receipts', list())
-        receipts.append(message.chain.pk)
-        request.session['receipts'] = receipts
-
-        # Add the message to the message receipts
-        message_receipts = request.session.get('messages', list())
-        message_receipts.append(message.pk)
-        request.session['messages'] = message_receipts
-
-        # Search for the next message
-        game = message.chain.game
-        next_chain = game.pick_next_chain(receipts)
-        next_message = next_chain.select_empty_message()
-
-        data = {'message': next_message.pk}
-        if next_message.parent and next_message.parent.audio:
-            data['src'] = next_message.parent.audio.url
-    except Message.DoesNotExist:
-        # Something weird happened.
-        data = {}
-    except Chain.DoesNotExist:
-        # There are no more chains for this player to respond to.
-        # Returning an empty response will redirect the player
-        # to the completion page.
-        data = {}
-
-    return JsonResponse(data)

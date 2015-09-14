@@ -1,7 +1,9 @@
+from unipath import Path
+from django.conf import settings
+
 from .base import FunctionalTest
 
 class SingleUserTest(FunctionalTest):
-
     def test_record_seed_message(self):
         """ A player records the first message of an empty game """
 
@@ -15,10 +17,6 @@ class SingleUserTest(FunctionalTest):
 
         # He agrees to participate in the game
         self.accept_instructions()
-
-        # He sees he needs to perform a mic check in order to play
-        title = self.browser.find_element_by_tag_name('h2').text
-        self.assertEquals(title, 'Microphone Check')
 
         # He tries to make a recording but it's unavailable
         recorder = self.browser.find_element_by_id('record')
@@ -35,22 +33,6 @@ class SingleUserTest(FunctionalTest):
         self.assertNotIn('unavailable', recorder.get_attribute('class'))
 
         # He creates a recording
-        self.upload_file()
-        self.wait_for(tag='body')
-
-        # He passes the microphone check, and is taken on to the
-        # game page.
-
-        # The recorder is not available because he hasn't shared it on this page
-        recorder = self.browser.find_element_by_id('record')
-        self.assertIn('unavailable', recorder.get_attribute('class'))
-
-        # He shares his microphone again
-        self.simulate_sharing_mic()
-        recorder = self.browser.find_element_by_id('record')
-        self.assertNotIn('unavailable', recorder.get_attribute('class'))
-
-        # He makes a recording
         self.upload_file()
         self.wait_for(tag='body')
 
@@ -86,9 +68,6 @@ class SingleUserTest(FunctionalTest):
 
         # She agrees to participate
         self.accept_instructions()
-
-        # She completes a microphone check
-        self.pass_mic_check()
 
         # The correct audio file is presented on the page
         self.assert_audio_src('0.wav')
@@ -142,9 +121,6 @@ class SingleUserTest(FunctionalTest):
         # She accepts the instructions
         self.accept_instructions()
 
-        # She completes a microphone check
-        self.pass_mic_check()
-
         # The entry form is ready
         self.assert_audio_src(r'0.wav')
 
@@ -174,7 +150,6 @@ class SingleUserTest(FunctionalTest):
         # He accepts the instructions and passes a
         # microphone check
         self.accept_instructions()
-        self.pass_mic_check()
 
         # He shares his microphone
         self.simulate_sharing_mic()
@@ -201,3 +176,32 @@ class SingleUserTest(FunctionalTest):
 
         # He lands back at the completion page for a second time
         self.assert_completion_page()
+
+    def test_player_with_quiet_submission_has_to_resubmit(self):
+        game_name = 'Quiet Game'
+        self.create_game(game_name, nchains=1, with_seed=True)
+
+        # Marcus navigates to the game page and plays the Game
+        self.nav_to_games_list()
+        self.play_game(game_name)
+
+        # He accepts the instructions and passes a
+        # microphone check
+        self.accept_instructions()
+
+        # He shares his microphone
+        self.simulate_sharing_mic()
+
+        # He sees the correct seed file
+        seed_file = r'0.wav'
+        self.assert_audio_src(seed_file)
+
+        # He creates a recording
+        quiet_recording = Path(settings.APP_DIR,
+                               'grunt/tests/media/crow_30.wav')
+        self.upload_file(quiet_recording)
+        self.wait_for(tag='body')
+
+        # He sees an alert message that says his recording was too quiet
+        message = self.browser.find_element_by_class_name('alert-error').text
+        self.assertRegexMatches(message, 'Your recording was too quiet.')

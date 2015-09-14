@@ -125,7 +125,11 @@ class FunctionalTest(LiveServerTestCase):
     def path_to_test_audio(self):
         return Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
 
-    def upload_file(self):
+    def upload_file(self, recording = None):
+        if not recording:
+            recording = Path(settings.APP_DIR,
+                             'grunt/tests/media/test-audio.wav')
+
         # Load a file blob to post via AJAX (hack!!)
         create_input_element = ('$( "<input>", {id: "tmpInput", type: "file"})'
                                 '.appendTo("body");')
