@@ -1,7 +1,9 @@
 from unittest import skip
+from unipath import Path
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from model_mommy import mommy
 
@@ -9,6 +11,7 @@ from grunt.models import Message
 from ratings.models import Survey, Question, Response
 from ratings.forms import NewSurveyForm, ResponseForm
 
+TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
 class SurveyViewTest(TestCase):
     def setUp(self):
@@ -39,12 +42,18 @@ class SurveyViewTest(TestCase):
         questions = response.context['questions']
         self.assertEquals(len(questions), num_questions)
 
+
+@override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
 class TakeSurveyTest(SurveyViewTest):
     def setUp(self):
         super(TakeSurveyTest, self).setUp()
         self.survey = mommy.make(Survey)
         self.question = mommy.make(Question, survey=self.survey)
-        self.question.choices.add(mommy.make(Message))
+        self.question.choices.add(mommy.make(Message, _fill_optional='audio'))
+
+    def tearDown(self):
+        super(TakeSurveyTest, self).tearDown()
+        TEST_MEDIA_ROOT.rmtree()
 
     def add_question_to_session(self):
         response = mommy.make(Response, question=self.question)
