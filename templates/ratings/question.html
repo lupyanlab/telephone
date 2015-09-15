@@ -6,16 +6,9 @@
 
     <h1>Question</h1>
 
-    {% if messages %}
     <ul class="messages list-group" style="list-style-type:none">
-      {% for message in messages %}
-      <li {% if message.tags %}class="alert alert-{{ message.tags }} alert-dismissible"{% endif %}>
-        {{ message }}
-        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-      </li>
-      {% endfor %}
+      {% include '_messages.html' %}
     </ul>
-    {% endif %}
 
     <div id="id_target_audio" class="btn btn-default">
       <span class="glyphicon glyphicon-play"></span>

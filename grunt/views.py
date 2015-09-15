@@ -1,5 +1,10 @@
-from django.http import JsonResponse, Http404
+import json
+
+from django.contrib import messages
+from django.http import HttpResponse, JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_GET, require_POST
 from django.views.generic import View, ListView, CreateView, DetailView
 
@@ -25,15 +30,6 @@ class NewGameView(CreateView):
     success_url = '/'
 
 
-class CompletionView(View):
-    def get(self, request, pk):
-        game = get_object_or_404(Game, pk=pk)
-        completion_code = get_completion_code(request)
-        request = clear_receipts_from_session(request)
-        return render(request, 'grunt/complete.html',
-                      {'game': game, 'completion_code': completion_code})
-
-
 @require_POST
 def accept(request, pk):
     """ Record that the player accepted the instructions in the session """
@@ -47,7 +43,6 @@ def mic_check(request, pk):
     mic_checked = check_volume(recording)
     request.session['mic_checked'] = mic_checked
     return JsonResponse({'mic_checked': mic_checked})
-
 
 class PlayGameView(View):
     def get(self, request, pk):
@@ -87,55 +82,68 @@ class PlayGameView(View):
 
     def post(self, request, pk):
         game = get_object_or_404(Game, pk=pk)
+        message = get_object_or_404(Message, pk=request.POST['message'])
 
-        message_pk = request.POST['message']
+        # If the message already has an audio file, (i.e., someone
+        # has already submitted a response), then create a new
+        # branch from the parent, and add the new audio to that.
+        if message.audio:
+            parent = message.parent
+            message = parent.replicate()
+
+        # Update the message with the newly recorded audio
+        audio = request.FILES.get('audio', None)
+        if not audio:
+            raise Http404('No message attached to post')
+
+        # Check the volume
+        if not check_volume(audio):
+            mic_check_error = ('Your recording was not loud enough.')
+            messages.add_message(request, messages.ERROR, mic_check_error)
+
+            data = {'msg': render_to_string('_messages.html', {},
+                           RequestContext(request))}
+            return JsonResponse(data, safe=False)
+
+        message.audio = audio
+        message.save()
+        message.replicate()
+
+        # Add the successful message chain to session receipts
+        receipts = request.session.get('receipts', [])
+        receipts.append(message.chain.pk)
+        request.session['receipts'] = receipts
+
+        # Add the message to the message receipts
+        message_receipts = request.session.get('messages', [])
+        message_receipts.append(message.pk)
+        request.session['messages'] = message_receipts
+
+        # Search for the next message
+        game = message.chain.game
         try:
-            message = Message.objects.get(pk=message_pk)
-
-            # If the message already has an audio file, (i.e., someone
-            # has already submitted a response), then create a new
-            # branch from the parent, and add the new audio to that.
-            if message.audio:
-                parent = message.parent
-                message = parent.replicate()
-
-            # Update the message with the newly recorded audio
-            audio = request.FILES.get('audio', None)
-            if not audio:
-                raise Http404('No message attached to post')
-
-            message.audio = audio
-            message.save()
-            message.replicate()
-
-            # Add the successful message chain to session receipts
-            receipts = request.session.get('receipts', [])
-            receipts.append(message.chain.pk)
-            request.session['receipts'] = receipts
-
-            # Add the message to the message receipts
-            message_receipts = request.session.get('messages', [])
-            message_receipts.append(message.pk)
-            request.session['messages'] = message_receipts
-
-            # Search for the next message
-            game = message.chain.game
             next_chain = game.pick_next_chain(receipts)
             next_message = next_chain.select_empty_message()
 
             data = {'message': next_message.pk}
             if next_message.parent and next_message.parent.audio:
                 data['src'] = next_message.parent.audio.url
-        except Message.DoesNotExist:
-            # Something weird happened.
-            data = {}
+
+            receipt_msg = ('Your message was received. '
+                           'A new message was loaded.')
+            messages.add_message(request, messages.SUCCESS, receipt_msg)
+            data['msg'] = render_to_string('_messages.html', {},
+                                           RequestContext(request))
+            return JsonResponse(data, safe=False)
         except Chain.DoesNotExist:
             # There are no more chains for this player to respond to.
             # Returning an empty response will redirect the player
             # to the completion page.
-            data = {}
+            return JsonResponse({'completed': True})
+        except Message.DoesNotExist:
+            # Something weird happened.
+            return Http404("Game is improperly configured")
 
-        return JsonResponse(data)
 
 def get_completion_code(request):
     message_receipts = request.session.get('messages', [])

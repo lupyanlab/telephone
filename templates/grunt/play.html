@@ -16,6 +16,10 @@
 
   {{ block.super }}
 
+  <ul id="popup-messages-content" class="messages list-group" style="list-style-type:none">
+    {% include '_messages.html' %}
+  </ul>
+
   {% include "grunt/_player.html" %}
 
 {% endblock jumbotron %}
@@ -33,6 +37,13 @@ config = {
   callback: sendRecorderMessage
 }
 
+function showPopupMessage(content) {
+    var elMessages = $('#popup-messages-content');
+    if (elMessages.length && content) {
+        elMessages.html(content);
+    }
+}
+
 function sendRecorderMessage(blob) {
    messageForm = new FormData();
    messageForm.append("message", currentMessage);
@@ -43,12 +54,13 @@ function sendRecorderMessage(blob) {
      type: "POST",
      data: messageForm,
      success: function (data) {
+       if (data.msg) {
+         showPopupMessage(data.msg);
+       }
 
-       if (!data.message) {
-         window.location.href = "{% url 'complete' pk=message.chain.game.pk%}";
+       if (data.completed) {
+         window.location.reload();
        } else {
-         showAlert("Your message was received! A new message was loaded.", "alert-success");
-
          currentMessage = data.message;
          var src = data.src || "";
          $("#sound").attr("src", src);

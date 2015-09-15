@@ -177,7 +177,8 @@ class FunctionalTest(LiveServerTestCase):
 
     def assert_completion_page(self):
         """ Assert the user made it to the completion page """
-        self.assertRegexpMatches(self.browser.current_url, 'complete')
+        title = self.browser.find_element_by_tag_name('h1').text
+        self.assertEquals(title, 'Game Complete!')
 
     def assert_completion_code(self, expected):
         code = self.browser.find_element_by_tag_name('code').text

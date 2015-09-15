@@ -164,13 +164,13 @@ class RespondViewTest(ViewTest):
         response = self.client.post(self.post_url, invalid_post)
         self.assertEquals(response.status_code, 404)
 
-    def test_posting_with_no_more_entries_returns_empty_json(self):
+    def test_posting_with_no_more_entries_returns_completed_flag(self):
         """ Posting an entry should redirect to the completion page """
         self.make_session(self.game, instructed=True, mic_checked=True)
         response = self.post_response()
 
         response_json = json.loads(response._container[0])
-        self.assertEquals(response_json, dict())
+        self.assertEquals(response_json, {'completed': True})
 
     def test_post_leads_to_next_cluster(self):
         """ Posting a message should redirect to another message """
@@ -191,16 +191,18 @@ class CompletionViewTest(ViewTest):
         self.game = mommy.make(Game)
         self.chain = mommy.make(Chain, game = self.game)
         self.message = mommy.make(Message, chain = self.chain)
-        self.complete_url = reverse('complete', kwargs = {'pk': self.game.pk})
+        self.get_url = reverse('play', kwargs={'pk': self.game.pk})
 
     def test_completion_view_renders_complete_template(self):
-        response = self.client.get(self.complete_url)
+        self.make_session(self.game, instructed=True, receipts=[self.chain.pk, ])
+        response = self.client.get(self.get_url)
         self.assertTemplateUsed(response, 'grunt/complete.html')
 
     def test_completion_code_contains_message_receipts(self):
         simulated_messages = [1,2,3]
-        self.make_session(self.game, messages = simulated_messages)
-        response = self.client.get(self.complete_url)
+        self.make_session(self.game, instructed=True,
+                          receipts=[self.chain.pk, ], messages=simulated_messages)
+        response = self.client.get(self.get_url)
         completion_code = response.context['completion_code']
         for msg in simulated_messages:
             self.assertIn(str(msg), completion_code)
