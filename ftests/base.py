@@ -136,8 +136,7 @@ class FunctionalTest(LiveServerTestCase):
         self.browser.execute_script(create_input_element)
 
         # Give the file input a real file
-        fpath = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
-        self.browser.find_element_by_id('tmpInput').send_keys(fpath)
+        self.browser.find_element_by_id('tmpInput').send_keys(recording)
 
         # Take the file from the file input and post it
         self.browser.execute_script('''

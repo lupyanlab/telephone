@@ -12,6 +12,8 @@ from .models import Game, Chain, Message
 from .forms import NewGameForm
 from .handlers import check_volume
 
+VOLUME_CUTOFF_dBFS = -20.0
+
 
 class GameListView(ListView):
     template_name = 'grunt/games.html'
@@ -97,8 +99,10 @@ class PlayGameView(View):
             raise Http404('No message attached to post')
 
         # Check the volume
-        if not check_volume(audio):
-            mic_check_error = ('Your recording was not loud enough.')
+        volume = check_volume(audio)
+        if volume < VOLUME_CUTOFF_dBFS:
+            mic_check_error = ('Your recording was not loud enough. '
+                               'Please try again.')
             messages.add_message(request, messages.ERROR, mic_check_error)
 
             data = {'msg': render_to_string('_messages.html', {},

@@ -1,11 +1,8 @@
 from unipath import Path
 import pydub
 
-VOLUME_CUTOFF_dBFS = -20.0
-
 def check_volume(recording):
-    audio_segment = pydub.AudioSegment(recording)
-    return audio_segment.dBFS > VOLUME_CUTOFF_dBFS
+    return pydub.AudioSegment(recording).dBFS
 
 
 def message_path(instance, filename):

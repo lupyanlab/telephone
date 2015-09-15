@@ -60,7 +60,7 @@ function sendRecorderMessage(blob) {
 
        if (data.completed) {
          window.location.reload();
-       } else {
+       } else if (data.message) {
          currentMessage = data.message;
          var src = data.src || "";
          $("#sound").attr("src", src);

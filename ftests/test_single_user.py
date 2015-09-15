@@ -198,10 +198,10 @@ class SingleUserTest(FunctionalTest):
 
         # He creates a recording
         quiet_recording = Path(settings.APP_DIR,
-                               'grunt/tests/media/crow_30.wav')
+                               'grunt/tests/media/crow_40.wav')
         self.upload_file(quiet_recording)
         self.wait_for(tag='body')
 
         # He sees an alert message that says his recording was too quiet
         message = self.browser.find_element_by_class_name('alert-error').text
-        self.assertRegexMatches(message, 'Your recording was too quiet.')
+        self.assertRegexpMatches(message, 'Your recording was not loud enough.')
