@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 from os import environ
 from unipath import Path
 
+from django.contrib.messages import constants as message_constants
+
+MESSAGE_TAGS = {message_constants.ERROR: 'danger'}
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'v**w_+36aa+cd%#8%07a59b3&x#k9b%0id+ffr7e3c#8h24%mr'
 

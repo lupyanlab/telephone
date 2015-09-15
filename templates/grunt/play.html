@@ -16,9 +16,11 @@
 
   {{ block.super }}
 
-  <ul id="popup-messages-content" class="messages list-group" style="list-style-type:none">
-    {% include '_messages.html' %}
-  </ul>
+  <div id="alert" class="alert" role="alert">
+    <ul id="popup-messages-content" class="messages list-group" style="list-style-type:none">
+      {% include '_messages.html' %}
+    </ul>
+  </div>
 
   {% include "grunt/_player.html" %}
 
@@ -29,53 +31,65 @@
     <script type="text/javascript" src="{% static "grunt/js/ajax.js" %}"></script>
     <script type="text/javascript" src="{% static "grunt/js/player.js" %}"></script>
     <script>
-var config = {},
-    currentMessage = {{ message.pk }};
+var ticket = {};
 
-config = {
+var config = {
   workerPath: "{% static 'grunt/js/recorderjs/recorderWorker.js' %}",
-  callback: sendRecorderMessage
+  callback: submitRecording
 }
 
-function showPopupMessage(content) {
-    var elMessages = $('#popup-messages-content');
-    if (elMessages.length && content) {
-        elMessages.html(content);
-    }
+$.ajaxSetup({url: "{% url 'switchboard' pk=game.pk %}"});
+
+function showCompletionCode(completion_code) {
+  console.log("showCompletionCode");
+  console.log(completion_code);
 }
 
-function sendRecorderMessage(blob) {
-   messageForm = new FormData();
-   messageForm.append("message", currentMessage);
-   messageForm.append("audio", blob);
+function showAlert(error) {
+  console.log("showAlert");
+  console.log(error);
+}
 
-   $.ajax({
-     url: "{% url 'play' pk=game.pk %}",
-     type: "POST",
-     data: messageForm,
-     success: function (data) {
-       if (data.msg) {
-         showPopupMessage(data.msg);
-       }
+function loadNextMessage(nextMessage) {
+  console.log("loadNextMessage");
+  console.log(nextMessage);
 
-       if (data.completed) {
-         window.location.reload();
-       } else if (data.message) {
-         currentMessage = data.message;
-         var src = data.src || "";
-         $("#sound").attr("src", src);
-         setPlayer();
-       }
-     },
-     error: function (xhr, msg, error) {
-       console.log("error");
-       console.log(error);
-     }
-   });
+
+}
+
+function readTicket(newTicket) {
+  ticket = newTicket;
+
+  if (ticket.completion_code) {
+    showCompletionCode(ticket.completion_code);
+  } else if (ticket.error) {
+    showError(ticket.error);
+  } else {
+    loadNextMessage(ticket.next_message);
+  }
+}
+
+function checkIn() {
+  // No data because the session is keeping track of state
+  $.get({success: readTicket});
+}
+
+function submitRecording(blob) {
+  messageForm = new FormData();
+  messageForm.append("message", ticket.message.pk);
+  messageForm.append("audio", blob);
+
+  $.ajax({
+    type: "POST",
+    data: messageForm,
+    success: readTicket,
+    processData: false,
+    contentType: false
+  });
 }
 
 $(function () {
-  var src = "{{ message.parent.audio.url }}" || "";
+  checkIn();
 
   $("#share").click(shareMic);
   $("#listen").click(listenToMessage);
@@ -86,9 +100,6 @@ $(function () {
     $("#listen").addClass("played");
     $("#record").removeClass("unavailable");
   });
-
-  $("#sound").attr("src", src);
-  setPlayer();
 });
     </script>
 {% endblock javascript %}

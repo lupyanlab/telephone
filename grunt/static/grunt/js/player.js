@@ -5,21 +5,6 @@ var audioContext = new AudioContext(),
     audioRecorder = null;
 
 // Configure ajax to send audio blob
-$.ajaxSetup({
-  processData: false,
-  contentType: false
-});
-
-function showAlert(msg, type) {
-  var alert = $("#alert");
-  alert.text(msg);
-  alert.addClass(type);
-
-  setTimeout(function () {
-    alert.text("");
-    alert.removeClass(type);
-  }, 3000);
-}
 
 function connectAudio(callback) {
 
