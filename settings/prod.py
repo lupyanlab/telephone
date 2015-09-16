@@ -1,8 +1,8 @@
 from .base import *
 
-DEBUG = True
-TEMPLATE_DEBUG = True
-ALLOWED_HOSTS = ['grunt.pedmiston.xyz', ]
+DEBUG = False
+TEMPLATE_DEBUG = False
+ALLOWED_HOSTS = ['telephone.evoapps.xyz', ]
 
 DATABASES = {
     'default': {
