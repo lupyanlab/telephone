@@ -7,7 +7,7 @@ from grunt.models import Chain, Message
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ('id', 'parent', 'audio', 'generation', 'alive')
+        fields = ('id', 'parent', 'audio', 'generation', 'num_children')
 
 class ChainSerializer(serializers.ModelSerializer):
     messages = MessageSerializer(many=True)
