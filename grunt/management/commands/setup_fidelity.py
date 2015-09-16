@@ -10,14 +10,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         NUM_CHILDREN = 4
 
-        games = {
-            "Fidelity Game 1": ["beep", "frick", "huuh", "riri"],
-            "Fidelity Game 2": ["boop", "frip", "heeh", "ruru"],
-            "Fidelity Game 3": ["beep-d", "beep-e", "beep-o", "beep-z"],
-            "Fidelity Game 4": ["frict-g", "frict-j", "frict-l", "frict-w"],
-        }
+        games = [
+            ("Fidelity Game 1", ["riri", "frict", "huuh", "splash"]),
+            ("Fidelity Game 2", ["ruru", "frip", "heeh", "splish"]),
+            ("Fidelity Game 3", ["water-o", "water-p", "water-s", "water-v"]),
+            ("Fidelity Game 4", ["frict-p", "frict-r", "frict-s", "frict-w"]),
+        ]
 
-        for name, seeds in games.items():
+        for name, seeds in games:
             game, created = Game.objects.get_or_create(name=name)
             for name in seeds:
                 chain = game.chains.create(name=name)
