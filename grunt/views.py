@@ -11,73 +11,17 @@ from rest_framework.response import Response
 from rest_framework.exceptions import APIException
 
 from .models import Game, Chain, MessageSerializer
-from .forms import NewGameForm, NewChainFormsetHelper, ResponseForm
+from .forms import ResponseForm
 from .handlers import check_volume
 
-VOLUME_CUTOFF_dBFS = -20.0
-
-
-class GameListView(ListView):
-    template_name = 'grunt/games.html'
-    queryset = Game.objects.all().order_by('-id')
-
-
-class NewGameView(CreateView):
-    template_name = 'grunt/new_game.html'
-    form_class = NewGameForm
-
-    def form_valid(self, form):
-        """ Save the game form and redirect to the chain forms. """
-        self.object = form.save()
-        num_chain_forms = form.cleaned_data['num_chains']
-        url = self.get_success_url() + '?chains={}'.format(num_chain_forms)
-        return HttpResponseRedirect(url)
-
-    def get_success_url(self):
-        return reverse_lazy('add_chain', kwargs={'pk': self.object.pk})
-
-
-class AddChainView(FormView):
-    template_name = 'grunt/new_chain.html'
-
-    def get_form(self):
-        self.game = get_object_or_404(Game, pk=self.kwargs['pk'])
-        num_chain_forms = self.request.GET.get('chains', 1)
-        try:
-            num_chain_forms = int(num_chain_forms)
-        except ValueError:
-            num_chain_forms = 1
-
-        kwargs = {'fields': ('name', 'audio'), 'extra': num_chain_forms}
-        AddChainFormset = inlineformset_factory(Chain, Game, **kwargs)
-        formset = AddChainFormset(instance=game)
-        return formset
-
-    def get_context_data(self, **kwargs):
-        context_data = super(AddChainView, self).get_context_data(**kwargs)
-        context_data.update({
-            'game': self.game,
-            'formset': context_data['form'],
-            'helper': NewChainFormsetHelper(),
-        })
-        return context_data
-
-    def form_valid(self, form):
-        """ Save the formset to create the chain instances.
-
-        Then initialize each chain with a seed message.
-        """
-        return super(AddChainView, self).form_valid(form)
-
-    def get_success_url(self):
-        return reverse_lazy('view_game', kwargs={'pk': self.kwargs['pk']})
+VOLUME_CUTOFF_dBFS = -30.0
 
 
 @require_POST
 def accept(request, pk):
     """ Record that the player accepted the instructions in the session """
     request.session['instructed'] = True
-    return redirect('play_game', pk=pk)
+    return redirect('play', pk=pk)
 
 
 class TelephoneView(View):
@@ -95,6 +39,7 @@ class TelephoneView(View):
 
         # Initialize the player's session
         request.session['instructed'] = request.session.get('instructed', False)
+        request.session['receipts'] = request.session.get('receipts', [])
 
         # Check if the player has accepted the instructions
         if not request.session['instructed']:
@@ -109,41 +54,42 @@ class SwitchboardView(APIView):
     All messages are communicated in JSON.
     """
     def get(self, request, pk):
-        """ A player is checking in with her receipts.
-
-        1. Give her another message.
-        2. If there aren't any messages for her, she's done.
-        """
+        """ A player requests a message for the first time. """
         game = Game.objects.get(pk=pk)
-        request.session['receipts'] = request.session.get('receipts', [])
-        try:
-            message = game.pick_next_message(request.session['receipts'])
-            data = MessageSerializer(message).data
-            return Response(data)
-        except Chain.DoesNotExist:
-            return Response()
+        request.session['receipts'] = []
+        message = game.pick_next_message()
+        data = MessageSerializer(message).data
+        return Response(data)
 
     def post(self, request, pk):
         """ A player made a message.
 
         1. Make sure it's loud enough.
-        2. Save it, and kill the parent.
+        2. Save it, kill the parent, and give them another one.
         """
         audio = request.FILES['audio']
         if check_volume(audio) < VOLUME_CUTOFF_dBFS:
-            raise APIException('Your recording was not loud enough. '
-                               'Really let it out this time.')
+            raise APIException()
 
         response_form = ResponseForm(request.POST, request.FILES)
+        message = response_form.save()
 
-        if response_form.is_valid():
-            message = response_form.save()
+        receipts = request.session.get('receipts', [])
+        receipts.append(message.pk)
+        request.session['receipts'] = receipts
 
-            receipts = request.session.get('receipts', [])
-            receipts.append(message.pk)
-            request.session['receipts'] = receipts
+        message.parent.kill()
 
-            message.parent.kill()
-            return Response()
-        else:
-            return Response(response_form.errors)
+        try:
+            game = Game.objects.get(pk=pk)
+            next_message = game.pick_next_message(receipts)
+            data = MessageSerializer(next_message).data
+            return Response(data)
+        except IndexError:
+            completion_code = '-'.join(map(str, request.session['receipts']))
+            return Response({'completion_code': completion_code})
+
+
+class GameListView(ListView):
+    template_name = 'grunt/games.html'
+    queryset = Game.objects.all().order_by('-id')

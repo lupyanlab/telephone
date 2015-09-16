@@ -1,5 +1,7 @@
 from django.db import models
 
+from rest_framework import serializers
+
 from .handlers import message_file_name
 
 
@@ -7,7 +9,7 @@ class Game(models.Model):
     """ Top-level control over chains. """
     name = models.CharField(max_length=30)
 
-    def pick_next_message(receipts):
+    def pick_next_message(self, receipts=[]):
         families = Message.objects.filter(id__in=receipts).values_list('chain', flat=True)
         chain = self.chains.exclude(id__in=families).order_by('?')[0]
         return chain.pick_parent()
@@ -45,7 +47,6 @@ class Message(models.Model):
     def __str__(self):
         return '{} - {} (gen-{})'.format(self.chain, self.id, self.generation)
 
-from rest_framework import serializers
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:

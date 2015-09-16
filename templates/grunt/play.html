@@ -9,6 +9,9 @@
 
   {{ block.super }}
 
+  <div id="alert" class="alert alert-dismissible" role="alert">
+  </div>
+
   {% include "grunt/_player.html" %}
 
 {% endblock jumbotron %}
@@ -23,20 +26,23 @@
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 var audioContext = new AudioContext();
 
-var Telephone = TelephoneBase.extend({
+var Message = MessageBase.extend({
   url: "{% url 'switchboard' pk=game.pk %}"
 });
 
-var telephone = new Telephone(),
-    telephoneView = new TelephoneView({model: telephone});
+var message = new Message(),
+    telephoneView = new TelephoneView({model: message});
 
 var config = {
   workerPath: "{% static 'grunt/js/recorderjs/recorderWorker.js' %}",
   callback: function (blob) {
-    telephone.save({"recording": blob});
+    var messageData = {"parent": message.get("id"), "audio": blob},
+        options = {wait: true, success: seeIfDone, error: showRecorderError};
+    message.unset("id");
+    message.save(messageData, options);
   }
 };
 
-telephone.fetch({success: receiveResponse})
+$(function () { message.fetch(); });
     </script>
 {% endblock javascript %}

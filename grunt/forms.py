@@ -8,34 +8,6 @@ from crispy_forms.layout import Submit
 from .models import Game, Chain, Message
 
 
-class NewGameForm(forms.ModelForm):
-    """ Creates a new game.
-
-    num_chains is used by the view to render the correct number
-    of new chain forms on the following page.
-    """
-    num_chains = forms.IntegerField(initial = 1, min_value = 1)
-
-    class Meta:
-        model = Game
-        fields = ('name', )
-
-    def __init__(self, *args, **kwargs):
-        """ Crispy form """
-        super(NewGameForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        self.helper.add_input(Submit('submit', 'Create'))
-
-
-class NewChainFormsetHelper(FormHelper):
-    """ Styling specific to pages rendering multiple new chain forms """
-    def __init__(self, *args, **kwargs):
-        super(NewChainFormsetHelper, self).__init__(*args, **kwargs)
-        self.form_method = 'post'
-        self.add_input(Submit('submit', 'Create'))
-
-
 class ResponseForm(forms.ModelForm):
     """ Save the message received from the player. """
     class Meta:
@@ -49,3 +21,31 @@ class ResponseForm(forms.ModelForm):
         message.generation = message.parent.generation + 1
         message.save()
         return message
+
+
+# class NewGameForm(forms.ModelForm):
+#     """ Creates a new game.
+#
+#     num_chains is used by the view to render the correct number
+#     of new chain forms on the following page.
+#     """
+#     num_chains = forms.IntegerField(initial = 1, min_value = 1)
+#
+#     class Meta:
+#         model = Game
+#         fields = ('name', )
+#
+#     def __init__(self, *args, **kwargs):
+#         """ Crispy form """
+#         super(NewGameForm, self).__init__(*args, **kwargs)
+#         self.helper = FormHelper()
+#         self.helper.form_method = 'post'
+#         self.helper.add_input(Submit('submit', 'Create'))
+#
+#
+# class NewChainFormsetHelper(FormHelper):
+#     """ Styling specific to pages rendering multiple new chain forms """
+#     def __init__(self, *args, **kwargs):
+#         super(NewChainFormsetHelper, self).__init__(*args, **kwargs)
+#         self.form_method = 'post'
+#         self.add_input(Submit('submit', 'Create'))

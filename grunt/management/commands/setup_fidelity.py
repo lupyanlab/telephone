@@ -18,7 +18,7 @@ class Command(BaseCommand):
         }
 
         for name, seeds in games.items():
-            game = Game.objects.create(name=name)
+            game, created = Game.objects.get_or_create(name=name)
             for name in seeds:
                 chain = game.chains.create(name=name)
                 message = chain.messages.create(audio=self.get_fixture_file(name))
@@ -27,4 +27,6 @@ class Command(BaseCommand):
 
     def get_fixture_file(self, name):
         fixture_file = Path(settings.APP_DIR, 'grunt/fixtures/{}.wav'.format(name))
+        if not fixture_file.exists():
+            raise CommandError(fixture_file + ' does not exist')
         return File(open(fixture_file, 'rb'))

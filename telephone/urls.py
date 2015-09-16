@@ -13,20 +13,11 @@ urlpatterns = patterns(
 
     # app views
     url(r'^$', grunt_views.GameListView.as_view(), name='games_list'),
-    url(r'^new_game/$', grunt_views.NewGameView.as_view(), name='new_game'),
-    url(r'^(?P<pk>\d+)/add_chain/', grunt_views.AddChainView.as_view(),
-        name='add_chain'),
 
     # gameplay views
     url(r'^(?P<pk>\d+)/$', grunt_views.TelephoneView.as_view(), name='play'),
     url(r'^(?P<pk>\d+)/switchboard$', grunt_views.SwitchboardView.as_view(), name='switchboard'),
     url(r'^(?P<pk>\d+)/accept$', grunt_views.accept, name='accept'),
-
-    # inspect views
-    url(r'^(?P<pk>\d+)/inspect/$', inspect_views.InspectView.as_view(),
-        name='inspect'),
-    url(r'^(?P<pk>\d+)/inspect/data$', inspect_views.MessageTreeAPIView,
-        name='tree'),
 
     # survey views
     url(r'^surveys/$', ratings_views.SurveyList.as_view(), name='survey_list'),
