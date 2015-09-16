@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block jumbotron %}
+
+    <h1>Add chains to {{ game }}</h1>
+
+    {% crispy formset helper %}
+
+{% endblock jumbotron %}

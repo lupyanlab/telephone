@@ -13,7 +13,9 @@ urlpatterns = patterns(
 
     # app views
     url(r'^$', grunt_views.GameListView.as_view(), name='games_list'),
-    url(r'^new/$', grunt_views.NewGameView.as_view(), name='new_game'),
+    url(r'^new_game/$', grunt_views.NewGameView.as_view(), name='new_game'),
+    url(r'^(?P<pk>\d+)/add_chain/', grunt_views.AddChainView.as_view(),
+        name='add_chain'),
 
     # gameplay views
     url(r'^(?P<pk>\d+)/$', grunt_views.TelephoneView.as_view(), name='play'),
@@ -23,14 +25,8 @@ urlpatterns = patterns(
     # inspect views
     url(r'^(?P<pk>\d+)/inspect/$', inspect_views.InspectView.as_view(),
         name='inspect'),
-    url(r'^(?P<pk>\d+)/message_data$', inspect_views.message_data,
-        name='message_data'),
-    url(r'^messages/(?P<pk>\d+)/sprout$', inspect_views.sprout, name='sprout'),
-    url(r'^messages/(?P<pk>\d+)/close$', inspect_views.close, name='close'),
-    url(r'^messages/(?P<pk>\d+)/upload/$',
-        inspect_views.UploadMessageView.as_view(),
-        name='upload'),
-    url(r'^messages/download/$', inspect_views.download, name='download'),
+    url(r'^(?P<pk>\d+)/inspect/data$', inspect_views.MessageTreeAPIView,
+        name='tree'),
 
     # survey views
     url(r'^surveys/$', ratings_views.SurveyList.as_view(), name='survey_list'),
