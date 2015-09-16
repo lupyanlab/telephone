@@ -36,21 +36,6 @@ class NewChainFormsetHelper(FormHelper):
         self.add_input(Submit('submit', 'Create'))
 
 
-class NewChainForm(forms.ModelForm):
-    """ Form for creating new chains.
-
-    Intended to be used in a formset, e.g., after creating a game with 4
-    chains.
-    """
-    class Meta:
-        model = Chain
-        fields = ('game', 'name', 'seed')
-
-    def __init__(self, *args, **kwargs):
-        """ Crispy form """
-        super(NewChainForm, self).__init__(*args, **kwargs)
-
-
 class ResponseForm(forms.ModelForm):
     """ Save the message received from the player. """
     class Meta:

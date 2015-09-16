@@ -7,15 +7,17 @@ Backbone.sync = function(method, model, options){
     return oldSync(method, model, options);
 };
 
-var TelephoneBase = Backbone.Model.extend({
 
-  defaults: {
-    "message_receipts": "",
-    "chain_receipts": "",
-    "message_url": "",
-    "message_pk": "",
-    "recording": ""
-  },
+var receiveResponse = function (model, response, options) {
+  if (response) {
+    model.set(response);
+  } else {
+    model.trigger("complete");
+  }
+}
+
+
+var TelephoneBase = Backbone.Model.extend({
 
   sync: function (method, model, options) {
     if (method == "read") {
@@ -53,7 +55,7 @@ var TelephoneView = Backbone.View.extend({
   initialize: function() {
     this.listenTo(this.model, "change", this.render);
 
-    this.on("error", function (msg) { console.log(msg); });
+    this.on("error", this.flash_message, this);
   },
 
   render: function () {
@@ -121,5 +123,9 @@ var TelephoneView = Backbone.View.extend({
       this.audioRecorder.record();
       this.$(".record").addClass("button-on");
     }
+  },
+
+  flash_message: function (msg) {
+    console.log(msg);
   }
 });

@@ -10,8 +10,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import APIException
 
-from .models import Game, Chain
-from .forms import NewGameForm, NewChainForm, NewChainFormsetHelper, ResponseForm
+from .models import Game, Chain, MessageSerializer
+from .forms import NewGameForm, NewChainFormsetHelper, ResponseForm
 from .handlers import check_volume
 
 VOLUME_CUTOFF_dBFS = -20.0
@@ -63,13 +63,11 @@ class AddChainView(FormView):
         return context_data
 
     def form_valid(self, form):
-        print 'it was good'
-        form.save()
-        return HttpResponseRedirect(self.get_success_url())
+        """ Save the formset to create the chain instances.
 
-    def form_invalid(self, form):
-        print form.errors
-        print 'it was bad'
+        Then initialize each chain with a seed message.
+        """
+        return super(AddChainView, self).form_valid(form)
 
     def get_success_url(self):
         return reverse_lazy('view_game', kwargs={'pk': self.kwargs['pk']})
@@ -120,7 +118,8 @@ class SwitchboardView(APIView):
         request.session['receipts'] = request.session.get('receipts', [])
         try:
             message = game.pick_next_message(request.session['receipts'])
-            return Response(message)
+            data = MessageSerializer(message).data
+            return Response(data)
         except Chain.DoesNotExist:
             return Response()
 
