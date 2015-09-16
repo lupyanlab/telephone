@@ -5,101 +5,38 @@
     <link href="{% static "grunt/css/recorder.css" %}" rel="stylesheet" type="text/css">
 {% endblock styling %}
 
-{% block navbar %}
-  <li class="navbar-brand navbar-left">{{ game }}</li>
-  <li class="btn btn-default pull-right" role="presentation">
-    <a id="share" href="#">Share Mic</a>
-  </li>
-{% endblock navbar %}
-
 {% block jumbotron %}
 
   {{ block.super }}
-
-  <div id="alert" class="alert" role="alert">
-    <ul id="popup-messages-content" class="messages list-group" style="list-style-type:none">
-      {% include '_messages.html' %}
-    </ul>
-  </div>
 
   {% include "grunt/_player.html" %}
 
 {% endblock jumbotron %}
 
 {% block javascript %}
-    <script type="text/javascript" src="{% static "grunt/js/recorderjs/recorder.js" %}"></script>
-    <script type="text/javascript" src="{% static "grunt/js/ajax.js" %}"></script>
-    <script type="text/javascript" src="{% static "grunt/js/player.js" %}"></script>
+    <script src="{% static 'underscore/underscore-min.js' %}" type="text/Javascript"></script>
+    <script src="{% static 'backbone/backbone.js' %}" type="text/Javascript"></script>
+    <script src="{% static 'grunt/js/recorderjs/recorder.js' %}" type="text/Javascript"></script>
+    <script src="{% static 'grunt/js/ajax.js' %}" type="text/Javascript"></script>
+    <script src="{% static 'grunt/js/telephone.js' %}" type="text/Javascript"></script>
     <script>
-var ticket = {};
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+var audioContext = new AudioContext();
+
+var Telephone = TelephoneBase.extend({
+  url: "{% url 'switchboard' pk=game.pk %}"
+});
+
+var telephone = new Telephone(),
+    telephoneView = new TelephoneView({model: telephone});
 
 var config = {
   workerPath: "{% static 'grunt/js/recorderjs/recorderWorker.js' %}",
-  callback: submitRecording
-}
-
-$.ajaxSetup({url: "{% url 'switchboard' pk=game.pk %}"});
-
-function showCompletionCode(completion_code) {
-  console.log("showCompletionCode");
-  console.log(completion_code);
-}
-
-function showAlert(error) {
-  console.log("showAlert");
-  console.log(error);
-}
-
-function loadNextMessage(nextMessage) {
-  console.log("loadNextMessage");
-  console.log(nextMessage);
-
-
-}
-
-function readTicket(newTicket) {
-  ticket = newTicket;
-
-  if (ticket.completion_code) {
-    showCompletionCode(ticket.completion_code);
-  } else if (ticket.error) {
-    showError(ticket.error);
-  } else {
-    loadNextMessage(ticket.next_message);
+  callback: function (blob) {
+    telephone.save({"recording": blob});
   }
-}
+};
 
-function checkIn() {
-  // No data because the session is keeping track of state
-  $.get({success: readTicket});
-}
-
-function submitRecording(blob) {
-  messageForm = new FormData();
-  messageForm.append("message", ticket.message.pk);
-  messageForm.append("audio", blob);
-
-  $.ajax({
-    type: "POST",
-    data: messageForm,
-    success: readTicket,
-    processData: false,
-    contentType: false
-  });
-}
-
-$(function () {
-  checkIn();
-
-  $("#share").click(shareMic);
-  $("#listen").click(listenToMessage);
-  $("#record").click(toggleRecording);
-
-  $("#sound").bind("ended", function () {
-    $("#listen").removeClass("button-on");
-    $("#listen").addClass("played");
-    $("#record").removeClass("unavailable");
-  });
-});
+telephone.fetch();
     </script>
 {% endblock javascript %}

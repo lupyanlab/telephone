@@ -54,8 +54,6 @@ class TelephoneView(View):
 
         # Initialize the player's session
         request.session['instructed'] = request.session.get('instructed', False)
-        request.session['chain_receipts'] = request.session.get('chain_receipts', [])
-        request.session['message_receipts'] = request.session.get('message_receipts', [])
 
         # Check if the player has accepted the instructions
         if not request.session['instructed']:
@@ -74,14 +72,31 @@ class SwitchboardView(View):
         1. Give her another message.
         2. If there aren't any messages for her, she's done.
         """
-        chain_receipts = request.session.get('chain_receipts')
+        telephone = {
+            'chain_receipts': request.GET.get('chain_receipts', ''),
+            'message_receipts': request.GET.get('message_receipts', ''),
+        }
 
         game = Game.objects.get(pk=pk)
 
-        # Determine next chain based on chain receipts
-        chain = game.pick_next_chain(chain_receipts)
-        message = chain.select_empty_message()
-        return JsonResponse({'next_message': message.as_dict()})
+        try:
+            # Determine next chain based on chain receipts
+            receipts = []
+            if telephone['chain_receipts']:
+                receipts.extend(map(int, telephone['chain_receipts'].split('-')))
+            chain = game.pick_next_chain(receipts)
+            message = chain.select_empty_message()
+            message_data = message.as_dict()
+            telephone['message_url'] = message_data['audio']
+            telephone['message_pk'] = message_data['pk']
+        except Chain.DoesNotExist:
+            # No more chains. Player is done!
+            telephone['chain_receipts'] = ''
+            telephone['completion_code'] = make_completion_code(
+                telephone['message_receipts']
+            )
+
+        return JsonResponse(telephone)
 
     def post(self, request, pk):
         """ A player made a message.
@@ -96,16 +111,23 @@ class SwitchboardView(View):
 
         Receipt of a sucessful response is stored in the player's session.
         """
-        audio = request.FILES.get('audio')
+        telephone = {
+            'chain_receipts': request.POST.get('chain_receipts', ''),
+            'message_receipts': request.POST.get('message_receipts', ''),
+        }
+
+        audio = request.FILES.get('recording')
         if check_volume(audio) < VOLUME_CUTOFF_dBFS:
-            return JsonResponse({'error': (
-                'Your recording was not loud enough. '
-                'Really let it out this time.'
-            )})
+            telephone['error'] = ('Your recording was not loud enough. '
+                                  'Really let it out this time.')
 
-        message_pk = request.POST.get('message')
-        message = Message.objects.get(pk=message_pk)
+            # Give back the same message they were on before
+            telephone['message_pk'] = request.POST.get('message_pk')
+            telephone['message_url'] = request.POST.get('message_url')
 
+            return JsonResponse(telephone)
+
+        message = Message.objects.get(pk=request.POST.get('message_pk'))
         if message.audio:
             parent = message.parent
             message = parent.replicate()
@@ -115,25 +137,25 @@ class SwitchboardView(View):
         message.replicate()
 
         # Add the successful message chain to session receipts
-        chain_receipts = request.session.get('chain_receipts', [])
-        chain_receipts.append(message.chain.pk)
-        request.session['chain_receipts'] = chain_receipts
+        if telephone['chain_receipts']:
+            receipts = map(int, telephone['chain_receipts'].split('-'))
+            receipts.append(message.chain.pk)
+        else:
+            receipts = [message.chain.pk, ]
+        telephone['chain_receipts'] = '-'.join(map(str, receipts))
 
-        # Add the message to the message receipts
-        message_receipts = request.session.get('message_receipts', [])
-        message_receipts.append(message.pk)
-        request.session['message_receipts'] = message_receipts
+        if telephone['message_receipts']:
+            receipts = map(int, telephone['message_receipts'].split('-'))
+            receipts.append(message.pk)
+        else:
+            receipts = [message.pk, ]
+        telephone['message_receipts'] = '-'.join(map(str, receipts))
 
-        game = Game.objects.get(pk=pk)
-        try:
-            # Determine next chain based on chain receipts
-            chain = game.pick_next_chain(chain_receipts)
-            message = chain.select_empty_message()
-            return JsonResponse({'next_message': message.as_dict()})
-        except Chain.DoesNotExist:
-            completion_code = '-'.join(map(str, message_receipts))
-            request.session['chain_receipts'] = []
-            return JsonResponse({'completion_code': completion_code})
+        # Clear the current message
+        telephone['message_pk'] = ''
+        telephone['message_url'] = ''
+
+        return JsonResponse(telephone)
 
 def make_completion_code(message_receipts):
     return '-'.join(map(str, message_receipts))

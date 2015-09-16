@@ -199,10 +199,14 @@ class Message(models.Model):
             raise Message.DoesNotExist('Ancestor not found in choices')
 
     def as_dict(self):
+        if self.parent and self.parent.audio.url:
+            audio_url = self.parent.audio.url
+        else:
+            audio_url = ''
         return {
             'pk': self.pk,
             'soundId': 'message-'+str(self.pk),
-            'audio': self.audio.url,
+            'audio': audio_url,
         }
 
     def as_json(self):
