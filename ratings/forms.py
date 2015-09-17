@@ -1,3 +1,5 @@
+import hashlib
+
 from django import forms
 from django.core.exceptions import ValidationError
 
@@ -52,8 +54,7 @@ class NewSurveyForm(forms.ModelForm):
                 'choices': choices,
             }
             question_form = CreateQuestionForm(question_data)
-            if question_form.is_valid():
-                question_form.save()
+            question_form.save()
 
         return survey
 
@@ -86,6 +87,15 @@ class ResponseForm(forms.ModelForm):
         super(ResponseForm, self).__init__(*args, **kwargs)
 
         self.fields['selection'].required = True
+
+        # Modify message text
+        all_choices = list(self.fields['selection'].widget.choices)
+        disguised_choices = []
+        for message_id, message_str in all_choices:
+            if message_id:
+                message_sha = hashlib.sha224(message_str).hexdigest()[0:6]
+                disguised_choices.append((message_id, message_sha))
+        self.fields['selection'].widget.choices = disguised_choices
 
         self.helper = FormHelper()
         self.helper.form_method = 'post'

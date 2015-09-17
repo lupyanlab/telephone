@@ -44,6 +44,14 @@ class Message(models.Model):
             self.num_children -= 1
             self.save()
 
+    def find_ancestor(self, possible_ancestors):
+        if not self.parent:
+            raise Message.DoesNotExist('No ancestors found in choices')
+        elif self.parent in possible_ancestors:
+            return self.parent
+        else:
+            return self.parent.find_ancestor(possible_ancestors)
+
     def __str__(self):
         return '{} - gen{} ({})'.format(self.chain, self.id, self.generation)
 
