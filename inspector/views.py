@@ -1,9 +1,10 @@
 from django.views.generic import DetailView
 
 from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from grunt.models import Game
-from inspector.serializers import ChainSerializer
+from inspector.serializers import GameSerializer
 
 
 class InspectView(DetailView):
@@ -14,5 +15,5 @@ class InspectView(DetailView):
 class MessageTreeAPIView(APIView):
     def get(self, request, pk):
         game = Game.objects.get(pk=pk)
-        trees = [ChainSerializer(chain).data for chain in game.chains.all()]
-        return Response(trees)
+        tree = GameSerializer(game).data
+        return Response(tree)

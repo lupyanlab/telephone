@@ -16,8 +16,18 @@ urlpatterns = patterns(
 
     # gameplay views
     url(r'^(?P<pk>\d+)/$', grunt_views.TelephoneView.as_view(), name='play'),
-    url(r'^(?P<pk>\d+)/switchboard$', grunt_views.SwitchboardView.as_view(), name='switchboard'),
+    url(r'^(?P<pk>\d+)/switchboard$', grunt_views.SwitchboardView.as_view(),
+        name='switchboard'),
     url(r'^(?P<pk>\d+)/accept$', grunt_views.accept, name='accept'),
+
+    # inspector views
+    url(r'^(?P<pk>\d+)/inspect/$', inspect_views.InspectView.as_view(),
+        name='inspect'),
+    url(
+        r'^(?P<pk>\d+)/inspect/data$',
+        inspect_views.MessageTreeAPIView.as_view(),
+        name='message_tree',
+    ),
 
     # survey views
     url(r'^surveys/$', ratings_views.SurveyList.as_view(), name='survey_list'),

@@ -20,8 +20,12 @@
 
             <h2> {{ game }} </h2>
 
-            <a class="btn btn-default play" aria-label="Left Align" href="{% url 'play' pk=game.pk %}">
-                <span class="glyphicon glyphicon-play" aria-hidden="true"></span> Play
+            <a class="btn btn-default play" href="{% url 'play' pk=game.pk %}">
+                <span class="glyphicon glyphicon-play"></span> Play
+            </a>
+
+            <a class="btn btn-default inspect" href="{% url 'inspect' pk=game.pk %}">
+                <span class="glyphicon glyphicon-eye-open"></span> Inspect
             </a>
 
         </li>
