@@ -1,3 +1,5 @@
+import string
+
 from django.contrib import messages
 from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
@@ -37,7 +39,10 @@ class TakeSurveyView(View):
             else:
                 raise Http404('The survey was not configured properly.')
 
-        context_data = {'form': ResponseForm(initial = {'question': question})}
+        response_form = ResponseForm(initial = {'question': question})
+        form = self.prepare_response_form(response_form)
+
+        context_data = {'form': form}
 
         # Serialize question and choice messages as JSON for playing the audio
         question_data = MessageSerializer(question.given).data
@@ -64,7 +69,10 @@ class TakeSurveyView(View):
         else:
             question = Question.objects.get(pk=request.POST['question'])
 
-            context_data = {'form': response_form}
+            response_form.initial['question'] = question
+            fresh_form = self.prepare_response_form(response_form)
+
+            context_data = {'form': fresh_form}
 
             # Serialize question and choice messages as JSON for playing the audio
             question_data = MessageSerializer(question.given).data
@@ -73,6 +81,15 @@ class TakeSurveyView(View):
             context_data['choices'] = JSONRenderer().render(choices_data)
 
             return render(request, 'ratings/question.html', context_data)
+
+    def prepare_response_form(self, form):
+        message_choices = form.initial['question'].choices.all()
+        form.fields['selection'].queryset = message_choices
+        choice_labels = list(string.letters[:len(message_choices)])
+        choice_map = [(message.id, label) for message, label in zip(message_choices, choice_labels)]
+        form.fields['selection'].widget.choices = choice_map
+        return form
+
 
 
 class InspectSurveyView(DetailView):

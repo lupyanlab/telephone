@@ -11,11 +11,12 @@ class SurveyModelTest(TestCase):
     def setUp(self):
         super(SurveyModelTest, self).setUp()
         self.survey = mommy.make(Survey)
-        messages = mommy.make(Message, _fill_optional=('audio','chain'), _quantity=5)
-        self.questions = []
-        for msg in messages:
-            new_question = mommy.make(Question, survey=self.survey, given=msg)
-            self.questions.append(new_question)
+        self.questions = [self.make_question(survey=self.survey)] * 5
+
+    def make_question(self, **mommy_kwargs):
+        recording = mommy.make_recipe('ratings.recording')
+        return mommy.make_recipe('ratings.question', given=recording,
+                                 **mommy_kwargs)
 
     def test_create_new_survey(self):
         survey = Survey(name='New Survey 1')
@@ -28,9 +29,8 @@ class SurveyModelTest(TestCase):
     def test_pick_next_question_raises_when_all_are_completed(self):
         receipts = []
         for q in self.questions:
-            selected = mommy.make(Message, _fill_optional=('audio', 'chain'))
-            response = mommy.make(Response, question=q, selected=selected)
-            receipts.append(receipts.pk)
+            response = mommy.make_recipe('ratings.response', question=q)
+            receipts.append(response.pk)
 
         with self.assertRaises(Question.DoesNotExist):
             self.survey.pick_next_question(receipts)
@@ -48,7 +48,7 @@ class QuestionModelTest(TestCase):
     def test_add_choices_to_question(self):
         num_choices = 3
         question = mommy.make(Question)
-        messages = mommy.make(Message, _quantity=num_choices)
+        messages = mommy.make_recipe('ratings.seed', _quantity=num_choices)
         question.choices.add(*messages)
         self.assertEquals(question.choices.count(), num_choices)
 

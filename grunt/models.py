@@ -1,3 +1,5 @@
+import hashlib
+
 from django.db import models
 
 from rest_framework import serializers
@@ -53,7 +55,9 @@ class Message(models.Model):
             return self.parent.find_ancestor(possible_ancestors)
 
     def __str__(self):
-        return '{} - gen{} ({})'.format(self.chain, self.id, self.generation)
+        return hashlib.sha224('{}-{}-{}'.format(
+            self.chain.game.id, self.chain.id, self.id
+        )).hexdigest()[:10]
 
 
 class MessageSerializer(serializers.ModelSerializer):
