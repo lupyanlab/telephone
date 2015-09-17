@@ -4,8 +4,10 @@ from unipath import Path
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase, override_settings
+from django.utils.six import BytesIO
 
 from model_mommy import mommy
+from rest_framework.parsers import JSONParser
 
 from grunt.models import Message
 from ratings.models import Survey, Question, Response
@@ -37,8 +39,10 @@ class SurveyViewTest(TestCase):
     def test_questions_show_up_on_survey_view_page(self):
         num_questions = 10
         survey = mommy.make(Survey)
-        mommy.make(Question, survey=survey, _quantity=num_questions)
-        response = self.client.get(survey.get_inspect_url())
+        givens = mommy.make(Message, _fill_optional=['chain'], _quantity=num_questions)
+        for g in givens:
+            mommy.make(Question, survey=survey, given=g)
+        response = self.client.get(reverse('inspect_survey', kwargs={'pk':survey.pk}))
         questions = response.context['questions']
         self.assertEquals(len(questions), num_questions)
 
@@ -48,22 +52,22 @@ class TakeSurveyTest(SurveyViewTest):
     def setUp(self):
         super(TakeSurveyTest, self).setUp()
         self.survey = mommy.make(Survey)
-        given, choice = mommy.make(Message, _fill_optional='audio', _quantity=2)
+        given, choice = mommy.make(Message, _fill_optional=['chain', 'audio'], _quantity=2)
         self.question = mommy.make(Question, given=given, survey=self.survey)
         self.question.choices.add(choice)
 
-        self.survey_url = self.survey.get_survey_url()
+        self.survey_url = reverse('take_survey', kwargs={'pk': self.survey.pk})
 
     def tearDown(self):
         super(TakeSurveyTest, self).tearDown()
         TEST_MEDIA_ROOT.rmtree()
 
     def add_question_to_session(self):
-        response = mommy.make(Response, question=self.question)
+        selection = mommy.make(Message, _fill_optional=['chain', 'audio'])
+        response = mommy.make(Response, question=self.question, selection=selection)
 
         self.client.get(self.survey_url)
         session = self.client.session
-        session['completed_questions'] = [self.question.pk, ]
         session['receipts'] = [response.pk, ]
         session.save()
 
@@ -71,9 +75,11 @@ class TakeSurveyTest(SurveyViewTest):
         response = self.client.get(self.survey_url)
         self.assertTemplateUsed(response, 'ratings/question.html')
 
-    def test_taking_a_survey_renders_the_question_obj(self):
+    def test_taking_a_survey_renders_the_question_as_json(self):
         response = self.client.get(self.survey_url)
-        self.assertIsInstance(response.context['question'], Question)
+        stream = BytesIO(response.context['question'])
+        question_data = JSONParser().parse(stream)
+        self.assertIn('audio', question_data)
 
     def test_taking_a_survey_renders_the_question_form(self):
         response = self.client.get(self.survey_url)
@@ -92,9 +98,9 @@ class TakeSurveyTest(SurveyViewTest):
 
     def test_completed_players_get_their_sessions_cleared(self):
         self.add_question_to_session()
-        completed = self.client.session['completed_questions']
+        completed = self.client.session['receipts']
         self.assertIsNotNone(completed)
-        response = self.client.get(self.survey.get_survey_url())
+        response = self.client.get(self.survey_url)
         self.assertTemplateUsed(response, 'ratings/complete.html')
-        completed = self.client.session['completed_questions']
+        completed = self.client.session['receipts']
         self.assertEquals(len(completed), 0)

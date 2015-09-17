@@ -8,22 +8,32 @@ from ratings.models import Survey, Question, Response
 
 
 class SurveyModelTest(TestCase):
+    def setUp(self):
+        super(SurveyModelTest, self).setUp()
+        self.survey = mommy.make(Survey)
+        messages = mommy.make(Message, _fill_optional=('audio','chain'), _quantity=5)
+        self.questions = []
+        for msg in messages:
+            new_question = mommy.make(Question, survey=self.survey, given=msg)
+            self.questions.append(new_question)
+
     def test_create_new_survey(self):
         survey = Survey(name='New Survey 1')
         survey.full_clean()  # should not raise
 
     def test_pick_next_question(self):
-        survey = mommy.make(Survey)
-        questions = mommy.make(Question, survey=survey, _quantity=5)
-        next_question = survey.pick_next_question()
+        next_question = self.survey.pick_next_question()
         self.assertIsInstance(next_question, Question)
 
     def test_pick_next_question_raises_when_all_are_completed(self):
-        survey = mommy.make(Survey)
-        questions = mommy.make(Question, survey=survey, _quantity=5)
-        completed_questions = [q.pk for q in questions]
+        receipts = []
+        for q in self.questions:
+            selected = mommy.make(Message, _fill_optional=('audio', 'chain'))
+            response = mommy.make(Response, question=q, selected=selected)
+            receipts.append(receipts.pk)
+
         with self.assertRaises(Question.DoesNotExist):
-            survey.pick_next_question(completed_questions)
+            self.survey.pick_next_question(receipts)
 
 
 class QuestionModelTest(TestCase):

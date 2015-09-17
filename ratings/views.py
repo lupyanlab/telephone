@@ -4,6 +4,9 @@ from django.http import Http404
 from django.views.generic import ListView, CreateView, DetailView, View
 from django.shortcuts import get_object_or_404, render, redirect
 
+from rest_framework.renderers import JSONRenderer
+
+from grunt.models import MessageSerializer
 from ratings.models import Survey, Question
 from ratings.forms import NewSurveyForm, ResponseForm
 
@@ -21,34 +24,28 @@ class NewSurveyView(CreateView):
 class TakeSurveyView(View):
     def get(self, request, pk):
         survey = get_object_or_404(Survey, pk=pk)
-
-        # Initialize the survey taker's session
-        question_key = 'completed_questions'
-        request.session[question_key] = request.session.get(question_key, [])
         request.session['receipts'] = request.session.get('receipts', [])
 
         try:
-            question = survey.pick_next_question(
-                request.session['completed_questions']
-            )
-            response_form = ResponseForm(initial = {'question': question})
-            response_form.fields['selection'].empty_label = None
-            response_form.fields['selection'].queryset = question.choices.all()
-            context_data = {
-                'question': question,
-                'choices': question.choices.all(),
-                'form': response_form
-            }
-            return render(request, 'ratings/question.html', context_data)
+            question = survey.pick_next_question(request.session['receipts'])
         except Question.DoesNotExist:
-            receipts = request.session['receipts']
-            if receipts:
-                completion_code = '-'.join(map(str, receipts))
+            if request.session['receipts']:
+                completion_code = '-'.join(map(str, request.session['receipts']))
+                request.session['receipts'] = []
                 context_data = {'completion_code': completion_code}
-                request = self.clear_survey_from_session(request)
                 return render(request, 'ratings/complete.html', context_data)
             else:
-                raise Http404('The survey was not configured properly')
+                raise Http404('The survey was not configured properly.')
+
+        context_data = {'form': ResponseForm(initial = {'question': question})}
+
+        # Serialize question and choice messages as JSON for playing the audio
+        question_data = MessageSerializer(question.given).data
+        context_data['question'] = JSONRenderer().render(question_data)
+        choices_data = MessageSerializer(question.choices.all(), many=True).data
+        context_data['choices'] = JSONRenderer().render(choices_data)
+
+        return render(request, 'ratings/question.html', context_data)
 
     def post(self, request, pk):
         survey = get_object_or_404(Survey, pk=pk)
@@ -59,7 +56,6 @@ class TakeSurveyView(View):
         if response_form.is_valid():
             response = response_form.save()
             request.session['receipts'].append(response.pk)
-            request.session['completed_questions'].append(response.question.pk)
 
             validation_msg = ('Your response was saved! '
                               'Another message was loaded.')
@@ -68,25 +64,15 @@ class TakeSurveyView(View):
         else:
             question = Question.objects.get(pk=request.POST['question'])
 
-            # For some reason these are getting reset when there is an error
-            response_form.fields['selection'].empty_label = None
-            response_form.fields['selection'].queryset = question.choices.all()
+            context_data = {'form': response_form}
 
-            context_data = {
-                'question': question,
-                'form': response_form,
-            }
+            # Serialize question and choice messages as JSON for playing the audio
+            question_data = MessageSerializer(question.given).data
+            context_data['question'] = JSONRenderer().render(question_data)
+            choices_data = MessageSerializer(question.choices.all(), many=True).data
+            context_data['choices'] = JSONRenderer().render(choices_data)
+
             return render(request, 'ratings/question.html', context_data)
-
-    def clear_survey_from_session(self, request):
-        """ Clears the completed questions from the session.
-
-        Typically questions are cleared after completing a survey. Then
-        revisits to the survey will repopulate with questions. A player's
-        receipts, also stored in the session, are not cleared.
-        """
-        request.session['completed_questions'] = []
-        return request
 
 
 class InspectSurveyView(DetailView):

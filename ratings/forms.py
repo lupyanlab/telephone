@@ -1,4 +1,4 @@
-import hashlib
+import string
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -9,6 +9,34 @@ from crispy_forms.layout import Layout, Field, Submit
 
 from grunt.models import Message
 from ratings.models import Survey, Question, Response
+
+
+class ResponseForm(forms.ModelForm):
+
+    class Meta:
+        model = Response
+        fields = ('question', 'selection')
+
+    def __init__(self, *args, **kwargs):
+        super(ResponseForm, self).__init__(*args, **kwargs)
+
+        self.fields['selection'].required = True
+        self.fields['selection'].empty_label = None
+
+        if 'question' in self.initial:
+            message_choices = self.initial['question'].choices.all()
+            self.fields['selection'].queryset = message_choices
+            choice_labels = list(string.letters[:len(message_choices)])
+            choice_map = [(message.id, label) for message, label in zip(message_choices, choice_labels)]
+            self.fields['selection'].widget.choices = choice_map
+
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Field('question', type='hidden'),
+            InlineRadios('selection'),
+            Submit('submit', 'Submit')
+        )
 
 
 class MessageIdField(forms.Field):
@@ -76,31 +104,3 @@ class CreateQuestionForm(forms.ModelForm):
                 question.delete()
                 raise e
         return question
-
-class ResponseForm(forms.ModelForm):
-
-    class Meta:
-        model = Response
-        fields = ('question', 'selection')
-
-    def __init__(self, *args, **kwargs):
-        super(ResponseForm, self).__init__(*args, **kwargs)
-
-        self.fields['selection'].required = True
-
-        # Modify message text
-        all_choices = list(self.fields['selection'].widget.choices)
-        disguised_choices = []
-        for message_id, message_str in all_choices:
-            if message_id:
-                message_sha = hashlib.sha224(message_str).hexdigest()[0:6]
-                disguised_choices.append((message_id, message_sha))
-        self.fields['selection'].widget.choices = disguised_choices
-
-        self.helper = FormHelper()
-        self.helper.form_method = 'post'
-        self.helper.layout = Layout(
-            Field('question', type='hidden'),
-            InlineRadios('selection'),
-            Submit('submit', 'Submit')
-        )

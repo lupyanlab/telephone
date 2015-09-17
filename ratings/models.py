@@ -13,7 +13,7 @@ class Survey(models.Model):
     def pick_next_question(self, receipts=[]):
         completed_questions = Response.objects.filter(id__in=receipts).values_list('question', flat=True)
         try:
-            return self.questions.exclude(id__in=families).order_by('?')[0]
+            return self.questions.exclude(id__in=completed_questions).order_by('?')[0]
         except IndexError:
             raise Question.DoesNotExist('No questions left to take')
 
