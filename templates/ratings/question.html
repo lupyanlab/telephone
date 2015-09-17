@@ -2,9 +2,20 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
+{% block styling %}
+  <link href="{% static 'ratings/survey.css' %}" rel="stylesheet">
+{% endblock styling %}
+
 {% block jumbotron %}
 
-    <h1>Question</h1>
+    <h1>Listen Up!</h1>
+
+    <p>
+      Click the play button and you'll hear a message. After it finishes,
+      mouse over the radio options to hear some choices of what that
+      person was talking about. Select the option that you think the person
+      was trying to imitate.
+    </p>
 
     <ul class="messages list-group" style="list-style-type:none">
       {% include '_messages.html' %}
@@ -35,7 +46,10 @@ soundManager.setup({
   onready: function () {
     soundManager.createSound({
         id: "target",
-        url: question.audio
+        url: question.audio,
+        onfinish: function () {
+          $("#submit-id-submit").attr("disabled", false);
+        }
     });
 
     var radios = d3.selectAll("label.radio-inline");
@@ -50,6 +64,8 @@ soundManager.setup({
 })
 
 $(function () {
+  $("#submit-id-submit").attr("disabled", true);
+
   var target = d3.select("#id_target_audio");
 
   target
@@ -62,17 +78,21 @@ $(function () {
   radios
     .data(choices);
 
-  var play_message = function (choice) {
-    choice.soundObj.play();
+  var playMessage = function (choice) {
+    if (!($("#submit-id-submit")).attr("disabled")) {
+      choice.soundObj.play();
+    }
   }
 
-  var pause_all = function () {
-    soundManager.stopAll();
+  var pauseAll = function () {
+    if (!($("#submit-id-submit")).attr("disabled")) {
+      soundManager.stopAll();
+    }
   }
 
   radios
-    .on("mouseover", play_message)
-    .on("mouseout", pause_all);
+    .on("mouseover", playMessage)
+    .on("mouseout", pauseAll);
 });
 
   </script>

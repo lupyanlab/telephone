@@ -16,12 +16,18 @@ class ResponseForm(forms.ModelForm):
     class Meta:
         model = Response
         fields = ('question', 'selection')
+        error_messages = {
+            'selection': {
+                'required': 'You must select one of the choices.',
+            },
+        }
 
     def __init__(self, *args, **kwargs):
         super(ResponseForm, self).__init__(*args, **kwargs)
 
         self.fields['selection'].required = True
         self.fields['selection'].empty_label = None
+        self.fields['selection'].label = 'Select the imitation most like the sound above.'
 
         if 'question' in self.initial:
             message_choices = self.initial['question'].choices.all()
