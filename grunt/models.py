@@ -40,7 +40,7 @@ class Message(models.Model):
     num_children = models.IntegerField(default=1)
 
     def kill(self):
-        if self.num_children > 1:
+        if self.num_children > 0:
             self.num_children -= 1
             self.save()
 
