@@ -45,6 +45,7 @@ class TelephoneView(View):
         if not request.session['instructed']:
             return render(request, 'grunt/instruct.html', {'game': game})
         else:
+            request.session['instructed'] = True  # don't show these again
             return render(request, 'grunt/play.html', {'game': game})
 
 
