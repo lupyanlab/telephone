@@ -57,7 +57,8 @@ soundManager.setup({
       .each(function (choice) {
         choice.soundObj = soundManager.createSound({
           id: soundId(choice),
-          url: choice.audio
+          url: choice.audio,
+          autoload: true
         });
       });
   }
