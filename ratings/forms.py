@@ -62,7 +62,7 @@ class NewSurveyForm(forms.ModelForm):
 
     class Meta:
         model = Survey
-        fields = ('name', 'questions', 'choices')
+        fields = ('name', 'num_questions_per_player', 'questions', 'choices')
 
     def __init__(self, *args, **kwargs):
         super(NewSurveyForm, self).__init__(*args, **kwargs)
