@@ -15,11 +15,11 @@ class Game(models.Model):
         return chain.pick_parent()
 
     def __str__(self):
-        return self.name
+        return 'G{} {}'.format(self.id, self.name)
 
 
 class Chain(models.Model):
-    """ Strings of messages. """
+    """ String of messages. """
     game = models.ForeignKey(Game, related_name='chains')
     name = models.CharField(max_length=30)
 
@@ -45,10 +45,11 @@ class Message(models.Model):
             self.save()
 
     def __str__(self):
-        return '{} - {} (gen-{})'.format(self.chain, self.id, self.generation)
+        return '{} - gen{} ({})'.format(self.chain, self.id, self.generation)
 
 
 class MessageSerializer(serializers.ModelSerializer):
+    """ Represent a message in JSON. """
     class Meta:
         model = Message
         fields = ('id', 'audio')
