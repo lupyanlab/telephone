@@ -102,11 +102,11 @@ class CreateQuestionForm(forms.ModelForm):
 
     def save(self):
         question = super(CreateQuestionForm, self).save()
-        if not question.answer:
-            try:
-                choices = question.choices.all()
-                question.answer = question.given.find_ancestor(choices)
-            except Message.DoesNotExist, e:
-                question.delete()
-                raise e
+        # if not question.answer:
+        #     try:
+        #         choices = question.choices.all()
+        #         question.answer = question.given.find_ancestor(choices)
+        #     except Message.DoesNotExist, e:
+        #         question.delete()
+        #         raise e
         return question
