@@ -27,9 +27,9 @@ class Survey(models.Model):
 
 class Question(models.Model):
     survey = models.ForeignKey(Survey, related_name='questions')
-    given = models.OneToOneField(Message, related_name='given')
+    given = models.ForeignKey(Message, related_name='given')
     choices = models.ManyToManyField(Message)
-    answer = models.OneToOneField(Message, related_name='answer', null=True)
+    answer = models.ForeignKey(Message, related_name='answer', null=True)
 
 
 class Response(models.Model):
