@@ -12,7 +12,9 @@ class Game(models.Model):
     name = models.CharField(max_length=30)
 
     def pick_next_message(self, receipts=[]):
-        families = Message.objects.filter(id__in=receipts).values_list('chain', flat=True)
+        families = Message.objects.filter(id__in=receipts).values_list(
+            'chain', flat=True
+        )
         chain = self.chains.exclude(id__in=families).order_by('?')[0]
         return chain.pick_parent()
 
