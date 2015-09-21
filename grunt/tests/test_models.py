@@ -61,3 +61,4 @@ class MessageTest(ModelTest):
         message = Message(parent=seed, audio=self.audio)
         message.full_clean()
         message.save()
+        self.assertEquals(message.parent, seed)
