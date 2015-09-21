@@ -43,7 +43,7 @@ class TelephoneView(View):
 
         # Check if the player has accepted the instructions
         if not request.session['instructed']:
-            return render(request, 'grunt/instruct.html', {'game': game})
+            return render(request, 'grunt/instructions.html', {'game': game})
         else:
             request.session['instructed'] = True  # don't show these again
             return render(request, 'grunt/play.html', {'game': game})
@@ -92,5 +92,5 @@ class SwitchboardView(APIView):
 
 
 class GameListView(ListView):
-    template_name = 'grunt/games.html'
+    template_name = 'grunt/game_list.html'
     queryset = Game.objects.all().order_by('-id')
