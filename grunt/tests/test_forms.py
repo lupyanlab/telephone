@@ -7,7 +7,6 @@ from model_mommy import mommy
 from unipath import Path
 
 from grunt.forms import ResponseForm
-from grunt.models import Game, Chain, Message
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 

@@ -1,11 +1,6 @@
 from django import forms
-from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
-
-from .models import Game, Chain, Message
+from .models import Message
 
 
 class ResponseForm(forms.ModelForm):
