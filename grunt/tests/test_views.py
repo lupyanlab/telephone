@@ -24,10 +24,14 @@ class ViewTest(TestCase):
     def tearDown(self):
         TEST_MEDIA_ROOT.rmtree()
 
-    def make_session(self, game, instructed=False, receipts=[]):
-        self.client.get(game.get_absolute_url())
+    def make_session(self, game, instructed=False, receipts=None):
+        game_url = reverse('play', kwargs={'pk': game.pk})
+        self.client.get(game_url)
         session = self.client.session
         session['instructed'] = instructed
+
+        if not receipts:
+            receipts = list()
         session['receipts'] = receipts
         session.save()
 
@@ -56,9 +60,9 @@ class GameListViewTest(ViewTest):
 
 class TelephoneViewTest(ViewTest):
     def setUp(self):
-        super(PlayViewTest, self).setUp()
+        super(TelephoneViewTest, self).setUp()
         self.game = mommy.make(Game)
-        self.game_play_url = reverse('play', pk=self.game.pk)
+        self.game_play_url = reverse('play', kwargs={'pk': self.game.pk})
         self.chain = mommy.make(Chain, game = self.game)
         self.message = mommy.make(Message, chain = self.chain)
 
@@ -68,7 +72,7 @@ class TelephoneViewTest(ViewTest):
         self.assertTemplateUsed(response, 'grunt/instructions.html')
 
     def test_get_telephone_page(self):
-        """ Instructed and mic checked players should get the play template. """
+        """ Instructed players should get the play template. """
         self.make_session(self.game, instructed=True)
         response = self.client.get(self.game_play_url)
         self.assertTemplateUsed(response, 'grunt/play.html')
@@ -85,36 +89,48 @@ class TelephoneViewTest(ViewTest):
 
         self.make_session(self.game, instructed=True)
         response = self.client.get(self.game_play_url)
-        self.assertTemplatedUsed(response, 'grunt/play.html')
+        self.assertTemplateUsed(response, 'grunt/play.html')
         self.assertEquals(response.context['game'], self.game)
 
 class SwitchboardViewTest(ViewTest):
     def setUp(self):
-        super(RespondViewTest, self).setUp()
+        super(SwitchboardViewTest, self).setUp()
         self.game = mommy.make(Game)
         self.chain = mommy.make(Chain, game = self.game)
         self.message = mommy.make(Message, chain = self.chain)
 
-        self.post_url = reverse('play', kwargs={'pk': self.game.pk})
+        self.switchboard_url = reverse('switchboard',
+                                       kwargs={'pk': self.game.pk})
+
+    def test_successful_post_returns_next_message(self):
+        second_chain = mommy.make(Chain, game = self.game)
+        second_message = mommy.make(Message, chain = second_chain)
+
+        self.make_session(self.game, instructed=True,
+                          receipts = [self.message.pk, ])
+
+        response = self.client.get(self.switchboard_url)
+        selected_message_id = response.data['id']
+        self.assertEquals(response.data['id'], second_message.id)
 
     def test_exclude_chains_in_session(self):
         """ If there are receipts in the session, get the correct chain """
         second_chain = mommy.make(Chain, game = self.game)
         mommy.make(Message, chain = second_chain)
 
-        self.make_session(self.game, instructed=True, mic_checked=True,
-                receipts = [self.chain.pk, ])
+        self.make_session(self.game, instructed=True,
+                          receipts = [self.message.pk, ])
 
-        response = self.client.get(self.game.get_absolute_url())
-
-        selected_message = response.context['message']
-        self.assertIn(selected_message, second_chain.message_set.all())
+        response = self.client.get(self.switchboard_url)
+        selected_message_id = response.data['id']
+        self.assertIn(selected_message_id,
+                      second_chain.messages.values_list('id', flat=True))
 
     def post_response(self):
         with open(self.audio_path, 'rb') as audio_handle:
             audio_file = File(audio_handle)
-            post_data = {'message': self.message.pk, 'audio': audio_file}
-            response = self.client.post(self.post_url, post_data)
+            post_data = {'parent': self.message.pk, 'audio': audio_file}
+            response = self.client.post(self.switchboard_url, post_data)
         return response
 
     def test_post_a_message(self):
@@ -126,30 +142,10 @@ class SwitchboardViewTest(ViewTest):
     def test_post_adds_receipt_to_session(self):
         """ Posting an entry adds a receipt to the session """
         self.post_response()
-        self.assertIn(self.chain.pk, self.client.session['receipts'])
+        self.assertEquals(len(self.client.session['receipts']), 1)
 
     def test_invalid_post(self):
         """ Post an entry without a recording """
-        invalid_post = {'message': self.message.pk}
-        response = self.client.post(self.post_url, invalid_post)
-        self.assertEquals(response.status_code, 404)
-
-    def test_posting_with_no_more_entries_returns_completed_flag(self):
-        """ Posting an entry should redirect to the completion page """
-        self.make_session(self.game, instructed=True, mic_checked=True)
-        response = self.post_response()
-
-        response_json = json.loads(response._container[0])
-        self.assertEquals(response_json, {'completed': True})
-
-    def test_post_leads_to_next_cluster(self):
-        """ Posting a message should redirect to another message """
-        second_chain = mommy.make(Chain, game = self.game)
-        second_message = mommy.make(Message, chain = second_chain)
-
-        self.make_session(self.game, instructed=True, mic_checked=True)
-        response = self.post_response()
-
-        response_json = json.loads(response._container[0])
-        new_message_pk = response_json['message']
-        self.assertEquals(new_message_pk, second_message.pk)
+        invalid_post = {'audio': self.message.pk}
+        response = self.client.post(self.switchboard_url, invalid_post)
+        self.assertEquals(response.status_code, 500)

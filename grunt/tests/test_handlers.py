@@ -5,6 +5,7 @@ from unipath import Path
 from django.conf import settings
 
 from grunt import handlers
+from grunt.views import VOLUME_CUTOFF_dBFS
 
 class MicCheckTest(unittest.TestCase):
     def test_acceptable_volume(self):
@@ -13,7 +14,7 @@ class MicCheckTest(unittest.TestCase):
         with open(normal_volume, 'rb') as open_audio:
             mic_checked = handlers.check_volume(open_audio)
 
-        self.assertTrue(mic_checked)
+        self.assertGreater(mic_checked, VOLUME_CUTOFF_dBFS)
 
     def test_too_quiet(self):
         quiet_volume = Path(settings.APP_DIR,
@@ -21,4 +22,4 @@ class MicCheckTest(unittest.TestCase):
         with open(quiet_volume, 'rb') as open_audio:
             mic_checked = handlers.check_volume(open_audio)
 
-        self.assertFalse(mic_checked)
+        self.assertLess(mic_checked, VOLUME_CUTOFF_dBFS)

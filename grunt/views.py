@@ -57,8 +57,8 @@ class SwitchboardView(APIView):
     def get(self, request, pk):
         """ A player requests a message for the first time. """
         game = Game.objects.get(pk=pk)
-        request.session['receipts'] = []
-        message = game.pick_next_message()
+        receipts = request.session.setdefault('receipts', [])
+        message = game.pick_next_message(receipts)
         data = MessageSerializer(message).data
         return Response(data)
 
@@ -68,22 +68,24 @@ class SwitchboardView(APIView):
         1. Make sure it's loud enough.
         2. Save it, kill the parent, and give them another one.
         """
+        if 'audio' not in request.FILES:
+            raise APIException()
+
         audio = request.FILES['audio']
         if check_volume(audio) < VOLUME_CUTOFF_dBFS:
             raise APIException()
 
         response_form = ResponseForm(request.POST, request.FILES)
+        # !!! Assuming the form is valid
         message = response_form.save()
 
-        receipts = request.session.get('receipts', [])
-        receipts.append(message.pk)
-        request.session['receipts'] = receipts
+        request.session.setdefault('receipts', []).append(message.pk)
 
         message.parent.kill()
 
         try:
             game = Game.objects.get(pk=pk)
-            next_message = game.pick_next_message(receipts)
+            next_message = game.pick_next_message(request.session['receipts'])
             data = MessageSerializer(next_message).data
             return Response(data)
         except IndexError:

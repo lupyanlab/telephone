@@ -11,11 +11,13 @@ class Game(models.Model):
     """ Top-level control over chains. """
     name = models.CharField(max_length=30)
 
-    def pick_next_message(self, receipts=[]):
+    def pick_next_message(self, receipts=None):
         """ Determine which message the player should receive next.
 
         TODO: move this function to handlers
         """
+        if not receipts:
+            receipts = []
         families = Message.objects.filter(id__in=receipts).values_list(
             'chain', flat=True
         )
