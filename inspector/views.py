@@ -1,15 +1,24 @@
-from django.views.generic import DetailView
+from django.shortcuts import get_object_or_404
+from django.views.generic import TemplateView
 
 from rest_framework.views import APIView
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from grunt.models import Game
 from inspector.serializers import GameSerializer
 
 
-class InspectView(DetailView):
+class InspectView(TemplateView):
     template_name = 'inspector/inspect.html'
-    model = Game
+
+    def get_context_data(self, **kwargs):
+        context_data = super(InspectView, self).get_context_data(**kwargs)
+        game = get_object_or_404(Game, pk=self.kwargs.get('pk'))
+        serializer = GameSerializer(game)
+        jsoned = JSONRenderer().render(serializer.data)
+        context_data['game_tree'] = jsoned
+        return context_data
 
 
 class MessageTreeAPIView(APIView):

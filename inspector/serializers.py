@@ -9,12 +9,14 @@ class MessageSerializer(serializers.ModelSerializer):
         model = Message
         fields = ('id', 'parent', 'audio', 'generation', 'num_children')
 
+
 class ChainSerializer(serializers.ModelSerializer):
     messages = MessageSerializer(many=True)
 
     class Meta:
         model = Chain
         fields = ('id', 'name', 'messages')
+
 
 class GameSerializer(serializers.ModelSerializer):
     chains = ChainSerializer(many=True)

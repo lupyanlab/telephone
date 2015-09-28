@@ -29,10 +29,6 @@
   <script src="{% static 'grunt/js/ajax.js' %}" type="text/javascript"></script>
   <script src="{% static 'inspector/js/inspect.js' %}" type="text/JavaScript"></script>
   <script>
-var g = {}
-d3.json("{% url 'message_tree' pk=game.pk %}", function (data) {
-    g.messages = data;
-    drawMessageTree(data);
-});
+var gameTree = {{ game_tree | safe }};
   </script>
 {% endblock javascript %}
