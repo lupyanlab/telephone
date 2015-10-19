@@ -29,7 +29,7 @@ var gameTree = {{ game_tree | safe }};
 
 var tree = d3.layout.tree()
   .size([height, width])
-  .children(determineChildren);
+  .children(function (node) { return node.children; });
 
 var diagonal = d3.svg.diagonal()
   .projection(function (node) { return [node.y, node.x]; });
@@ -39,10 +39,6 @@ var svg = d3.select("svg")
   .attr("height", height + margin.top + margin.bottom)
   .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-function determineChildren(node) {
-  return node.chains || node.messageTree || node.children ;
-}
 
 function drawMessageTree(nestedData) {
   var nodes = tree.nodes(nestedData),
@@ -75,23 +71,6 @@ function drawMessageTree(nestedData) {
     .attr("d", diagonal);
 }
 
-function buildTree(chain) {
-    var seedMessage = _.findWhere(chain.messages, {generation: 0});
-
-    function findChildren(message) {
-      var children = _.where(chain.messages, {parent: message.id});
-      if (children) {
-        message.children = children;
-        message.children.forEach(findChildren);
-      }
-    }
-
-    findChildren(seedMessage);
-
-    chain.messageTree = [seedMessage];
-}
-
-gameTree.chains.forEach(buildTree);
 drawMessageTree(gameTree);
   </script>
 {% endblock javascript %}
