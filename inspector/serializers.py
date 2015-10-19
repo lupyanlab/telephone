@@ -29,12 +29,16 @@ class GameSerializer(serializers.ModelSerializer):
     @property
     def tree_data(self):
         data = copy.deepcopy(self.data)
+        data['type'] = 'game'
+
         chains = data.pop('chains')
 
         for chain in chains:
+            chain['type'] = 'chain'
             messages = chain.pop('messages')
 
             def find_children(parent):
+                parent['type'] = 'message'
                 children = [child for child in messages
                             if child['parent'] == parent['id']]
                 if children:

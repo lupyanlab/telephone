@@ -33,7 +33,11 @@ function drawMessageTree(nestedData) {
     .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
   nodeEnter.append("circle")
-    .attr("r", 5);
+    .attr("r", 5)
+    .attr("class", function(d) { return d.type; });
+
+  nodeEnter.selectAll("circle.message")
+    .on("click", selectMessage);
 
   nodeEnter.append("text")
     .attr("x", -10)
@@ -47,4 +51,8 @@ function drawMessageTree(nestedData) {
   link.enter().insert("path", "g")
     .attr("class", "link")
     .attr("d", diagonal);
+}
+
+function selectMessage(message) {
+  console.log(message.id);
 }
