@@ -1,12 +1,13 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 
+from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from grunt.models import Game
-from inspector.serializers import GameSerializer
+from grunt.models import Game, Message
+from inspector.serializers import GameSerializer, MessageSerializer
 
 
 class InspectView(TemplateView):
@@ -21,8 +22,6 @@ class InspectView(TemplateView):
         return context_data
 
 
-class MessageTreeAPIView(APIView):
-    def get(self, request, pk):
-        game = Game.objects.get(pk=pk)
-        tree = GameSerializer(game).data
-        return Response(tree)
+class MessageViewSet(viewsets.ModelViewSet):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
