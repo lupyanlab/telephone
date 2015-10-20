@@ -39,6 +39,8 @@ class GameSerializer(serializers.ModelSerializer):
 
             def find_children(parent):
                 parent['type'] = 'message'
+                # soundId for soundManager
+                parent['soundId'] = 's{}'.format(parent['id'])
                 children = [child for child in messages
                             if child['parent'] == parent['id']]
                 if children:

@@ -36,7 +36,18 @@ function drawMessageTree(nestedData) {
     .attr("r", 5)
     .attr("class", function(d) { return d.type; });
 
-  nodeEnter.selectAll("circle.message")
+  var messagesWithAudio = nodeEnter.selectAll("circle.message");
+
+  // Load messages with audio using soundManager
+  messagesWithAudio.each(function(msg) {
+    soundManager.createSound({
+      id: msg.soundId,
+      url: msg.audio,
+      autoload: true
+    });
+  });
+
+  messagesWithAudio
     .on("click", selectMessage);
 
   nodeEnter.append("text")
