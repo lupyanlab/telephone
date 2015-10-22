@@ -194,3 +194,10 @@ class NewGameViewTest(TestCase):
         )
         response = self.client.get(add_chains_url)
         self.assertEquals(len(response.context['formset']), num_chains_to_add)
+
+    def test_add_new_chains_view_prepopulates_correct_game(self):
+        game = mommy.make(Game)
+        add_chains_url = reverse('new_chains', kwargs={'pk': game.pk})
+        response = self.client.get(add_chains_url)
+        for form in response.context['formset']:
+            self.assertEquals(form.initial['game'], game.pk)

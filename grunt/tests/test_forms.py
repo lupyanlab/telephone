@@ -49,7 +49,6 @@ class NewChainFormTest(FormTest):
         files_data = dict(seed=self.audio)
         new_chain_form = NewChainForm(post_data, files_data)
         new_chain_form.is_valid()
-        print new_chain_form.errors
         self.assertTrue(new_chain_form.is_valid())
 
     def test_new_chain_form_creates_seed_message(self):
