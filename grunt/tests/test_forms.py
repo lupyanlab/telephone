@@ -6,7 +6,8 @@ from django.test import TestCase, override_settings
 from model_mommy import mommy
 from unipath import Path
 
-from grunt.forms import ResponseForm
+from grunt.models import Game
+from grunt.forms import ResponseForm, NewChainForm
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
@@ -39,3 +40,23 @@ class ResponseFormTest(FormTest):
         response_form = ResponseForm(response_post, response_files)
         message = response_form.save()
         self.assertEquals(message.chain, self.seed.chain)
+
+
+class NewChainFormTest(FormTest):
+    def test_create_new_chain_from_form(self):
+        game = mommy.make(Game)
+        post_data = dict(game=game.pk, name='new chain')
+        files_data = dict(seed=self.audio)
+        new_chain_form = NewChainForm(post_data, files_data)
+        new_chain_form.is_valid()
+        print new_chain_form.errors
+        self.assertTrue(new_chain_form.is_valid())
+
+    def test_new_chain_form_creates_seed_message(self):
+        game = mommy.make(Game)
+        post_data = dict(game=game.pk, name='new chain')
+        files_data = dict(seed=self.audio)
+        new_chain_form = NewChainForm(post_data, files_data)
+        new_chain_form.is_valid()
+        chain = new_chain_form.save()
+        self.assertEquals(chain.messages.count(), 1)

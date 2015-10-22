@@ -48,6 +48,11 @@ class NewChainForm(forms.ModelForm):
         model = Chain
         fields = ('game', 'name')
 
+    def save(self, **kwargs):
+        chain = super(NewChainForm, self).save(**kwargs)
+        chain.messages.create(audio=self.cleaned_data['seed'])
+        return chain
+
 
 class NewChainFormSet(forms.models.BaseModelFormSet):
     pass
