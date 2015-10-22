@@ -10,7 +10,7 @@ from unipath import Path
 from model_mommy import mommy
 
 from grunt.models import Game, Chain, Message
-from grunt.forms import NewGameForm
+from grunt.forms import NewGameForm, NewChainFormSet
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
@@ -174,9 +174,25 @@ class NewGameViewTest(TestCase):
         )
         self.assertRedirects(response, expected_url)
 
+    def test_add_new_chains_view_includes_formset_in_context(self):
+        game = mommy.make(Game)
+        add_chains_url = reverse('new_chains', kwargs={'pk': game.pk})
+        response = self.client.get(add_chains_url)
+        self.assertIn('formset', response.context)
+
     def test_add_new_chains_view_includes_game_in_context(self):
         game = mommy.make(Game)
         add_chains_url = reverse('new_chains', kwargs={'pk': game.pk})
         response = self.client.get(add_chains_url)
         self.assertIn('game', response.context)
         self.assertEquals(response.context['game'], game)
+
+    def test_add_new_chains_view_includes_correct_number_of_chain_forms(self):
+        game = mommy.make(Game)
+        num_chains_to_add = 4
+        add_chains_url = '{}?num_chains={}'.format(
+            reverse('new_chains', kwargs={'pk': game.pk}),
+            num_chains_to_add
+        )
+        response = self.client.get(add_chains_url)
+        self.assertEquals(len(response.context['formset']), num_chains_to_add)

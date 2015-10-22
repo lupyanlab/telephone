@@ -120,10 +120,17 @@ class NewChainsView(CreateView):
 
     def get(self, request, pk):
         game = get_object_or_404(Game, pk=pk)
-        chain_formset = modelformset_factory(
-            Chain, form=NewChainForm, formset=NewChainFormSet
+        try:
+            num_chain_forms = int(request.GET.get('num_chains'))
+        except TypeError:
+            num_chain_forms = 1
+        NewChainModelFormSet = modelformset_factory(
+            Chain, form=NewChainForm, formset=NewChainFormSet,
+            extra=num_chain_forms
         )
+        initial = [{'game': game.pk} for _ in range(num_chain_forms)]
+        formset = NewChainModelFormSet(initial=initial)
         context_data = dict(game=game,
-                            formset=chain_formset,
+                            formset=formset,
                             helper=NewChainFormSetHelper())
         return render_to_response(self.template_name, context_data)
