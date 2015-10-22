@@ -173,3 +173,10 @@ class NewGameViewTest(TestCase):
             game_data['num_chains']
         )
         self.assertRedirects(response, expected_url)
+
+    def test_add_new_chains_view_includes_game_in_context(self):
+        game = mommy.make(Game)
+        add_chains_url = reverse('new_chains', kwargs={'pk': game.pk})
+        response = self.client.get(add_chains_url)
+        self.assertIn('game', response.context)
+        self.assertEquals(response.context['game'], game)

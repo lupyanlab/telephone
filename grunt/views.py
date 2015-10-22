@@ -119,9 +119,11 @@ class NewChainsView(CreateView):
     template_name = 'grunt/new_chains.html'
 
     def get(self, request, pk):
+        game = get_object_or_404(Game, pk=pk)
         chain_formset = modelformset_factory(
             Chain, form=NewChainForm, formset=NewChainFormSet
         )
-        context_data = dict(formset=chain_formset,
+        context_data = dict(game=game,
+                            formset=chain_formset,
                             helper=NewChainFormSetHelper())
         return render_to_response(self.template_name, context_data)
