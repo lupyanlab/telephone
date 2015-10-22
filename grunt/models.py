@@ -51,6 +51,9 @@ class Message(models.Model):
     parent = models.ForeignKey('self', blank=True, null=True)
     generation = models.IntegerField(default=0, editable=False)
     audio = models.FileField(upload_to=message_file_name)
+    start_at = models.FloatField(default=0.0)
+    end_at = models.FloatField(null=True)
+    edited = models.BooleanField(default=False)
     num_children = models.IntegerField(default=1)
 
     def kill(self):
