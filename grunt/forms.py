@@ -27,7 +27,7 @@ class NewGameForm(forms.ModelForm):
     num_chains is used by the view to render the correct number
     of new chain forms on the following page.
     """
-    num_chains = forms.IntegerField(initial = 1, min_value = 1)
+    num_chains = forms.IntegerField(initial=1, min_value=1)
 
     class Meta:
         model = Game
@@ -49,6 +49,7 @@ class NewChainForm(forms.ModelForm):
         fields = ('game', 'name')
 
     def save(self, **kwargs):
+        """ Create a new chain and then create a seed message for it. """
         chain = super(NewChainForm, self).save(**kwargs)
         chain.messages.create(audio=self.cleaned_data['seed'])
         return chain

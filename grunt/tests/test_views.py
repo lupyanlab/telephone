@@ -1,7 +1,4 @@
-import json
-
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 from django.core.urlresolvers import reverse
 from django.test import TestCase, override_settings
@@ -10,7 +7,7 @@ from unipath import Path
 from model_mommy import mommy
 
 from grunt.models import Game, Chain, Message
-from grunt.forms import NewGameForm, NewChainFormSet
+from grunt.forms import NewGameForm
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
@@ -47,13 +44,13 @@ class GameListViewTest(ViewTest):
 
     def test_games_show_up_on_home_page(self):
         num_games = 10
-        expected_games = mommy.make(Game, _quantity = num_games)
+        mommy.make(Game, _quantity=num_games)
         response = self.client.get(self.game_list_url)
         visible_games = response.context['game_list']
         self.assertEqual(len(visible_games), num_games)
 
     def test_most_recent_games_shown_first(self):
-        _, newer_game = mommy.make(Game, _quantity = 2)
+        _, newer_game = mommy.make(Game, _quantity=2)
         response = self.client.get(self.game_list_url)
         top_game = response.context['game_list'][0]
         self.assertEquals(top_game, newer_game)
@@ -64,8 +61,8 @@ class TelephoneViewTest(ViewTest):
         super(TelephoneViewTest, self).setUp()
         self.game = mommy.make(Game)
         self.game_play_url = reverse('play', kwargs={'pk': self.game.pk})
-        self.chain = mommy.make(Chain, game = self.game)
-        self.message = mommy.make(Message, chain = self.chain)
+        self.chain = mommy.make(Chain, game=self.game)
+        self.message = mommy.make(Message, chain=self.chain)
 
     def test_get_instructions_page(self):
         """ First visit should render instructions template. """
@@ -93,34 +90,34 @@ class TelephoneViewTest(ViewTest):
         self.assertTemplateUsed(response, 'grunt/play.html')
         self.assertEquals(response.context['game'], self.game)
 
+
 class SwitchboardViewTest(ViewTest):
     def setUp(self):
         super(SwitchboardViewTest, self).setUp()
         self.game = mommy.make(Game)
-        self.chain = mommy.make(Chain, game = self.game)
-        self.message = mommy.make(Message, chain = self.chain)
+        self.chain = mommy.make(Chain, game=self.game)
+        self.message = mommy.make(Message, chain=self.chain)
 
         self.switchboard_url = reverse('switchboard',
                                        kwargs={'pk': self.game.pk})
 
     def test_successful_post_returns_next_message(self):
-        second_chain = mommy.make(Chain, game = self.game)
-        second_message = mommy.make(Message, chain = second_chain)
+        second_chain = mommy.make(Chain, game=self.game)
+        second_message = mommy.make(Message, chain=second_chain)
 
         self.make_session(self.game, instructed=True,
-                          receipts = [self.message.pk, ])
+                          receipts=[self.message.pk, ])
 
         response = self.client.get(self.switchboard_url)
-        selected_message_id = response.data['id']
         self.assertEquals(response.data['id'], second_message.id)
 
     def test_exclude_chains_in_session(self):
         """ If there are receipts in the session, get the correct chain """
-        second_chain = mommy.make(Chain, game = self.game)
-        mommy.make(Message, chain = second_chain)
+        second_chain = mommy.make(Chain, game=self.game)
+        mommy.make(Message, chain=second_chain)
 
         self.make_session(self.game, instructed=True,
-                          receipts = [self.message.pk, ])
+                          receipts=[self.message.pk, ])
 
         response = self.client.get(self.switchboard_url)
         selected_message_id = response.data['id']
@@ -154,6 +151,7 @@ class SwitchboardViewTest(ViewTest):
 
 class NewGameViewTest(TestCase):
     new_game_url = reverse('new_game')
+
     def test_new_game_view_renders_new_game_form(self):
         response = self.client.get(self.new_game_url)
         self.assertIn('form', response.context)

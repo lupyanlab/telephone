@@ -1,4 +1,3 @@
-import pydub
 import unittest
 from unipath import Path
 
@@ -6,6 +5,7 @@ from django.conf import settings
 
 from grunt import handlers
 from grunt.views import VOLUME_CUTOFF_dBFS
+
 
 class MicCheckTest(unittest.TestCase):
     def test_acceptable_volume(self):

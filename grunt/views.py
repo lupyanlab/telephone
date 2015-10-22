@@ -1,17 +1,18 @@
 
 from django.core.urlresolvers import reverse_lazy
 from django.forms.models import modelformset_factory
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect, get_object_or_404, render_to_response
+from django.shortcuts import (render, redirect, get_object_or_404,
+                              render_to_response)
 from django.views.decorators.http import require_POST
-from django.views.generic import View, ListView, CreateView, FormView
+from django.views.generic import View, ListView, CreateView
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import APIException
 
 from .models import Game, Chain, MessageSerializer
-from .forms import ResponseForm, NewGameForm, NewChainForm, NewChainFormSet, NewChainFormSetHelper
+from .forms import (ResponseForm, NewGameForm, NewChainForm, NewChainFormSet,
+                    NewChainFormSetHelper)
 from .handlers import check_volume
 
 VOLUME_CUTOFF_dBFS = -30.0
@@ -114,6 +115,7 @@ class NewGameView(CreateView):
         base_url = reverse_lazy('new_chains', kwargs={'pk': self.object.pk})
         with_query = '{}?num_chains={}'.format(base_url, self.num_chains or 1)
         return with_query
+
 
 class NewChainsView(CreateView):
     template_name = 'grunt/new_chains.html'
