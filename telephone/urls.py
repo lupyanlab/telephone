@@ -18,7 +18,7 @@ urlpatterns = patterns(
     # app views
     url(r'^$', grunt_views.GameListView.as_view(), name='games_list'),
     url(r'^new_game/$', grunt_views.NewGameView.as_view(), name='new_game'),
-    url(r'^(?P<pk>\d+)/new_chains/', grunt_views.NewChainsView.as_view(),
+    url(r'^(?P<pk>\d+)/new_chains/', grunt_views.new_chains_view,
         name='new_chains'),
 
     # gameplay views

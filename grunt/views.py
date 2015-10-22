@@ -117,22 +117,29 @@ class NewGameView(CreateView):
         return with_query
 
 
-class NewChainsView(CreateView):
-    template_name = 'grunt/new_chains.html'
+def new_chains_view(request, pk):
+    game = get_object_or_404(Game, pk=pk)
 
-    def get(self, request, pk):
-        game = get_object_or_404(Game, pk=pk)
-        try:
-            num_chain_forms = int(request.GET.get('num_chains'))
-        except TypeError:
-            num_chain_forms = 1
-        NewChainModelFormSet = modelformset_factory(
-            Chain, form=NewChainForm, formset=NewChainFormSet,
-            extra=num_chain_forms
-        )
-        initial = [{'game': game.pk} for _ in range(num_chain_forms)]
+    try:
+        num_chain_forms = int(request.GET.get('num_chains'))
+    except TypeError:
+        num_chain_forms = 1
+
+    NewChainModelFormSet = modelformset_factory(
+        Chain, form=NewChainForm, formset=NewChainFormSet,
+        extra=num_chain_forms
+    )
+
+    if request.method == 'POST':
+        formset = NewChainModelFormSet(request.POST, request.FILES)
+        if formset.is_valid():
+            formset.save()
+            return redirect('game_list')
+    else:
+        initial = [dict(game=game.pk) for _ in range(num_chain_forms)]
         formset = NewChainModelFormSet(initial=initial)
-        context_data = dict(game=game,
-                            formset=formset,
-                            helper=NewChainFormSetHelper())
-        return render_to_response(self.template_name, context_data)
+
+    context_data = dict(game=game,
+                        formset=formset,
+                        helper=NewChainFormSetHelper())
+    return render_to_response('grunt/new_chains.html', context_data)
