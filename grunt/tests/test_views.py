@@ -158,3 +158,18 @@ class NewGameViewTest(TestCase):
         response = self.client.get(self.new_game_url)
         self.assertIn('form', response.context)
         self.assertIsInstance(response.context['form'], NewGameForm)
+
+    def test_create_new_game(self):
+        game_data = dict(name='New game!', num_chains=1)
+        self.client.post(self.new_game_url, game_data)
+        new_game = Game.objects.last()
+        self.assertEquals(new_game.name, game_data['name'])
+
+    def test_create_new_game_redirects_to_new_chains_view(self):
+        game_data = dict(name='New game!', num_chains=1)
+        response = self.client.post(self.new_game_url, game_data)
+        expected_url = '%s?num_chains=%s' % (
+            reverse('new_chains', kwargs={'pk': Game.objects.last().pk}),
+            game_data['num_chains']
+        )
+        self.assertRedirects(response, expected_url)

@@ -1,8 +1,8 @@
 
 from django.core.urlresolvers import reverse_lazy
-from django.forms.models import inlineformset_factory
+from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, render_to_response
 from django.views.decorators.http import require_POST
 from django.views.generic import View, ListView, CreateView, FormView
 
@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import APIException
 
 from .models import Game, Chain, MessageSerializer
-from .forms import ResponseForm, NewGameForm
+from .forms import ResponseForm, NewGameForm, NewChainForm, NewChainFormSet, NewChainFormSetHelper
 from .handlers import check_volume
 
 VOLUME_CUTOFF_dBFS = -30.0
@@ -106,5 +106,22 @@ class NewGameView(CreateView):
     form_class = NewGameForm
     template_name = 'grunt/new_game.html'
 
+    def form_valid(self, form):
+        self.num_chains = form.cleaned_data['num_chains']
+        return super(NewGameView, self).form_valid(form)
+
+    def get_success_url(self):
+        base_url = reverse_lazy('new_chains', kwargs={'pk': self.object.pk})
+        with_query = '{}?num_chains={}'.format(base_url, self.num_chains or 1)
+        return with_query
+
 class NewChainsView(CreateView):
-    pass
+    template_name = 'grunt/new_chains.html'
+
+    def get(self, request, pk):
+        chain_formset = modelformset_factory(
+            Chain, form=NewChainForm, formset=NewChainFormSet
+        )
+        context_data = dict(formset=chain_formset,
+                            helper=NewChainFormSetHelper())
+        return render_to_response(self.template_name, context_data)

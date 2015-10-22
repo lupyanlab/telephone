@@ -3,7 +3,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
-from .models import Message, Game
+from .models import Message, Game, Chain
 
 
 class ResponseForm(forms.ModelForm):
@@ -41,9 +41,21 @@ class NewGameForm(forms.ModelForm):
         self.helper.add_input(Submit('submit', 'Create'))
 
 
-class NewChainFormsetHelper(FormHelper):
+class NewChainForm(forms.ModelForm):
+    seed = forms.FileField()
+
+    class Meta:
+        model = Chain
+        fields = ('game', 'name')
+
+
+class NewChainFormSet(forms.models.BaseModelFormSet):
+    pass
+
+
+class NewChainFormSetHelper(FormHelper):
     """ Styling specific to pages rendering multiple new chain forms """
     def __init__(self, *args, **kwargs):
-        super(NewChainFormsetHelper, self).__init__(*args, **kwargs)
+        super(NewChainFormSetHelper, self).__init__(*args, **kwargs)
         self.form_method = 'post'
         self.add_input(Submit('submit', 'Create'))
