@@ -10,6 +10,7 @@ from unipath import Path
 from model_mommy import mommy
 
 from grunt.models import Game, Chain, Message
+from grunt.forms import NewGameForm
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
@@ -149,3 +150,11 @@ class SwitchboardViewTest(ViewTest):
         invalid_post = {'audio': self.message.pk}
         response = self.client.post(self.switchboard_url, invalid_post)
         self.assertEquals(response.status_code, 500)
+
+
+class NewGameViewTest(TestCase):
+    new_game_url = reverse('new_game')
+    def test_new_game_view_renders_new_game_form(self):
+        response = self.client.get(self.new_game_url)
+        self.assertIn('form', response.context)
+        self.assertIsInstance(response.context['form'], NewGameForm)

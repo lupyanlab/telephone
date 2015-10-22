@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import APIException
 
 from .models import Game, Chain, MessageSerializer
-from .forms import ResponseForm
+from .forms import ResponseForm, NewGameForm
 from .handlers import check_volume
 
 VOLUME_CUTOFF_dBFS = -30.0
@@ -96,3 +96,15 @@ class SwitchboardView(APIView):
 class GameListView(ListView):
     template_name = 'grunt/game_list.html'
     queryset = Game.objects.all().order_by('-id')
+
+
+class NewGameView(CreateView):
+    """ Create a new game.
+
+    A successful post redirects to a page to create the chains.
+    """
+    form_class = NewGameForm
+    template_name = 'grunt/new_game.html'
+
+class NewChainsView(CreateView):
+    pass

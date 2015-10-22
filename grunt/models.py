@@ -52,7 +52,7 @@ class Message(models.Model):
     generation = models.IntegerField(default=0, editable=False)
     audio = models.FileField(upload_to=message_file_name)
     start_at = models.FloatField(default=0.0)
-    end_at = models.FloatField(null=True)
+    end_at = models.FloatField(null=True, blank=True)
     edited = models.BooleanField(default=False)
     num_children = models.IntegerField(default=1)
 
