@@ -16,6 +16,11 @@ class InspectViewTest(TestCase):
         response = self.client.get(self.inspect_game_url)
         self.assertTemplateUsed(response, 'inspector/inspect.html')
 
+    def test_game_in_context(self):
+        """ The game should be sent to the template for rendering. """
+        response = self.client.get(self.inspect_game_url)
+        self.assertIn('game', response.context)
+
     def test_game_tree_in_context(self):
         """ The game tree should be available as rendered json. """
         response = self.client.get(self.inspect_game_url)

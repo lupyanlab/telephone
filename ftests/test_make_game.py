@@ -19,13 +19,30 @@ class MakeGameTest(FunctionalTest):
         self.browser.find_element_by_id('id_name').send_keys(new_game_name)
         self.browser.find_element_by_id('submit-id-submit').click()
 
+        # Then he creates a chain with a seed message
+        new_chain_name = 'New Chain'
+        self.browser.find_element_by_id('id_form-0-name').send_keys(
+            new_chain_name
+        )
+        self.browser.find_element_by_id('id_form-0-seed').send_keys(
+            self.path_to_test_audio()
+        )
+        self.browser.find_element_by_id('submit-id-submit').click()
+
+        # He is redirected to the inspect view for the game
+        page_title = self.browser.find_element_by_tag_name('h1').text
+        self.assertRegexpMatches(page_title, new_game_name)
+
+        # He returns to the game list page
+        self.browser.find_element_by_id('id_games_list').click()
+
         # He sees his new game on the game list page
         games_list = self.browser.find_element_by_id('id_game_list')
         games = games_list.find_elements_by_tag_name('li')
         self.assertEquals(len(games), 1)
         my_new_game = games[0]
         my_new_game_name = my_new_game.find_element_by_tag_name('h2').text
-        self.assertEquals(my_new_game_name, new_game_name)
+        self.assertRegexpMatches(my_new_game_name, new_game_name)
 
     def test_make_game_with_multiple_chains(self):
         """ Make a game with multiple chains """

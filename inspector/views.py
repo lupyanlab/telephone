@@ -16,6 +16,8 @@ class InspectView(TemplateView):
     def get_context_data(self, **kwargs):
         context_data = super(InspectView, self).get_context_data(**kwargs)
         game = get_object_or_404(Game, pk=self.kwargs.get('pk'))
+        context_data['game'] = game
+
         serializer = GameSerializer(game)
         jsoned = JSONRenderer().render(serializer.tree_data)
         context_data['game_tree'] = jsoned

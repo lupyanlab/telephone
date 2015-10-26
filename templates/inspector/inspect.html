@@ -6,7 +6,19 @@
   <link href="{% static 'inspector/css/inspect.css' %}" rel="stylesheet">
 {% endblock styling %}
 
+
+{% block navbar %}
+    <li class="btn btn-default pull-right" role="presentation">
+      <a id="id_games_list" href="{% url 'games_list' %}">
+        <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+        All Games
+      </a>
+    </li>
+{% endblock navbar %}
+
+
 {% block body %}
+  <h1>{{ game }}</h1>
   <svg class="focus">
   </svg>
   <svg class="tree">
