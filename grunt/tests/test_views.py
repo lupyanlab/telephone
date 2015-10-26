@@ -216,7 +216,7 @@ class NewGameViewTest(ViewTest):
                 'form-0-name': new_chain_name,
                 'form-0-seed': audio_file
             }
-            response = self.client.post(add_chains_url, new_chain_formset_data)
+            self.client.post(add_chains_url, new_chain_formset_data)
 
         self.assertEquals(game.chains.count(), 1)
         self.assertEquals(game.chains.first().name, new_chain_name)

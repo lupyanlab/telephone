@@ -117,6 +117,11 @@ class NewGameView(CreateView):
 
 
 def new_chains_view(request, pk):
+    """ Add chains to the newly created game.
+
+    This view uses a model formset factory to render multiple chain forms
+    on the same page.
+    """
     game = get_object_or_404(Game, pk=pk)
 
     try:
@@ -136,6 +141,8 @@ def new_chains_view(request, pk):
             return redirect('inspect', pk=game.pk)
     else:
         initial = [dict(game=game.pk) for _ in range(num_chain_forms)]
+        # The formset includes forms for all chains already in this game,
+        # as well as new forms for the new chains that need to be added.
         formset = NewChainModelFormSet(
             queryset=Chain.objects.filter(game__pk=game.pk),
             initial=initial
