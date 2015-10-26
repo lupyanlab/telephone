@@ -1,8 +1,7 @@
 
 from django.core.urlresolvers import reverse_lazy
 from django.forms.models import modelformset_factory
-from django.shortcuts import (render, redirect, get_object_or_404,
-                              render_to_response)
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.views.generic import View, ListView, CreateView
 
@@ -137,9 +136,12 @@ def new_chains_view(request, pk):
             return redirect('inspect', pk=game.pk)
     else:
         initial = [dict(game=game.pk) for _ in range(num_chain_forms)]
-        formset = NewChainModelFormSet(initial=initial)
+        formset = NewChainModelFormSet(
+            queryset=Chain.objects.filter(game__pk=game.pk),
+            initial=initial
+        )
 
     context_data = dict(game=game,
                         formset=formset,
                         helper=NewChainFormSetHelper())
-    return render_to_response('grunt/new_chains.html', context_data)
+    return render(request, 'grunt/new_chains.html', context_data)
