@@ -134,7 +134,7 @@ def new_chains_view(request, pk):
         formset = NewChainModelFormSet(request.POST, request.FILES)
         if formset.is_valid():
             formset.save()
-            return redirect('game_list')
+            return redirect('inspect', pk=game.pk)
     else:
         initial = [dict(game=game.pk) for _ in range(num_chain_forms)]
         formset = NewChainModelFormSet(initial=initial)

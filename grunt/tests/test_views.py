@@ -149,7 +149,7 @@ class SwitchboardViewTest(ViewTest):
         self.assertEquals(response.status_code, 500)
 
 
-class NewGameViewTest(TestCase):
+class NewGameViewTest(ViewTest):
     new_game_url = reverse('new_game')
 
     def test_new_game_view_renders_new_game_form(self):
@@ -187,7 +187,7 @@ class NewGameViewTest(TestCase):
 
     def test_add_new_chains_view_includes_correct_number_of_chain_forms(self):
         game = mommy.make(Game)
-        num_chains_to_add = 4
+        num_chains_to_add = 10
         add_chains_url = '{}?num_chains={}'.format(
             reverse('new_chains', kwargs={'pk': game.pk}),
             num_chains_to_add
@@ -201,3 +201,22 @@ class NewGameViewTest(TestCase):
         response = self.client.get(add_chains_url)
         for form in response.context['formset']:
             self.assertEquals(form.initial['game'], game.pk)
+
+    def test_add_new_chains_with_formset(self):
+        game = mommy.make(Game)
+        add_chains_url = reverse('new_chains', kwargs={'pk': game.pk})
+        new_chain_name = 'new chain name'
+        with open(self.audio_path, 'rb') as audio_handle:
+            audio_file = File(audio_handle)
+            new_chain_formset_data = {
+                'form-TOTAL_FORMS': '1',
+                'form-INITIAL_FORMS': '0',
+                'form-MAX_NUM_FORMS': '',
+                'form-0-game': game.pk,
+                'form-0-name': new_chain_name,
+                'form-0-seed': audio_file
+            }
+            response = self.client.post(add_chains_url, new_chain_formset_data)
+
+        self.assertEquals(game.chains.count(), 1)
+        self.assertEquals(game.chains.first().name, new_chain_name)
