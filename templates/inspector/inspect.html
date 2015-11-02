@@ -26,7 +26,7 @@
 {% endblock body %}
 
 {% block javascript %}
-  <script src="{% static 'd3/d3.min.js' %}" type="text/JavaScript"></script>
+  <script src="{% static 'd3/d3.js' %}" type="text/JavaScript"></script>
   <script src="{% static 'colorbrewer/colorbrewer.js' %}" type="text/JavaScript"></script>
   <script src="{% static 'underscore/underscore-min.js' %}" type="text/JavaScript"></script>
   <script src="{% static 'backbone/backbone.js' %}" type="text/JavaScript"></script>
@@ -40,26 +40,22 @@ System.config({
   baseURL: '{% static '' %}',
   map: {
     traceur: 'traceur/traceur.js',
+    jquery: 'jquery/dist/jquery.js',
+    underscore: 'underscore/underscore.js',
+    backbone: 'backbone/backbone.js',
     inspector: 'inspector/js'
   },
   transpiler: "traceur"
 });
-// Draw the gameTree once soundManager is ready
 
-System.import('inspector/app.js');
+// Initialise app once soundManager is ready
+soundManager.setup({
+  url: "{% static 'SoundManager2/swf' %}",
+  onready: function() {
+    System.import('inspector/app.js');
+  }
+});
 
-{#var gameTree = {{ game_tree | safe }};#}
-{#console.log(gameTree);#}
 
-{#_.extend(gameTree, Backbone.Events);#}
-
-{#soundManager.setup({#}
-{#  url: "{% static 'SoundManager2/swf' %}",#}
-{#  onready: function() {#}
-{#    gameTree.trigger("ready");#}
-{#  }#}
-{#"});"#}
-
-{#gameTree.once("ready", function() { drawMessageTree(gameTree); });#}
   </script>
 {% endblock javascript %}
