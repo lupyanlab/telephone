@@ -144,7 +144,7 @@ export class GameTreeView extends Backbone.View {
       soundManager.createSound({
         id: msg.soundId,
         url: msg.audio,
-        autoload: true
+        autoLoad: true
       });
     });
 
