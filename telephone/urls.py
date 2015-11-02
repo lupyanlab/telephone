@@ -1,16 +1,14 @@
+from __future__ import unicode_literals
+
 from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 
-from rest_framework.routers import DefaultRouter
-
 from grunt import views as grunt_views
 from inspector import views as inspect_views
 from ratings import views as ratings_views
 
-router = DefaultRouter()
-router.register(r'messages', inspect_views.MessageViewSet)
 
 urlpatterns = patterns(
     '',
@@ -30,7 +28,7 @@ urlpatterns = patterns(
     # inspector views
     url(r'^(?P<pk>\d+)/inspect/$', inspect_views.InspectView.as_view(),
         name='inspect'),
-    url(r'^(?P<pk>\d+)/inspect/api/', include(router.urls)),
+    url(r'inspect/api/', include('inspector.urls')),
 
     # survey views
     url(r'^surveys/$', ratings_views.SurveyList.as_view(), name='survey_list'),

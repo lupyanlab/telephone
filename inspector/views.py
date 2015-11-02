@@ -1,10 +1,9 @@
+from __future__ import unicode_literals
+
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
-
 from rest_framework import viewsets
-from rest_framework.views import APIView
 from rest_framework.renderers import JSONRenderer
-from rest_framework.response import Response
 
 from grunt.models import Game, Message
 from inspector.serializers import GameSerializer, MessageSerializer
@@ -27,3 +26,8 @@ class InspectView(TemplateView):
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
+
+
+class GameViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Game.objects.all()
+    serializer_class = GameSerializer
