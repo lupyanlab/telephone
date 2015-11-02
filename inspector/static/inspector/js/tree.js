@@ -154,7 +154,7 @@ export class GameTreeView extends Backbone.View {
       .attr("x", -10)
       .attr("dy", ".35em")
       .attr("text-anchor", "end")
-      .text(d => d.name || d.generation);
+      .text(d => d.label);
 
     let link = this.svg.selectAll("path.link")
       .data(links, d => d.target.nid);
@@ -168,7 +168,7 @@ export class GameTreeView extends Backbone.View {
     return {
       id: this.model.id,
       type: "game",
-      name: this.model.name,
+      label: this.model.name,
       children: this.model.chains.map(chain => this.constructChainTreeNode(chain))
     };
   }
@@ -176,7 +176,7 @@ export class GameTreeView extends Backbone.View {
   constructChainTreeNode(chain) {
     return {
       id: chain.id,
-      name: chain.name,
+      label: chain.name,
       type: 'chain',
       children: [this.constructMessageTreeNode(chain.seedMessage)]
     }
@@ -188,6 +188,7 @@ export class GameTreeView extends Backbone.View {
       type: 'message',
       soundId: message.soundId,
       audio: message.audio,
+      label: message.generation,
       children: _.map(message.children, child => this.constructMessageTreeNode(child))
     }
   }

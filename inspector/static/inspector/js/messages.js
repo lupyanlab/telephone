@@ -33,4 +33,8 @@ export class Message extends Backbone.Model {
     return this.get('children');
   }
 
+  get generation() {
+    return this.get('generation');
+  }
+
 }
