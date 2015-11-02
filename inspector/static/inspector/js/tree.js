@@ -1,3 +1,62 @@
+import {Messages} from 'inspector/messages.js';
+
+
+export class GameTree extends Backbone.Model {
+
+  static prepareJson(attributes) {
+    //Ensure that "chains" attribute is a Backbone collection of `Chain` models instead of array of plain objects.
+    // Note: `new Chains(attributes["chains"])` wouldn't work properly because `Chain` attributes also includes
+    // array of data that should be converted to Backbone models
+    attributes["chains"] = new Chains(_.map(attributes["chains"], chainData => Chain.fromJson(chainData)));
+    return attributes
+  }
+
+  get urlRoot() {
+    return "/inspect/api/games/"
+  }
+
+  //Correctly handles collections of child models.
+  parse(response, options) {
+    return GameTree.prepareJson(response);
+  }
+
+}
+
+
+class Chains extends Backbone.Collection {
+
+  get model() {
+    return Chain
+  }
+
+}
+
+
+class Chain extends Backbone.Model {
+
+  // Construct `Chain` from plain Json representation.
+  // This method correctly constructs all collections of child models
+  // in contrast to the constructor which simply treats them as arrays of plain objects.
+  static fromJson(attributes) {
+    let updatedAttributes = Chain.prepareJson(attributes);
+    return new Chain(updatedAttributes);
+  }
+
+  // Ensure that "messages" attribute is a backbone collection of `Message` models,
+  // not the array of plain objects.
+  static prepareJson(attributes) {
+    attributes["messages"] = new Messages(attributes["messages"]);
+    return attributes
+  }
+
+  // Correctly handles collections of child models.
+  parse(response, options) {
+    return Chain.prepareJson(response);
+  }
+
+}
+
+
 var margin = {top: 20, right: 120, bottom: 20, left: 120},
     width = 960 - margin.right - margin.left,
     height = 800 - margin.top - margin.bottom;
