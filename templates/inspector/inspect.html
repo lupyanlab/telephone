@@ -32,7 +32,6 @@
   <script src="{% static 'backbone/backbone.js' %}" type="text/JavaScript"></script>
   <script src="{% static 'SoundManager2/script/soundmanager2.js' %}" type="text/JavaScript"></script>
   <script src="{% static 'grunt/js/ajax.js' %}" type="text/javascript"></script>
-  <script src="{% static 'inspector/js/tree.js' %}" type="text/JavaScript"></script>
   <script src="{% static 'inspector/js/focus.js' %}" type="text/JavaScript"></script>
   <script src="{% static 'system.js/dist/system.src.js' %}" type="text/JavaScript"></script>
   <script>
@@ -49,17 +48,18 @@ System.config({
 
 System.import('inspector/app.js');
 
-var gameTree = {{ game_tree | safe }};
+{#var gameTree = {{ game_tree | safe }};#}
+{#console.log(gameTree);#}
 
-_.extend(gameTree, Backbone.Events);
+{#_.extend(gameTree, Backbone.Events);#}
 
-soundManager.setup({
-  url: "{% static 'SoundManager2/swf' %}",
-  onready: function() {
-    gameTree.trigger("ready");
-  }
-});
+{#soundManager.setup({#}
+{#  url: "{% static 'SoundManager2/swf' %}",#}
+{#  onready: function() {#}
+{#    gameTree.trigger("ready");#}
+{#  }#}
+{#"});"#}
 
-gameTree.once("ready", function() { drawMessageTree(gameTree); });
+{#gameTree.once("ready", function() { drawMessageTree(gameTree); });#}
   </script>
 {% endblock javascript %}

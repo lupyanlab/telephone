@@ -57,72 +57,117 @@ class Chain extends Backbone.Model {
 }
 
 
-var margin = {top: 20, right: 120, bottom: 20, left: 120},
-    width = 960 - margin.right - margin.left,
-    height = 800 - margin.top - margin.bottom;
+export class GameTreeView extends Backbone.View {
 
-// Counter for node ids
-var i = 0;
+  get margin() {
+    return {top: 20, right: 120, bottom: 20, left: 120};
+  }
 
-var tree = d3.layout.tree()
-  .size([height, width])
-  .children(function (node) { return node.children; });
+  get width() {
+    return 960 - this.margin.right - this.margin.left;
+  }
 
-var diagonal = d3.svg.diagonal()
-  .projection(function (node) { return [node.y, node.x]; });
+  get height() {
+    return 800 - this.margin.top - this.margin.bottom;
+  }
 
-var svg = d3.select("svg.tree")
-  .attr("width", width + margin.right + margin.left)
-  .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  render() {
+    this.drawMessageTree();
+  }
 
-function drawMessageTree(nestedData) {
-  var nodes = tree.nodes(nestedData),
-      links = tree.links(nodes);
+  initialize() {
+    this.listenTo(this.model, 'change', this.render);
+    this.listenTo(this.model, 'destroy', this.remove);
+    this.prepareLayout();
+  }
 
-  nodes.forEach(function(d) { d.y = d.depth * 180; });
+  prepareLayout() {
+    this.tree = d3.layout.tree()
+      .size([this.height, this.width])
+      .children(node => node.children);
 
-  var node = svg.selectAll("g.node")
-    .data(nodes, function(node) { return node.nid || (node.nid = ++i); });
+    this.diagonal = d3.svg.diagonal()
+      .projection(node => [node.y, node.x]);
 
-  var nodeEnter = node.enter()
-    .append("g")
-    .attr("class", "node")
-    .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+    this.svg = d3.select(this.el)
+      .attr("width", this.width + this.margin.right + this.margin.left)
+      .attr("height", this.height + this.margin.top + this.margin.bottom)
+      .append("g")
+      .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`);
+  }
 
-  nodeEnter.append("circle")
-    .attr("r", 5)
-    .attr("class", function(d) { return d.type; });
+  drawMessageTree() {
+    // Counter for node ids
+    let i = 0;
+    let nodes = this.tree.nodes(this.constructGameTreeRootNode());
+    let links = this.tree.links(nodes);
 
-  var messagesWithAudio = nodeEnter.selectAll("circle.message");
+    nodes.forEach(d => d.y = d.depth * 180);
 
-  // Load messages with audio using soundManager
-  messagesWithAudio.each(function(msg) {
-    soundManager.createSound({
-      id: msg.soundId,
-      url: msg.audio,
-      autoload: true
+    let node = this.svg.selectAll("g.node")
+      .data(nodes, node => node.nid || (node.nid = ++i));
+
+    let nodeEnter = node.enter()
+      .append("g")
+      .attr("class", "node")
+      .attr("transform", d => `translate(${d.y},${d.x})`);
+
+    nodeEnter.append("circle")
+      .attr("r", 5)
+      .attr("class", d => d.type);
+
+    let messagesWithAudio = nodeEnter.selectAll("circle.message");
+
+    // Load messages with audio using soundManager
+    messagesWithAudio.each(function (msg) {
+      soundManager.createSound({
+        id: msg.soundId,
+        url: msg.audio,
+        autoload: true
+      });
     });
-  });
 
-  messagesWithAudio
-    .on("click", selectMessage);
+    messagesWithAudio.on("click", message => console.log(message));
 
-  nodeEnter.append("text")
-    .attr("x", -10)
-    .attr("dy", ".35em")
-    .attr("text-anchor", "end")
-    .text(function(d) { return d.name || d.generation; });
+    nodeEnter.append("text")
+      .attr("x", -10)
+      .attr("dy", ".35em")
+      .attr("text-anchor", "end")
+      .text(d => d.name || d.generation);
 
-  var link = svg.selectAll("path.link")
-      .data(links, function(d) { return d.target.nid; });
+    let link = this.svg.selectAll("path.link")
+      .data(links, d => d.target.nid);
 
-  link.enter().insert("path", "g")
-    .attr("class", "link")
-    .attr("d", diagonal);
-}
+    link.enter().insert("path", "g")
+      .attr("class", "link")
+      .attr("d", this.diagonal);
+  }
 
-function selectMessage(message) {
-  console.log(message.id);
+  constructGameTreeRootNode() {
+    return {
+      id: this.model.id,
+      type: "game",
+      name: this.model.get('name'),
+      children: this.model.get('chains').map(chain => this.constructChainTreeNode(chain))
+    };
+  }
+
+  constructChainTreeNode(chain) {
+    return {
+      id: chain.id,
+      name: chain.get("name"),
+      type: "chain",
+      children: chain.get("messages").map(message => this.constructMessageTreeNode(message))
+    }
+  }
+
+  constructMessageTreeNode(message) {
+    return {
+      id: message.id,
+      type: "message",
+      soundId: message.soundId,
+      audio: message.get("audio")
+    }
+  }
+
 }
