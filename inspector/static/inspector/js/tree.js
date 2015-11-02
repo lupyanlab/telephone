@@ -1,4 +1,4 @@
-import {Messages} from 'inspector/messages.js';
+import {Message} from 'inspector/messages.js';
 
 
 export class GameTree extends Backbone.Model {
@@ -20,6 +20,14 @@ export class GameTree extends Backbone.Model {
     return GameTree.prepareJson(response);
   }
 
+  get name() {
+    return this.get('name');
+  }
+
+  get chains() {
+    return this.get('chains');
+  }
+
 }
 
 
@@ -34,24 +42,36 @@ class Chains extends Backbone.Collection {
 
 class Chain extends Backbone.Model {
 
-  // Construct `Chain` from plain Json representation.
-  // This method correctly constructs all collections of child models
-  // in contrast to the constructor which simply treats them as arrays of plain objects.
+  /** Construct `Chain` from plain Json representation.
+   * This method correctly constructs hierarchy of chain messages.
+   *
+   * @param {Object} attributes - JSON representation of the Chain with messages represented as array
+   * @returns {Chain}
+   */
   static fromJson(attributes) {
     let updatedAttributes = Chain.prepareJson(attributes);
     return new Chain(updatedAttributes);
   }
 
-  // Ensure that "messages" attribute is a backbone collection of `Message` models,
-  // not the array of plain objects.
+  /** Ensure that hierarchy of the chain messages is correctly reconstructed.
+   */
   static prepareJson(attributes) {
-    attributes["messages"] = new Messages(attributes["messages"]);
+    attributes['seedMessage'] = Message.constructMessageHierarchyFromPlainJson(attributes['messages']);
+    delete attributes['messages'];
     return attributes
   }
 
-  // Correctly handles collections of child models.
+  // Correctly handles message hierarchies.
   parse(response, options) {
     return Chain.prepareJson(response);
+  }
+
+  get name() {
+    return this.get('name');
+  }
+
+  get seedMessage() {
+    return this.get('seedMessage');
   }
 
 }
@@ -99,6 +119,7 @@ export class GameTreeView extends Backbone.View {
   drawMessageTree() {
     // Counter for node ids
     let i = 0;
+
     let nodes = this.tree.nodes(this.constructGameTreeRootNode());
     let links = this.tree.links(nodes);
 
@@ -147,26 +168,27 @@ export class GameTreeView extends Backbone.View {
     return {
       id: this.model.id,
       type: "game",
-      name: this.model.get('name'),
-      children: this.model.get('chains').map(chain => this.constructChainTreeNode(chain))
+      name: this.model.name,
+      children: this.model.chains.map(chain => this.constructChainTreeNode(chain))
     };
   }
 
   constructChainTreeNode(chain) {
     return {
       id: chain.id,
-      name: chain.get("name"),
-      type: "chain",
-      children: chain.get("messages").map(message => this.constructMessageTreeNode(message))
+      name: chain.name,
+      type: 'chain',
+      children: [this.constructMessageTreeNode(chain.seedMessage)]
     }
   }
 
   constructMessageTreeNode(message) {
     return {
       id: message.id,
-      type: "message",
+      type: 'message',
       soundId: message.soundId,
-      audio: message.get("audio")
+      audio: message.audio,
+      children: _.map(message.children, child => this.constructMessageTreeNode(child))
     }
   }
 

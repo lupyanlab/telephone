@@ -1,4 +1,4 @@
-import copy
+from __future__ import unicode_literals
 
 from rest_framework import serializers
 
@@ -25,40 +25,3 @@ class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
         fields = ('id', 'name', 'chains')
-
-    @property
-    def tree_data(self):
-        data = copy.deepcopy(self.data)
-        data['type'] = 'game'
-
-        chains = data.pop('chains')
-
-        for chain in chains:
-            chain['type'] = 'chain'
-            messages = chain.pop('messages')
-
-            def find_children(parent):
-                parent['type'] = 'message'
-                # soundId for soundManager
-                parent['soundId'] = 's{}'.format(parent['id'])
-                children = [child for child in messages
-                            if child['parent'] == parent['id']]
-                if children:
-                    parent['children'] = children
-                    for child in children:
-                        find_children(child)
-
-            # Find the seed message
-            for message in messages:
-                if message['generation'] == 0:
-                    seed_message = message
-                    break
-
-            # Find children recursively, starting with
-            # the seed message
-            find_children(seed_message)
-
-            chain['children'] = [seed_message,]
-
-        data['children'] = chains
-        return data
