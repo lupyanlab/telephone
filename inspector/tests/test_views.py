@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
@@ -7,6 +9,7 @@ from grunt.models import Game
 
 
 class InspectViewTest(TestCase):
+
     def setUp(self):
         game = mommy.make(Game)
         self.inspect_game_url = reverse('inspect', kwargs={'pk': game.pk})
@@ -20,8 +23,3 @@ class InspectViewTest(TestCase):
         """ The game should be sent to the template for rendering. """
         response = self.client.get(self.inspect_game_url)
         self.assertIn('game', response.context)
-
-    def test_game_tree_in_context(self):
-        """ The game tree should be available as rendered json. """
-        response = self.client.get(self.inspect_game_url)
-        self.assertIn('game_tree', response.context)
