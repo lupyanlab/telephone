@@ -1,7 +1,3 @@
-var Message = Backbone.Model.extend({
-  urlRoot: 'api/messages'
-});
-
 function createPlaybar(message) {
   var svg = d3.select("svg.focus");
 

@@ -1,10 +1,8 @@
+from __future__ import unicode_literals
+
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
-
 from rest_framework import viewsets
-from rest_framework.views import APIView
-from rest_framework.renderers import JSONRenderer
-from rest_framework.response import Response
 
 from grunt.models import Game, Message
 from inspector.serializers import GameSerializer, MessageSerializer
@@ -17,13 +15,14 @@ class InspectView(TemplateView):
         context_data = super(InspectView, self).get_context_data(**kwargs)
         game = get_object_or_404(Game, pk=self.kwargs.get('pk'))
         context_data['game'] = game
-
-        serializer = GameSerializer(game)
-        jsoned = JSONRenderer().render(serializer.tree_data)
-        context_data['game_tree'] = jsoned
         return context_data
 
 
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
+
+
+class GameViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Game.objects.all()
+    serializer_class = GameSerializer

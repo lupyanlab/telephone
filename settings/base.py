@@ -118,5 +118,6 @@ BOWER_INSTALLED_APPS = (
     'd3#3.5.6',
     'colorbrewer#1.0.0',
     'underscore#1.8.3',
-    'bootstrap#3.3.5',
+    'traceur#0.0.92',
+    'https://github.com/systemjs/systemjs.git#0.19.5',
 )
