@@ -32,27 +32,16 @@
   <script src="{% static 'backbone/backbone.js' %}" type="text/JavaScript"></script>
   <script src="{% static 'SoundManager2/script/soundmanager2.js' %}" type="text/JavaScript"></script>
   <script src="{% static 'grunt/js/ajax.js' %}" type="text/javascript"></script>
-  <script src="{% static 'inspector/js/focus.js' %}" type="text/JavaScript"></script>
-  <script src="{% static 'system.js/dist/system.src.js' %}" type="text/JavaScript"></script>
+  <script src="{% static 'jspm_packages/system.js' %}" type="text/javascript"></script>
+  <script src="{% static 'config.js' %}" type="text/javascript"></script>
+
   <script>
 
-    System.config({
-      baseURL: '{% static '' %}',
-      map: {
-        traceur: 'traceur/traceur.js',
-        jquery: 'jquery/dist/jquery.js',
-        underscore: 'underscore/underscore.js',
-        backbone: 'backbone/backbone.js',
-        inspector: 'inspector/js'
-      },
-      transpiler: "traceur"
-    });
-
-    // Initialise app once soundManager is ready
+    // Load and initialise app once soundManager is ready
     soundManager.setup({
       url: "{% static 'SoundManager2/swf' %}",
       onready: function() {
-        System.import('inspector/app.js');
+        System.import('inspector/js/app.js');
       }
     });
 
