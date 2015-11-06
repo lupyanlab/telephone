@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     # Third-party apps
     'crispy_forms',
     'djangobower',
+    'rest_framework',
 
     # Local apps
     'grunt',
