@@ -15,7 +15,6 @@
           <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
 
-        <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         {% block styling %}
         {% endblock styling %}
     </head>
@@ -39,7 +38,7 @@
 
         </div>
 
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="{% static 'jquery/dist/jquery.js' %}"></script>
         <script src="{% static 'bootstrap/dist/js/bootstrap.js' %}"></script>
         {% block javascript %}
         {% endblock javascript %}
