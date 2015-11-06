@@ -1,5 +1,7 @@
-import {Message} from 'inspector/messages.js';
+import Backbone from 'backbone';
+import {_} from 'underscore';
 
+import {Message} from 'inspector/js/messages.js';
 
 export class GameTree extends Backbone.Model {
 

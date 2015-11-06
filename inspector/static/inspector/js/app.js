@@ -1,5 +1,7 @@
-import {GameTreeView} from 'inspector/tree.js';
-import {GameTree} from 'inspector/tree.js';
+import * as Backbone from 'backbone';
+
+import {GameTreeView} from 'inspector/js/tree.js';
+import {GameTree} from 'inspector/js/tree.js';
 
 class Router extends Backbone.Router {
 

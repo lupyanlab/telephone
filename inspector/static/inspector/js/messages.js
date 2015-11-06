@@ -1,3 +1,7 @@
+import * as Backbone from 'backbone';
+import {_} from 'underscore';
+
+
 export class Message extends Backbone.Model {
 
   /** Constructs message hierarchy from the plain array.
