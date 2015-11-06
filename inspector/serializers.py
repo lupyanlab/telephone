@@ -11,6 +11,12 @@ class MessageSerializer(serializers.ModelSerializer):
         fields = ('id', 'parent', 'audio', 'generation', 'num_children')
 
 
+class MessageDetailsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Message
+
+
 class ChainSerializer(serializers.ModelSerializer):
     messages = MessageSerializer(many=True)
 
