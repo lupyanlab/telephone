@@ -1,5 +1,7 @@
-import * as Backbone from 'backbone';
+import Backbone from 'backbone';
 import {_} from 'underscore';
+
+import messageDetailsTemplate from 'inspector/js/message_details.hbs!';
 
 
 export class Message extends Backbone.Model {
@@ -22,7 +24,7 @@ export class Message extends Backbone.Model {
   }
 
   get urlRoot() {
-    return "inspect/api/messages"
+    return "inspect/api/messages";
   }
 
   get soundId() {
@@ -37,8 +39,65 @@ export class Message extends Backbone.Model {
     return this.get('children');
   }
 
+  get startAt() {
+    return this.get('start_at');
+  }
+
+  get endAt() {
+    const attributeValue = this.get('end_at');
+    if (attributeValue !== null) {
+      return attributeValue;
+    } else {
+      return this.sound.durationEstimate;
+    }
+  }
+
+  get numberOfChildrenLeft() {
+    return this.get('num_children');
+  }
+
+  get isEdited() {
+    return this.get('edited');
+  }
+
   get generation() {
     return this.get('generation');
   }
+
+  get sound() {
+    return soundManager.sounds[this.soundId];
+  }
+
+}
+
+export class MessageDetailsView extends Backbone.View {
+
+  get events() {
+    return {
+      'click .play-button': 'playSound'
+    };
+  }
+
+  initialize() {
+    this.listenTo(this.model, 'change', this.render);
+    this.listenTo(this.model, 'destroy', this.remove);
+  }
+
+  render() {
+    let html = messageDetailsTemplate({'message': this.model});
+    this.$el.html(html);
+    return this;
+  }
+
+  remove() {
+    this.undelegateEvents();
+    this.stopListening();
+    //this.$el.empty();
+  }
+
+  playSound() {
+    this.model.sound.play();
+  }
+
 
 }

@@ -1,0 +1,39 @@
+<div>
+    <h3>
+        Selected message details:
+    </h3>
+
+    <h4>
+        General info:
+    </h4>
+    <div class="row">
+        <div class="col-md-6">Id:</div> <div class="col-md-2">{{message.id}}</div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">Generation:</div> <div class="col-md-2">{{message.generation}}</div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">Number of children:</div> <div class="col-md-2">{{message.numberOfChildrenLeft}}</div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">Edited:</div> <div class="col-md-2">{{message.isEdited}}</div>
+    </div>
+
+    <h4>
+        Sound info:
+    </h4>
+    <div class="row">
+        <div class="col-md-6">Sound file:</div> <div class="col-md-2"><a href="{{message.sound.url}}">{{message.sound.url}}</a></div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">Start at:</div> <div class="col-md-2">{{message.startAt}}</div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">End at:</div> <div class="col-md-2">{{message.endAt}}</div>
+    </div>
+
+    <button class="btn btn-primary play-button">Play</button>
+</div>
+
+<svg class="focus">
+</svg>
