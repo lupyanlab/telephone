@@ -79,6 +79,10 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = Path(PROJ_DIR, 'static')
 
+STATICFILES_DIRS = (
+    'jspm_components', # Packages managed by jspm
+)
+
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
