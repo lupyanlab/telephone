@@ -150,19 +150,6 @@ export class GameTreeView extends Backbone.View {
       .attr("r", 5)
       .attr("class", d => d.type);
 
-    let messagesWithAudio = nodeEnter.selectAll("circle.message");
-
-    // Load messages with audio using soundManager
-    messagesWithAudio.each(function (msg) {
-      soundManager.createSound({
-        id: msg.soundId,
-        url: msg.audio,
-        autoLoad: true
-      });
-    });
-
-    messagesWithAudio.on("click", message => console.log(message));
-
     nodeEnter.append("text")
       .attr("x", -10)
       .attr("dy", ".35em")

@@ -66,4 +66,17 @@ export class Message extends Backbone.Model {
     return soundManager.sounds[this.soundId];
   }
 
+  initialize() {
+    this.on('change:id', eventName => this.createSound());
+  }
+
+  createSound() {
+    const sound = soundManager.createSound({
+      id: this.soundId,
+      url: this.audio
+    });
+
+    sound.load({onload: e => this.trigger('change')}); // Trigger 'change' event to ensure that attached views are rerendered
+  }
+
 }
