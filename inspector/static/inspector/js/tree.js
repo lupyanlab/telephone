@@ -146,7 +146,8 @@ export class GameTreeView extends Backbone.View {
       .attr("class", "node")
       .attr("transform", d => `translate(${d.y},${d.x})`);
 
-    nodeEnter.append("circle")
+    nodeEnter.append(addLinkToMessageDetails)
+      .append("circle")
       .attr("r", 5)
       .attr("class", d => d.type);
 
@@ -193,4 +194,13 @@ export class GameTreeView extends Backbone.View {
     }
   }
 
+}
+
+
+function addLinkToMessageDetails(datum) {
+  const element = document.createElementNS('http://www.w3.org/2000/svg', 'a');
+  if (datum.type === 'message') {
+    element.setAttributeNS('http://www.w3.org/1999/xlink', 'href', `#messages/${datum.id}/details`); //TODO: Reverse routing
+  }
+  return element;
 }
