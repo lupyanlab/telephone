@@ -18,11 +18,16 @@
 
 
 {% block body %}
-  <h1>{{ game }}</h1>
-  <svg class="focus">
-  </svg>
-  <svg class="tree">
-  </svg>
+  <div class="game-tree">
+
+      <h1>{{ game }}</h1>
+
+      <div class="message-details"></div>
+
+      <svg class="tree">
+      </svg>
+
+  </div>
 {% endblock body %}
 
 {% block javascript %}

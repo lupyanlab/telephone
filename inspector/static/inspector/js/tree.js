@@ -2,6 +2,7 @@ import Backbone from 'backbone';
 import {_} from 'underscore';
 
 import {Message} from 'inspector/js/messages/models.js';
+import {MessageComponent} from 'inspector/js/messages/router.js';
 
 
 export class GameTree extends Backbone.Model {
@@ -82,6 +83,11 @@ class Chain extends Backbone.Model {
 
 export class GameTreeView extends Backbone.View {
 
+  constructor(options) {
+    super(options);
+    this.messageComponent = new MessageComponent({el: this.messageDetailsContainerElement});
+  }
+
   get margin() {
     return {top: 20, right: 120, bottom: 20, left: 120};
   }
@@ -92,6 +98,10 @@ export class GameTreeView extends Backbone.View {
 
   get height() {
     return 800 - this.margin.top - this.margin.bottom;
+  }
+
+  get messageDetailsContainerElement() {
+    return this.$('div.message-details');
   }
 
   render() {
@@ -112,7 +122,7 @@ export class GameTreeView extends Backbone.View {
     this.diagonal = d3.svg.diagonal()
       .projection(node => [node.y, node.x]);
 
-    this.svg = d3.select(this.el)
+    this.svg = d3.selectAll(this.$('svg.tree'))
       .attr("width", this.width + this.margin.right + this.margin.left)
       .attr("height", this.height + this.margin.top + this.margin.bottom)
       .append("g")
