@@ -1,5 +1,6 @@
 import Backbone from 'backbone';
 import {_} from 'underscore';
+import d3 from 'd3';
 
 import {Message} from 'inspector/js/messages/models.js';
 import {MessageComponent} from 'inspector/js/messages/router.js';
