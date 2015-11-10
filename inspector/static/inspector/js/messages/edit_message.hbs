@@ -1,0 +1,28 @@
+<h3>Edit message properties</h3>
+
+<div class="well">
+    <form class="form-horizontal message-edit-form" onsubmit="">
+        <fieldset>
+            <div class="form-group">
+                <label class="control-label col-md-8"><div class="text-left">Number of children</div></label>
+                <div class="col-md-2">
+                    <input class="form-control message-number-of-children" type="number" value="{{message.numberOfChildrenLeft}}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-md-8"><div class="text-left">Edited</div></label>
+                <div class="col-md-2">
+                    <input class="form-control message-is-edited" type="checkbox" {{#if message.isEdited}} checked {{/if}}>
+                </div>
+            </div>
+        </fieldset>
+        <div class="message-status"></div>
+        <div class="form-actions">
+            <button class="btn btn-primary message-save-button">Save</button>
+            <a class="btn btn-default" href="#messages/{{message.id}}/details" title="Discard all unsaved changes and switch to details view">View</a>
+        </div>
+    </form>
+</div>
+
+<svg class="focus">
+</svg>

@@ -1,5 +1,4 @@
 import Backbone from 'backbone';
-import {_} from 'underscore';
 
 import messageDetailsTemplate from 'inspector/js/messages/message_details.hbs!';
 
