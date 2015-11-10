@@ -1,3 +1,2 @@
 -r base.txt
-flake8==2.4.1
 selenium==2.47.1
