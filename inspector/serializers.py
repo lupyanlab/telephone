@@ -13,6 +13,8 @@ class MessageSerializer(serializers.ModelSerializer):
 
 class MessageDetailsSerializer(serializers.ModelSerializer):
 
+    audio = serializers.FileField(read_only=True)
+
     class Meta:
         model = Message
 
