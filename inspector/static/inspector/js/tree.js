@@ -188,8 +188,6 @@ export class GameTreeView extends Backbone.View {
     return {
       id: message.id,
       type: 'message',
-      soundId: message.soundId,
-      audio: message.audio,
       label: message.generation,
       children: _.map(message.children, child => this.constructMessageTreeNode(child))
     }
