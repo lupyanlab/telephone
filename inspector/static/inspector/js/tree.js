@@ -1,4 +1,9 @@
-import {Message} from 'inspector/messages.js';
+import Backbone from 'backbone';
+import {_} from 'underscore';
+import d3 from 'd3';
+
+import {Message} from 'inspector/js/messages/models.js';
+import {MessageComponent} from 'inspector/js/messages/router.js';
 
 
 export class GameTree extends Backbone.Model {
@@ -79,6 +84,11 @@ class Chain extends Backbone.Model {
 
 export class GameTreeView extends Backbone.View {
 
+  constructor(options) {
+    super(options);
+    this.messageComponent = new MessageComponent({el: this.messageDetailsContainerElement});
+  }
+
   get margin() {
     return {top: 20, right: 120, bottom: 20, left: 120};
   }
@@ -89,6 +99,10 @@ export class GameTreeView extends Backbone.View {
 
   get height() {
     return 800 - this.margin.top - this.margin.bottom;
+  }
+
+  get messageDetailsContainerElement() {
+    return this.$('div.message-details');
   }
 
   render() {
@@ -109,7 +123,7 @@ export class GameTreeView extends Backbone.View {
     this.diagonal = d3.svg.diagonal()
       .projection(node => [node.y, node.x]);
 
-    this.svg = d3.select(this.el)
+    this.svg = d3.selectAll(this.$('svg.tree'))
       .attr("width", this.width + this.margin.right + this.margin.left)
       .attr("height", this.height + this.margin.top + this.margin.bottom)
       .append("g")
@@ -133,22 +147,10 @@ export class GameTreeView extends Backbone.View {
       .attr("class", "node")
       .attr("transform", d => `translate(${d.y},${d.x})`);
 
-    nodeEnter.append("circle")
+    nodeEnter.append(addLinkToMessageDetails)
+      .append("circle")
       .attr("r", 5)
       .attr("class", d => d.type);
-
-    let messagesWithAudio = nodeEnter.selectAll("circle.message");
-
-    // Load messages with audio using soundManager
-    messagesWithAudio.each(function (msg) {
-      soundManager.createSound({
-        id: msg.soundId,
-        url: msg.audio,
-        autoLoad: true
-      });
-    });
-
-    messagesWithAudio.on("click", message => console.log(message));
 
     nodeEnter.append("text")
       .attr("x", -10)
@@ -186,11 +188,18 @@ export class GameTreeView extends Backbone.View {
     return {
       id: message.id,
       type: 'message',
-      soundId: message.soundId,
-      audio: message.audio,
       label: message.generation,
       children: _.map(message.children, child => this.constructMessageTreeNode(child))
     }
   }
 
+}
+
+
+function addLinkToMessageDetails(datum) {
+  const element = document.createElementNS('http://www.w3.org/2000/svg', 'a');
+  if (datum.type === 'message') {
+    element.setAttributeNS('http://www.w3.org/1999/xlink', 'href', `#messages/${datum.id}/details`); //TODO: Reverse routing
+  }
+  return element;
 }

@@ -15,3 +15,6 @@ vagrant_ansible_inventory_default
 ansible/env_vars/secrets.yml
 
 *.swp
+
+# Jspm packages
+jspm_components/jspm_packages

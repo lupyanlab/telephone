@@ -1,3 +1,7 @@
+import Backbone from 'backbone';
+import {_} from 'underscore';
+
+
 export class Message extends Backbone.Model {
 
   /** Constructs message hierarchy from the plain array.
@@ -18,7 +22,7 @@ export class Message extends Backbone.Model {
   }
 
   get urlRoot() {
-    return "inspect/api/messages"
+    return "inspect/api/messages";
   }
 
   get soundId() {
@@ -33,8 +37,46 @@ export class Message extends Backbone.Model {
     return this.get('children');
   }
 
+  get startAt() {
+    return this.get('start_at');
+  }
+
+  get endAt() {
+    const attributeValue = this.get('end_at');
+    if (attributeValue !== null) {
+      return attributeValue;
+    } else {
+      return this.sound.durationEstimate;
+    }
+  }
+
+  get numberOfChildrenLeft() {
+    return this.get('num_children');
+  }
+
+  get isEdited() {
+    return this.get('edited');
+  }
+
   get generation() {
     return this.get('generation');
+  }
+
+  get sound() {
+    return soundManager.sounds[this.soundId];
+  }
+
+  initialize() {
+    this.on('change:id', eventName => this.createSound());
+  }
+
+  createSound() {
+    const sound = soundManager.createSound({
+      id: this.soundId,
+      url: this.audio
+    });
+
+    sound.load({onload: e => this.trigger('change')}); // Trigger 'change' event to ensure that attached views are rerendered
   }
 
 }

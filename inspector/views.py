@@ -5,7 +5,7 @@ from django.views.generic import TemplateView
 from rest_framework import viewsets
 
 from grunt.models import Game, Message
-from inspector.serializers import GameSerializer, MessageSerializer
+from inspector.serializers import GameSerializer, MessageSerializer, MessageDetailsSerializer
 
 
 class InspectView(TemplateView):
@@ -20,7 +20,17 @@ class InspectView(TemplateView):
 
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
-    serializer_class = MessageSerializer
+    list_serializer_class = MessageSerializer
+    serializer_class = MessageDetailsSerializer
+
+    def get_serializer_class(self):
+        """
+        Use brief serializer for lists of messages and detailed for all other cases.
+        """
+        if self.action == 'list':
+            return self.list_serializer_class
+        else:
+            return self.serializer_class
 
 
 class GameViewSet(viewsets.ReadOnlyModelViewSet):

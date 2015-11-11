@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     # Third-party apps
     'crispy_forms',
     'djangobower',
+    'rest_framework',
 
     # Local apps
     'grunt',
@@ -78,6 +79,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATIC_ROOT = Path(PROJ_DIR, 'static')
+
+STATICFILES_DIRS = (
+    'jspm_components', # Packages managed by jspm
+)
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
