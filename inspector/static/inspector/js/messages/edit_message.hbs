@@ -15,6 +15,21 @@
                     <input class="form-control message-is-edited" type="checkbox" {{#if message.isEdited}} checked {{/if}}>
                 </div>
             </div>
+            <div class="message-cropping">
+                <h4>Message cropping</h4>
+                <div class="form-group">
+                    <label class="control-label col-md-8"><div class="text-left">Start at </div></label>
+                    <div class="col-md-2">
+                        <input class="form-control message-start-at" type="number" value="{{message.startAt}}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-md-8"><div class="text-left">End at</div></label>
+                    <div class="col-md-2">
+                        <input class="form-control message-end-at" type="number" value="{{message.endAt}}">
+                    </div>
+                </div>
+            </div>
         </fieldset>
         <div class="message-status"></div>
         <div class="form-actions">
@@ -23,6 +38,3 @@
         </div>
     </form>
 </div>
-
-<svg class="focus">
-</svg>
