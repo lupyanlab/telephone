@@ -5,6 +5,11 @@ import d3 from 'd3';
 
 export class MessagePlaybarView extends Backbone.View {
 
+  constructor(options) {
+    super(options);
+    this.selfTriggeredRender = false;
+  }
+
   get tagName() {
     return "svg";
   }
@@ -41,8 +46,7 @@ export class MessagePlaybarView extends Backbone.View {
   }
 
   initialize() {
-    const renderCallback = _.throttle(() => this.render(), 750, {leading: false}); // Trigger render only once in 750 ms to avoid constant rerendering during brash move
-    this.listenTo(this.model, 'change', renderCallback);
+    this.listenTo(this.model, 'change', this.render);
     this.listenTo(this.model, 'destroy', this.remove);
   }
 
@@ -58,20 +62,26 @@ export class MessagePlaybarView extends Backbone.View {
   }
 
   render() {
-    this.$el.empty();
 
-    this.svg.attr("width", this.canvasWidth);
-    this.svg.attr("height", this.canvasHeight);
+    if (this.selfTriggeredRender) {
+      this.selfTriggeredRender = false;
+    } else {
+      this.$el.empty();
 
-    const timeScale = this._makeTimeScale();
-    this._drawBorder();
-    this._drawControls(timeScale);
-    this._drawTimeAxis(timeScale);
+      this.svg.attr("width", this.canvasWidth);
+      this.svg.attr("height", this.canvasHeight);
+
+      const timeScale = this._makeTimeScale();
+      this._drawBorder();
+      this._drawControls(timeScale);
+      this._drawTimeAxis(timeScale);
+    }
 
     return this;
   }
 
   adjustMessageParameters(startAt, endAt) {
+    this.selfTriggeredRender = true;
     this.model.set({'start_at': startAt, 'end_at': endAt});
   }
 

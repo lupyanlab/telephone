@@ -8,6 +8,11 @@ import messageSavedAlertTemplate from 'inspector/js/messages/message_saved_alert
 
 export class MessageEditView extends Backbone.View {
 
+  constructor(options) {
+    super(options);
+    this.selfTriggeredRender = false;
+  }
+
   get events() {
     return {
       'click .play-button': 'playSound',
@@ -70,9 +75,13 @@ export class MessageEditView extends Backbone.View {
   }
 
   render() {
-    const html = messageEditTemplate({'message': this.model});
-    this.$el.html(html);
-    this.$messageCroppingContainer.append(this.playbar.el);
+    if (this.selfTriggeredRender) {
+      this.selfTriggeredRender = false;
+    } else {
+      const html = messageEditTemplate({'message': this.model});
+      this.$el.html(html);
+      this.$messageCroppingContainer.append(this.playbar.el);
+    }
     return this;
   }
 
@@ -91,10 +100,12 @@ export class MessageEditView extends Backbone.View {
   }
 
   setMessageStart() {
+    this.selfTriggeredRender = true;
     this.model.set({'start_at': this.enteredStartAt});
   }
 
   setMessageEnd() {
+    this.selfTriggeredRender = true;
     this.model.set({'end_at': this.enteredEndAt});
   }
 
