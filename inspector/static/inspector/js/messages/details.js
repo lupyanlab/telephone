@@ -29,7 +29,7 @@ export class MessageDetailsView extends Backbone.View {
   }
 
   playSound() {
-    this.model.sound.play();
+    this.model.sound.play({from: this.model.startAt, to: this.model.endAt});
   }
 
 
