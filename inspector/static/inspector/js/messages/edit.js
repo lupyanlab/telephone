@@ -93,4 +93,9 @@ export class MessageEditView extends Backbone.View {
     this.$messageStatusContainer.empty();
   }
 
+  playSound() {
+    console.log('Play');
+    this.model.sound.play({from: this.model.startAt, to: this.model.endAt});
+  }
+
 }
