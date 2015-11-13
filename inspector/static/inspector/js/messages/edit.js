@@ -13,7 +13,9 @@ export class MessageEditView extends Backbone.View {
       'click .play-button': 'playSound',
       'click .message-save-button': 'saveMessage',
       [`input ${this.numberOfChildrenInputSelector}`]: 'setNumberOfRemainedChildren',
-      [`change ${this.editStatusInputSelector}`]: 'setMessageEditStatus'
+      [`change ${this.editStatusInputSelector}`]: 'setMessageEditStatus',
+      [`input ${this.startAtInputSelector}`]: 'setMessageStart',
+      [`input ${this.endAtInputSelector}`]: 'setMessageEnd'
     };
   }
 
@@ -23,6 +25,14 @@ export class MessageEditView extends Backbone.View {
 
   get editStatusInputSelector() {
     return ':input.message-is-edited';
+  }
+
+  get startAtInputSelector() {
+    return ':input.message-start-at';
+  }
+
+  get endAtInputSelector() {
+    return ':input.message-end-at';
   }
 
   get messageSavedAlertLifetime() {
@@ -35,6 +45,14 @@ export class MessageEditView extends Backbone.View {
 
   get editStatus() {
     return this.$(this.editStatusInputSelector).is(':checked');
+  }
+
+  get enteredStartAt() {
+    return this.$(this.startAtInputSelector).val();
+  }
+
+  get enteredEndAt() {
+    return this.$(this.endAtInputSelector).val();
   }
 
   get $messageStatusContainer() {
@@ -70,6 +88,14 @@ export class MessageEditView extends Backbone.View {
 
   setMessageEditStatus() {
     this.model.set({'edited': this.editStatus}, {'silent': true});
+  }
+
+  setMessageStart() {
+    this.model.set({'start_at': this.enteredStartAt});
+  }
+
+  setMessageEnd() {
+    this.model.set({'end_at': this.enteredEndAt});
   }
 
   saveMessage() {
