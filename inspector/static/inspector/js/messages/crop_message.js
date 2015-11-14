@@ -3,27 +3,15 @@ import {_} from 'underscore';
 import d3 from 'd3';
 
 
-export class MessagePlaybarView extends Backbone.View {
+class Playbar {
 
-  constructor(options) {
-    super(options);
-    this.selfTriggeredRender = false;
-  }
-
-  get tagName() {
-    return "svg";
-  }
-
-  get className() {
-    return "focus";
-  }
-
-  get namespace() {
-    return "http://www.w3.org/2000/svg";
-  }
-
-  get svg() {
-    return d3.select(this.el);
+  constructor(svgElement, scaleDomainSize, selectionStart, selectionEnd) {
+    this.svg = svgElement;
+    this._scaleDomainSize = scaleDomainSize;
+    this._selectionStart = selectionStart;
+    this._selectionEnd = selectionEnd;
+    this._timeScale = this._makeTimeScale();
+    this._timeBrush = this._makeTimeBrush();
   }
 
   get canvasWidth() {
@@ -45,45 +33,41 @@ export class MessagePlaybarView extends Backbone.View {
     return this.canvasHeight - this.padding.top - this.padding.bottom;
   }
 
-  initialize() {
-    this.listenTo(this.model, 'change', this.render);
-    this.listenTo(this.model, 'destroy', this.remove);
+  set onslidermove(listener) {
+    const brushMoveCallback = () => listener(...(this._timeBrush.extent()));
+    this._timeBrush.on('brush', brushMoveCallback);
   }
 
-  /** Overwrite element factory in order to take into account svg namespace.
-   *
-   * @param tagName
-   * @returns {Element}
-   * @private
-   */
-  _createElement(tagName) {
-    const namespace = _.result(this, 'namespace');
-    return window.document.createElementNS(namespace, tagName);
+  set scaleDomainSize(newScaleDomainSize) {
+    this._scaleDomainSize = newScaleDomainSize;
+    this._timeScale.domain([0, this._scaleDomainSize]);
+  }
+
+  set selectionStart(newSelectionStart) {
+    this._selectionStart = newSelectionStart;
+    this._resetSelectionArea();
+  }
+
+  set selectionEnd(newSelectionEnd) {
+    this._selectionEnd = newSelectionEnd;
+    this._resetSelectionArea();
+  }
+
+  set selectionArea(newSelectionArea) {
+    const [selectionStart, selectionEnd] = newSelectionArea;
+    this._selectionStart = selectionStart;
+    this._selectionEnd = selectionEnd;
+    this._resetSelectionArea();
   }
 
   render() {
-
-    if (this.selfTriggeredRender) {
-      this.selfTriggeredRender = false;
-    } else {
-      this.$el.empty();
-
-      this.svg.attr("width", this.canvasWidth);
-      this.svg.attr("height", this.canvasHeight);
-
-      const timeScale = this._makeTimeScale();
-      this._drawBorder();
-      this._drawControls(timeScale);
-      this._drawTimeAxis(timeScale);
-    }
-
-    return this;
+    this.svg.attr("width", this.canvasWidth);
+    this.svg.attr("height", this.canvasHeight);
+    this._drawBorder();
+    this._drawControls();
+    this._drawTimeAxis();
   }
 
-  adjustMessageParameters(startAt, endAt) {
-    this.selfTriggeredRender = true;
-    this.model.set({'start_at': startAt, 'end_at': endAt});
-  }
 
   _drawBorder() {
     const borderCornerRadius = 15;
@@ -95,11 +79,11 @@ export class MessagePlaybarView extends Backbone.View {
     border.classed('playbar border', true);
   }
 
-  _drawControls(timeScale) {
+  _drawControls() {
     const scaleRoot = this.svg.append('g');
     scaleRoot.attr("transform", `translate(${this.padding.left}, ${this.padding.top})`);
     this._drawScaleBackground(scaleRoot);
-    const brushGroup = this._drawBrush(scaleRoot, timeScale);
+    const brushGroup = this._drawBrush(scaleRoot);
     this._drawSliders(brushGroup);
   }
 
@@ -113,11 +97,10 @@ export class MessagePlaybarView extends Backbone.View {
     scaleBackground.classed('playbar scale background', true);
   }
 
-  _drawBrush(scaleRoot, timeScale) {
-    const timeBrush = this._makeTimeBrush(timeScale);
+  _drawBrush(scaleRoot) {
     const brushGroup = scaleRoot.append("g");
     brushGroup.classed("time brush", true);
-    brushGroup.call(timeBrush);
+    brushGroup.call(this._timeBrush);
     brushGroup.selectAll(".time > rect").attr('height', this.contentHeight);
     return brushGroup;
   }
@@ -143,36 +126,99 @@ export class MessagePlaybarView extends Backbone.View {
     sliderLowerTriangle.attr('d', lowerTriangleSymbol);
   }
 
-  _drawTimeAxis(timeScale) {
-    const timeAxis = this._makeTimeAxis(timeScale);
+  _drawTimeAxis() {
+    const timeAxis = this._makeTimeAxis();
     const timeAxisGroup = this.svg.append("g");
     timeAxisGroup.classed("time-axis", true);
     timeAxisGroup.attr("transform", `translate(${this.padding.left}, ${this.padding.top})`);
     timeAxisGroup.call(timeAxis);
   }
 
-  _makeTimeBrush(timeScale) {
+  _makeTimeBrush() {
     const timeBrush = d3.svg.brush();
-    timeBrush.x(timeScale);
-    timeBrush.extent([this.model.startAt, this.model.endAt]);
-    const brushMoveCallback = () => this.adjustMessageParameters(...(timeBrush.extent()));
-    timeBrush.on('brush', brushMoveCallback);
+    timeBrush.x(this._timeScale);
+    timeBrush.extent([this._selectionStart, this._selectionEnd]);
     return timeBrush;
   }
 
-  _makeTimeAxis(timeScale) {
+  _makeTimeAxis() {
     const timeAxis = d3.svg.axis();
     timeAxis.innerTickSize(this.contentHeight);
-    timeAxis.scale(timeScale);
+    timeAxis.scale(this._timeScale);
     return timeAxis;
   }
 
   _makeTimeScale() {
-    const messageDuration = this.model.sound.duration;
     const timeScale = d3.scale.linear();
-    timeScale.domain([0, messageDuration]);
+    timeScale.domain([0, this._scaleDomainSize]);
     timeScale.range([0, this.contentWidth]);
     return timeScale;
+  }
+
+  _resetSelectionArea() {
+    this._timeBrush.extent([this._selectionStart, this._selectionEnd]);
+  }
+}
+
+
+export class MessagePlaybarView extends Backbone.View {
+
+  constructor(options) {
+    super(options);
+    this.selfTriggeredRender = false;
+  }
+
+  get tagName() {
+    return "svg";
+  }
+
+  get className() {
+    return "focus";
+  }
+
+  get namespace() {
+    return "http://www.w3.org/2000/svg";
+  }
+
+  get svg() {
+    return d3.select(this.el);
+  }
+
+  initialize() {
+    this.listenTo(this.model, 'change', this.render);
+    this.listenTo(this.model, 'destroy', this.remove);
+    const soundDuration = this.model.sound ? this.model.sound.duration: 0; // message sound may be not loaded at this moment
+    this.playbar = new Playbar(this.svg, soundDuration, this.model.startAt, this.model.endAt);
+    this.playbar.onslidermove = (startAt, endAt) => this.adjustMessageParameters(startAt, endAt);
+  }
+
+  /** Overwrite element factory in order to take into account svg namespace.
+   *
+   * @param tagName
+   * @returns {Element}
+   * @private
+   */
+  _createElement(tagName) {
+    const namespace = _.result(this, 'namespace');
+    return window.document.createElementNS(namespace, tagName);
+  }
+
+  render() {
+    if (this.selfTriggeredRender) {
+      this.selfTriggeredRender = false;
+    } else {
+      this.$el.empty();
+      this.playbar.scaleDomainSize = this.model.sound.duration;
+      this.playbar.selectionArea = [this.model.startAt, this.model.endAt];
+      this.playbar.render();
+    }
+
+    return this;
+  }
+
+  adjustMessageParameters(startAt, endAt) {
+    this.selfTriggeredRender = true;
+    this.model.set({'start_at': startAt, 'end_at': endAt});
   }
 
 }
