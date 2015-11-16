@@ -45,6 +45,14 @@ export class MessageEditView extends Backbone.View {
     return 5300;
   }
 
+  get $startAtInput() {
+    return this.$(this.startAtInputSelector);
+  }
+
+  get $endAtInput() {
+    return this.$(this.endAtInputSelector);
+  }
+
   get enteredNumberOfChildren() {
     return this.$(this.numberOfChildrenInputSelector).val();
   }
@@ -54,11 +62,19 @@ export class MessageEditView extends Backbone.View {
   }
 
   get enteredStartAt() {
-    return this.$(this.startAtInputSelector).val();
+    return this.$startAtInput.val();
+  }
+
+  set enteredStartAt(newStartAt) {
+    this.$startAtInput.val(newStartAt);
   }
 
   get enteredEndAt() {
-    return this.$(this.endAtInputSelector).val();
+    return this.$endAtInput.val();
+  }
+
+  set enteredEndAt(newEndAt) {
+    this.$endAtInput.val(newEndAt);
   }
 
   get $messageStatusContainer() {
@@ -82,6 +98,8 @@ export class MessageEditView extends Backbone.View {
       const html = messageEditTemplate({'message': this.model});
       this.$el.html(html);
       this.$messageCroppingContainer.append(this.playbar.el);
+      this.previousEnteredStartAt = this.enteredStartAt;
+      this.previousEnteredEndAt = this.enteredEndAt;
     }
     return this;
   }
@@ -100,14 +118,24 @@ export class MessageEditView extends Backbone.View {
     this.model.set({'edited': this.editStatus}, {'silent': true});
   }
 
-  setMessageStart() {
-    this.selfTriggeredRender = true;
-    this.model.set({'start_at': this.enteredStartAt});
+  setMessageStart() { // TODO: Model-side validation
+    if ((this.enteredStartAt >= 0) && (this.enteredStartAt <= this.model.endAt)) { // Do not set model `start_at` to invalid value
+      this.selfTriggeredRender = true;
+      this.model.set({'start_at': this.enteredStartAt});
+      this.previousEnteredStartAt = this.enteredStartAt;
+    } else {
+      this.enteredStartAt = this.previousEnteredStartAt; // Set UI to previous correct value
+    }
   }
 
-  setMessageEnd() {
-    this.selfTriggeredRender = true;
-    this.model.set({'end_at': this.enteredEndAt});
+  setMessageEnd() {// TODO: Model-side validation
+    if ((this.enteredEndAt <= this.model.sound.durationEstimate) && (this.enteredEndAt >= this.model.startAt)) { // Do not set model `end_at` attribute to invalid value
+      this.selfTriggeredRender = true;
+      this.model.set({'end_at': this.enteredEndAt});
+      this.previousEnteredEndAt = this.enteredEndAt;
+    } else {
+      this.enteredEndAt = this.previousEnteredEndAt; // Set UI to previous correct value
+    }
   }
 
   saveMessage() {
