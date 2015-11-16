@@ -4,6 +4,7 @@ import {MessagePlaybarView} from 'inspector/js/messages/crop_message.js';
 
 import messageEditTemplate from 'inspector/js/messages/edit_message.hbs!';
 import messageSavedAlertTemplate from 'inspector/js/messages/message_saved_alert.hbs!';
+import messageSaveErrorAlertTemplate from 'inspector/js/messages/message_save_error_alert.hbs!';
 
 
 export class MessageEditView extends Backbone.View {
@@ -40,8 +41,8 @@ export class MessageEditView extends Backbone.View {
     return ':input.message-end-at';
   }
 
-  get messageSavedAlertLifetime() {
-    return 2300;
+  get messageStatusAlertLifetime() {
+    return 5300;
   }
 
   get enteredNumberOfChildren() {
@@ -112,17 +113,40 @@ export class MessageEditView extends Backbone.View {
   saveMessage() {
     const response = this.model.save();
     response.done(() => this.flashMessageSavedAlert());
+    response.fail(() => this.flashMessageSaveErrorAlert());
+  }
+
+  /** Show alert about error with message saving for a brief period of time.
+   *
+   */
+  flashMessageSaveErrorAlert() {
+    this.showMessageSaveErrorAlert();
+    this.scheduleMessageStatusAlertRemoval();
   }
 
   /** Show alert about saved message for a brief period of time.
    */
   flashMessageSavedAlert() {
     this.showMessageSavedAlert();
-    window.setTimeout(() => this.closeMessageAlert(), this.messageSavedAlertLifetime);
+    this.scheduleMessageStatusAlertRemoval();
+  }
+
+  /** Remove alert about message status after a brief amount of time.
+   */
+  scheduleMessageStatusAlertRemoval() {
+    window.setTimeout(() => this.closeMessageAlert(), this.messageStatusAlertLifetime);
   }
 
   showMessageSavedAlert() {
-    const alertHtml = messageSavedAlertTemplate();
+    this.showMessageStatusAlert(messageSavedAlertTemplate);
+  }
+
+  showMessageSaveErrorAlert() {
+    this.showMessageStatusAlert(messageSaveErrorAlertTemplate);
+  }
+
+  showMessageStatusAlert(template) {
+    const alertHtml = template();
     this.$messageStatusContainer.html(alertHtml);
   }
 
@@ -131,7 +155,6 @@ export class MessageEditView extends Backbone.View {
   }
 
   playSound() {
-    console.log('Play');
     this.model.sound.play({from: this.model.startAt, to: this.model.endAt});
   }
 
