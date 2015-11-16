@@ -115,6 +115,11 @@ export class GameTreeView extends Backbone.View {
     this.prepareLayout();
   }
 
+  remove() {
+    this.messageComponent.remove();
+    super.remove();
+  }
+
   prepareLayout() {
     this.tree = d3.layout.tree()
       .size([this.height, this.width])
