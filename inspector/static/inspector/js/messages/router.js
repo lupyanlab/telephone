@@ -40,4 +40,10 @@ export class MessageComponent extends Backbone.Router {
     message.fetch();
   }
 
+  remove() {
+    if (this.messageView != null) {
+      this.messageView.remove();
+    }
+  }
+
 }

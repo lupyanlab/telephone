@@ -22,7 +22,7 @@ export class Message extends Backbone.Model {
   }
 
   get urlRoot() {
-    return "inspect/api/messages";
+    return "/inspect/api/messages";
   }
 
   get soundId() {

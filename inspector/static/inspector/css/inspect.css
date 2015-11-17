@@ -1,4 +1,6 @@
-svg {
+/* Game tree styles */
+
+svg.tree {
   background-color: #F0F0F0;
 }
 
@@ -16,6 +18,50 @@ svg {
   fill: none;
   stroke: #ccc;
   stroke-width: 1.5px;
+}
+
+
+/* Message visual editor styles */
+
+svg.focus {
+  margin-top: 7px;
+  margin-bottom: 10px;
+}
+
+.playbar.border {
+  fill: #3a3a3a;
+  fill-opacity: 0.3;
+  stroke: #ccc;
+  stroke-width: 2px;
+}
+
+.time-axis {
+  shape-rendering: crispEdges;
+}
+
+.time-axis line {
+  fill: none;
+  stroke: #000;
+}
+
+.time-axis .minor {
+  stroke-opacity: .5;
+}
+
+.time-axis path {
+  display: none;
+}
+
+.brush .extent {
+  fill: #29ec66;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+
+.playbar.scale.background {
+  fill: #FFF;
+  stroke: #ccc;
+  stroke-width: 2px;
 }
 
 /*circle {
