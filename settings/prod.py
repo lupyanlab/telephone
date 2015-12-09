@@ -15,4 +15,4 @@ DATABASES = {
     },
 }
 
-BOWER_PATH = '/usr/local/bin/bower'
+BOWER_PATH = '/usr/bin/bower'
