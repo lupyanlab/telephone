@@ -79,8 +79,9 @@ class SwitchboardView(APIView):
         # !!! Assuming the form is valid
         message = response_form.save()
 
-        request.session.setdefault('receipts', []).append(message.pk)
-
+        # add the receipt to the session
+        # do *not* use append method!
+        request.session['receipts'] += [message.pk]
         message.parent.kill()
 
         try:
