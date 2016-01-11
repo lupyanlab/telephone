@@ -54,9 +54,10 @@ class QuestionModelTest(TestCase):
         self.assertEquals(question.choices.count(), num_choices)
 
     def test_add_same_choices_to_multiple_questions(self):
-        num_choices = 3
+        """Should be able to use the same choices in different questions."""
         question1, question2 = mommy.make_recipe('ratings.empty_question',
                                                  _quantity=2)
+        num_choices = 3
         messages = mommy.make_recipe('ratings.recording', _quantity=num_choices)
         question1.choices.add(*messages)
         question2.choices.add(*messages)
