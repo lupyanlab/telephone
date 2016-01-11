@@ -25,11 +25,15 @@ recording = Recipe(grunt_models.Message,
     parent = foreign_key(seed),
     audio = django_file)
 
-question = Recipe(ratings_models.Question,
+survey = Recipe(ratings_models.Survey)
+
+empty_question = Recipe(ratings_models.Question,
     # Needs to be a valid recording
-    choices = related('seed', 'seed'),
-    answer = foreign_key(seed))
+    survey = foreign_key(survey),
+    given = foreign_key(recording),
+    answer = foreign_key(seed),
+)
 
 response = Recipe(ratings_models.Response,
-    question = foreign_key(question),
+    question = foreign_key(empty_question),
     selection = foreign_key(seed))

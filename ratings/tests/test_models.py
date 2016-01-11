@@ -38,24 +38,26 @@ class SurveyModelTest(TestCase):
 
 class QuestionModelTest(TestCase):
     def test_create_new_question(self):
+        """Add a question to a survey requires two recordings."""
         survey = mommy.make(Survey)
-        given = mommy.make(Message)
-        answer = mommy.make(Message)
+        given, answer = mommy.make_recipe('ratings.recording', _quantity=2)
         question = Question(survey=survey, given=given, answer=answer)
         question.full_clean()
         question.save()  # should not raise
 
     def test_add_choices_to_question(self):
+        """Add choices to an empty question."""
         num_choices = 3
-        question = mommy.make(Question)
+        question = mommy.make_recipe('ratings.empty_question')
         messages = mommy.make_recipe('ratings.seed', _quantity=num_choices)
         question.choices.add(*messages)
         self.assertEquals(question.choices.count(), num_choices)
 
     def test_add_same_choices_to_multiple_questions(self):
         num_choices = 3
-        question1, question2 = mommy.make(Question, _quantity=2)
-        messages = mommy.make(Message, _quantity=num_choices)
+        question1, question2 = mommy.make_recipe('ratings.empty_question',
+                                                 _quantity=2)
+        messages = mommy.make_recipe('ratings.recording', _quantity=num_choices)
         question1.choices.add(*messages)
         question2.choices.add(*messages)
         self.assertEquals(question1.choices.count(), num_choices)
