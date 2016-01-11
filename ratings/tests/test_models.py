@@ -11,7 +11,11 @@ class SurveyModelTest(TestCase):
     def setUp(self):
         super(SurveyModelTest, self).setUp()
         self.survey = mommy.make(Survey)
-        self.questions = [self.make_question(survey=self.survey)] * 5
+        self.questions = mommy.make_recipe(
+            'ratings.empty_question',
+            survey=self.survey,
+            _quantity=5
+        )
 
     def make_question(self, **mommy_kwargs):
         recording = mommy.make_recipe('ratings.recording')
@@ -66,19 +70,24 @@ class QuestionModelTest(TestCase):
 
 
 class ResponseModelTest(TestCase):
+    def setUp(self):
+        super(ResponseModelTest, self).setUp()
+        self.question = mommy.make_recipe('ratings.empty_question')
+        num_choices = 4
+        choices = mommy.make_recipe('ratings.recording', _quantity=num_choices)
+        self.question.choices.add(*choices)
+
     def test_submit_a_response(self):
-        question = mommy.make(Question)
-        selection = mommy.make(Message)
-        response = Response(question=question, selection=selection)
+        selection = mommy.make_recipe('ratings.recording')
+        response = Response(question=self.question, selection=selection)
         response.full_clean()
         response.save()  # should not raise
 
     def test_allow_multiple_responses_per_question(self):
-        question = mommy.make(Question)
-        selection = mommy.make(Message)
-        response_1 = mommy.make(Response, question=question,
+        selection = mommy.make_recipe('ratings.recording')
+        response_1 = mommy.make(Response, question=self.question,
                                 selection=selection)
-        response_2 = mommy.make(Response, question=question,
+        response_2 = mommy.make(Response, question=self.question,
                                 selection=selection)  # should not raise
 
         self.assertEquals(Response.objects.count(), 2)
