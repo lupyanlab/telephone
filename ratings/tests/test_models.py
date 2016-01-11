@@ -1,12 +1,21 @@
-
-from django.test import TestCase
+from django.conf import settings
+from django.test import TestCase, override_settings
 
 from model_mommy import mommy
+from unipath import Path
 
 from ratings.models import Survey, Question, Response
 
+TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
-class SurveyModelTest(TestCase):
+@override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
+class RatingsModelTest(TestCase):
+    def tearDown(self):
+        super(RatingsModelTest, self).tearDown()
+        TEST_MEDIA_ROOT.rmtree()
+
+
+class SurveyModelTest(RatingsModelTest):
     def setUp(self):
         super(SurveyModelTest, self).setUp()
         self.survey = mommy.make(Survey)
@@ -39,7 +48,7 @@ class SurveyModelTest(TestCase):
             self.survey.pick_next_question(receipts)
 
 
-class QuestionModelTest(TestCase):
+class QuestionModelTest(RatingsModelTest):
     def test_create_new_question(self):
         """Add a question to a survey requires two recordings."""
         survey = mommy.make(Survey)
@@ -71,7 +80,7 @@ class QuestionModelTest(TestCase):
         self.assertEquals(question2.choices.count(), num_choices)
 
 
-class ResponseModelTest(TestCase):
+class ResponseModelTest(RatingsModelTest):
     def setUp(self):
         super(ResponseModelTest, self).setUp()
         self.question = mommy.make_recipe('ratings.empty_question')
