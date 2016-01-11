@@ -1,32 +1,39 @@
 from .base import FunctionalTest
 
 class MakeGameTest(FunctionalTest):
+    def fill_out_new_chain_form(self, form_id, chain_name):
+        self.browser.\
+            find_element_by_id('id_form-{}-name'.format(form_id)).\
+            send_keys(chain_name)
+        self.browser.\
+            find_element_by_id('id_form-{}-seed'.format(form_id)).\
+            send_keys(self.path_to_test_audio())
 
     def test_make_new_game_via_form(self):
-        """ Simulate a user making a new game """
+        """Create a new game using the new game form."""
+        # Marcus navigates to the games list page.
         self.nav_to_games_list()
 
-        # There are no games on the list
+        # There are no games on the list.
         games_list = self.browser.find_element_by_id('id_game_list')
         games = games_list.find_elements_by_tag_name('li')
         self.assertEqual(len(games), 0)
 
-        # He clicks the button to create a new game
+        # He clicks the new game button to create a new game.
         self.browser.find_element_by_id('id_new_game').click()
 
-        # Marcus fills out the new game form
+        # Marcus fills out the new game form.
         new_game_name = 'My New Game'
         self.browser.find_element_by_id('id_name').send_keys(new_game_name)
         self.browser.find_element_by_id('submit-id-submit').click()
 
-        # Then he creates a chain with a seed message
-        new_chain_name = 'New Chain'
-        self.browser.find_element_by_id('id_form-0-name').send_keys(
-            new_chain_name
-        )
-        self.browser.find_element_by_id('id_form-0-seed').send_keys(
-            self.path_to_test_audio()
-        )
+        # After the game is created, he is directed to a page
+        # for uploading seeds.
+
+        # He creates a single chain with a seed message. To make
+        # a new chain, he needs to provide a name for the chain
+        # and the path to the seed message.
+        self.fill_out_new_chain_form(form_id=0, chain_name='first chain')
         self.browser.find_element_by_id('submit-id-submit').click()
 
         # He is redirected to the inspect view for the game
@@ -59,23 +66,18 @@ class MakeGameTest(FunctionalTest):
         )
         self.browser.find_element_by_id('submit-id-submit').click()
 
+        # He fills out two new chain forms
+        self.fill_out_new_chain_form(form_id=0, chain_name='first chain')
+        self.fill_out_new_chain_form(form_id=1, chain_name='second chain')
+        self.browser.find_element_by_id('submit-id-submit').click()
+
+        # He returns to the game list page
+        self.nav_to_games_list()
+
         # He sees his new game on the game list page
         games_list = self.browser.find_element_by_id('id_game_list')
         games = games_list.find_elements_by_tag_name('li')
         self.assertEquals(len(games), 1)
         my_new_game = games[0]
         my_new_game_name = my_new_game.find_element_by_tag_name('h2').text
-        self.assertEquals(my_new_game_name, new_game_name)
-
-        # He inspects the game and sees the first chain
-        self.inspect_game(new_game_name)
-        self.assert_chain_name('Chain 0')
-
-        # He clicks next to see the next chain
-        self.browser.find_element_by_id('id_next_chain').click()
-        self.wait_for(tag = 'body')
-
-        self.assert_chain_name('Chain 1')
-
-        # Clicking "next" again wraps around to first chain. This
-        # feature is tested in test_inspect_game.
+        self.assertRegexpMatches(my_new_game_name, new_game_name)

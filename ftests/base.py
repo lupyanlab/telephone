@@ -87,7 +87,7 @@ class FunctionalTest(LiveServerTestCase):
         self.browser.implicitly_wait(5)
 
     def nav_to_games_list(self):
-        """ The games list is the home page """
+        """The games list is the home page for the web app."""
         self.browser.get(self.live_server_url)
 
     def select_game_items(self):
