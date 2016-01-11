@@ -3,7 +3,6 @@ from django.test import TestCase
 
 from model_mommy import mommy
 
-from grunt.models import Message
 from ratings.models import Survey, Question, Response
 
 
@@ -62,7 +61,10 @@ class QuestionModelTest(TestCase):
         question1, question2 = mommy.make_recipe('ratings.empty_question',
                                                  _quantity=2)
         num_choices = 3
-        messages = mommy.make_recipe('ratings.recording', _quantity=num_choices)
+        messages = mommy.make_recipe(
+            'ratings.recording',
+            _quantity=num_choices
+        )
         question1.choices.add(*messages)
         question2.choices.add(*messages)
         self.assertEquals(question1.choices.count(), num_choices)
@@ -85,9 +87,9 @@ class ResponseModelTest(TestCase):
 
     def test_allow_multiple_responses_per_question(self):
         selection = mommy.make_recipe('ratings.recording')
-        response_1 = mommy.make(Response, question=self.question,
-                                selection=selection)
-        response_2 = mommy.make(Response, question=self.question,
-                                selection=selection)  # should not raise
+        mommy.make(Response, question=self.question, selection=selection)
+
+        # making another response to the same question should not raise
+        mommy.make(Response, question=self.question, selection=selection)
 
         self.assertEquals(Response.objects.count(), 2)
