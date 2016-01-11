@@ -175,6 +175,14 @@ class FunctionalTest(LiveServerTestCase):
         alert_message = self.browser.find_element_by_id('alert').text
         self.assertRegexpMatches(alert_message, expected)
 
+    def assert_completion_code_length(self, expected_length):
+        completion_code = self.browser.\
+            find_element_by_id('alert').\
+            find_element_by_tag_name('code').\
+            text
+        parts = completion_code.split('-')
+        self.assertEquals(len(parts), expected_length)
+
     def assert_error_message(self, expected):
         error_message = self.browser.find_element_by_id('message').text
         self.assertEquals(error_message, expected)
