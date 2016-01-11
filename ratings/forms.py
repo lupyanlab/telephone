@@ -65,6 +65,7 @@ class MessageIdField(forms.Field):
 class NewSurveyForm(forms.ModelForm):
     questions = MessageIdField()
     choices = MessageIdField()
+    determine_correct_answer = forms.BooleanField(required=False)
 
     class Meta:
         model = Survey
@@ -80,6 +81,10 @@ class NewSurveyForm(forms.ModelForm):
         """ Create a survey and then create questions for that survey """
         survey = super(NewSurveyForm, self).save()
 
+        question_options = {}
+        question_options['determine_correct_answer'] =\
+            self.cleaned_data.get('determine_correct_answer') or False
+
         choices = self.cleaned_data['choices']
         for message_id in self.cleaned_data.get('questions'):
             question_data = {
@@ -87,6 +92,9 @@ class NewSurveyForm(forms.ModelForm):
                 'given': message_id,
                 'choices': choices,
             }
+
+            question_data.update(question_options)
+
             question_form = CreateQuestionForm(question_data)
             question_form.save()
 
@@ -96,17 +104,20 @@ class NewSurveyForm(forms.ModelForm):
 class CreateQuestionForm(forms.ModelForm):
     choices = MessageIdField()
 
+    # Should the form try to populate the answer field on save?
+    determine_correct_answer = forms.BooleanField(required=False)
+
     class Meta:
         model = Question
         fields = ('survey', 'given', 'choices')
 
     def save(self):
         question = super(CreateQuestionForm, self).save()
-        # if not question.answer:
-        #     try:
-        #         choices = question.choices.all()
-        #         question.answer = question.given.find_ancestor(choices)
-        #     except Message.DoesNotExist, e:
-        #         question.delete()
-        #         raise e
+        if self.cleaned_data['determine_correct_answer']:
+            try:
+                choices = question.choices.all()
+                question.answer = question.given.find_ancestor(choices)
+            except Message.DoesNotExist, e:
+                question.delete()
+                raise e
         return question

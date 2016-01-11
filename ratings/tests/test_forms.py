@@ -107,7 +107,8 @@ class CreateQuestionFormTest(RatingsModelTest):
         question_data = {
             'survey': survey.id,
             'given': gen1.id,
-            'choices': [message.id for message in choices]
+            'choices': [message.id for message in choices],
+            'determine_correct_answer': True,
         }
         question_form = CreateQuestionForm(question_data)
         self.assertTrue(question_form.is_valid())
@@ -115,6 +116,7 @@ class CreateQuestionFormTest(RatingsModelTest):
         question = question_form.save()
         self.assertEquals(list(question.choices.all()), choices)
         self.assertEquals(question.answer, seed)
+        self.assertEquals(survey.questions.count(), 1)
 
     def test_validation_error_if_no_choice_in_given_chain(self):
         chain1, chain2 = mommy.make(Chain, _quantity=2)
@@ -128,8 +130,32 @@ class CreateQuestionFormTest(RatingsModelTest):
         question_data = {
             'survey': survey.id,
             'given': gen1.id,
-            'choices': [message.id for message in choices]
+            'choices': [message.id for message in choices],
+            'determine_correct_answer': True,
         }
         question_form = CreateQuestionForm(question_data)
         with self.assertRaises(Message.DoesNotExist):
             question_form.save()
+
+    def test_delete_question_if_answer_not_found_in_choices(self):
+        chain1, chain2 = mommy.make(Chain, _quantity=2)
+        seed = mommy.make(Message, chain=chain1)
+        other_seed = mommy.make(Message, chain=chain2)
+
+        gen1 = mommy.make(Message, parent=seed, chain=chain1)
+
+        survey = mommy.make(Survey)
+        self.assertEquals(survey.questions.count(), 0)
+
+        choices = [other_seed, ]
+        question_data = {
+            'survey': survey.id,
+            'given': gen1.id,
+            'choices': [message.id for message in choices],
+            'determine_correct_answer': True,
+        }
+        question_form = CreateQuestionForm(question_data)
+        with self.assertRaises(Message.DoesNotExist):
+            question_form.save()
+
+        self.assertEquals(survey.questions.count(), 0)
