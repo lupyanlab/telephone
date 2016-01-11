@@ -31,27 +31,22 @@ class FunctionalTest(LiveServerTestCase):
 
         TEST_MEDIA_ROOT.rmtree()
 
-    def create_game(self, name, nchains=1, with_seed=False, depth=0):
-        game = Game.objects.create(name = name)
+    def create_game(self, name, nchains=1):
+        """Create a game with the specified number of chains."""
+        game = Game(name=name)
+        game.full_clean()
+        game.save()
 
-        for _ in range(nchains):
-            chain = Chain.objects.create(game=game) # will use defaults
+        for n in range(nchains):
+            chain = Chain(game=game, name='chain {}'.format(n))
+            chain.full_clean()
+            chain.save()
 
-            if not with_seed:
-                Message.objects.create(chain=chain) # ready for upload
-            else:
-                with open(self.path_to_test_audio(), 'rb') as seed_handle:
-                    seed_file = File(seed_handle)
-                    message = Message.objects.create(chain=chain, audio=seed_file)
-                    message.replicate()
-
-                for _ in range(depth):
-                    empty = chain.select_empty_message()
-                    with open(self.path_to_test_audio(), 'rb') as msg_handle:
-                        msg_file = File(msg_handle)
-                        empty.audio = msg_file
-                        empty.save()
-                        empty.replicate()
+            with open(self.path_to_test_audio(), 'rb') as seed_handle:
+                seed_file = File(seed_handle)
+                seed_message = Message(chain=chain, audio=seed_file)
+                seed_message.full_clean()
+                seed_message.save()
 
     def create_survey(self, survey_name, from_game):
         game = Game.objects.get(name=from_game)
@@ -91,7 +86,7 @@ class FunctionalTest(LiveServerTestCase):
         self.browser.get(self.live_server_url)
 
     def select_game_items(self):
-        """ Simply return the list elements corresponding to available games """
+        """Simply return the list elements corresponding to available games """
         game_list = self.browser.find_element_by_id('id_game_list')
         return game_list.find_elements_by_tag_name('li')
 
@@ -100,7 +95,7 @@ class FunctionalTest(LiveServerTestCase):
 
         selected = None
         for game in games:
-            if game.find_element_by_tag_name('h2').text == name:
+            if game.find_element_by_tag_name('h2').text.find(name) != -1:
                 selected = game
                 break
 
@@ -117,15 +112,13 @@ class FunctionalTest(LiveServerTestCase):
     def simulate_sharing_mic(self):
         """ Execute the operations in micShared() """
         self.browser.execute_script("""
-            audioRecorder = true;
-            $( "#share" ).addClass("active");
-            setPlayer();
+            telephoneView.audioRecorder = true;
         """)
 
     def path_to_test_audio(self):
         return Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
 
-    def upload_file(self, recording = None):
+    def upload_file(self, recording=None):
         if not recording:
             recording = Path(settings.APP_DIR,
                              'grunt/tests/media/test-audio.wav')
@@ -138,11 +131,19 @@ class FunctionalTest(LiveServerTestCase):
         # Give the file input a real file
         self.browser.find_element_by_id('tmpInput').send_keys(recording)
 
-        # Take the file from the file input and post it
+        """Take the file from the file input and post it.
+
+        Hack!!! Create a global blob object to pass to the callback
+        function manually, rather than creating it with the
+        audioRecorder.
+
+        Requires config to be a global object, and the callback
+        function to accept a blob.
+        """
         self.browser.execute_script('''
             blob = document.getElementById("tmpInput").files[0];
             $( "#tmpInput" ).remove();
-            sendRecorderMessage(blob);
+            config.callback(blob);
         ''')
 
     def pass_mic_check(self):
@@ -169,6 +170,10 @@ class FunctionalTest(LiveServerTestCase):
     def assert_alert_message(self, expected):
         alert_message = self.browser.find_element_by_id('alert').text
         self.assertEquals(alert_message, expected)
+
+    def assert_alert_message_contains(self, expected):
+        alert_message = self.browser.find_element_by_id('alert').text
+        self.assertRegexpMatches(alert_message, expected)
 
     def assert_error_message(self, expected):
         error_message = self.browser.find_element_by_id('message').text

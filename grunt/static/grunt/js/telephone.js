@@ -125,7 +125,7 @@ var TelephoneView = Backbone.View.extend({
       this.audioRecorder.stop();
       this.audioRecorder.exportWAV();
       this.$(".record").removeClass("button-on");
-      this.trigger("error", "Sending message. Please wait.", "success")
+      this.trigger("error", "Sending message. Please wait.", "success");
     } else {
       this.audioRecorder.clear();
       this.audioRecorder.record();
