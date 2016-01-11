@@ -28,7 +28,6 @@ recording = Recipe(grunt_models.Message,
 survey = Recipe(ratings_models.Survey)
 
 empty_question = Recipe(ratings_models.Question,
-    # Needs to be a valid recording
     survey = foreign_key(survey),
     given = foreign_key(recording),
     answer = foreign_key(seed),
