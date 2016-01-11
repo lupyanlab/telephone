@@ -1,15 +1,24 @@
-
+from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from model_mommy import mommy
+from unipath import Path
 
 from grunt.models import Message, Chain
 from ratings.models import Survey
 from ratings.forms import NewSurveyForm, CreateQuestionForm
 
+TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
-class NewSurveyFormTest(TestCase):
+@override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
+class RatingsModelTest(TestCase):
+    def tearDown(self):
+        super(RatingsModelTest, self).tearDown()
+        TEST_MEDIA_ROOT.rmtree()
+
+
+class NewSurveyFormTest(RatingsModelTest):
     def create_choice_and_question_message_ids(self):
         chains = mommy.make(Chain, _quantity=4)
 
@@ -85,7 +94,7 @@ class NewSurveyFormTest(TestCase):
         self.assertFalse(survey_form.is_valid())
 
 
-class CreateQuestionFormTest(TestCase):
+class CreateQuestionFormTest(RatingsModelTest):
     def test_select_answer_from_choices(self):
         chain1, chain2 = mommy.make(Chain, _quantity=2)
         seed = mommy.make(Message, chain=chain1)
