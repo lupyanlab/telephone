@@ -13,8 +13,7 @@ class CreateSurveyTest(FunctionalTest):
         game_name = 'Game for Ratings'
         nchains = 4
         depth = 3
-        self.create_game(game_name, nchains=nchains, with_seed=True,
-                         depth=depth)
+        self.create_game(game_name, nchains=nchains, depth=depth)
 
         # Marcus goes to the home page and sees the ongoing game
         self.browser.get(self.live_server_url)
