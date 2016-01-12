@@ -3,9 +3,11 @@ from unipath import Path
 from django.conf import settings
 from .base import FunctionalTest
 
-class SingleUserTest(FunctionalTest):
+
+class TelephoneTest(FunctionalTest):
+    """Test basic telephone game functionality."""
     def test_respond_to_seed_message(self):
-        """Lynn makes a recording in a single-chain game."""
+        """Lynn plays a round of the telephone game."""
         game_name = 'Fresh Game'
         self.create_game(name=game_name)
 
@@ -36,8 +38,8 @@ class SingleUserTest(FunctionalTest):
         self.assert_alert_message_contains("Your completion code is")
         self.assert_completion_code_length(1)
 
-    def test_multiple_entries(self):
-        """Lynn makes sequential recordings in a two-chain game."""
+    def test_respond_to_multiple_chains(self):
+        """Lynn makes two recordings in a game with two chains."""
         game_name = 'Two Chain Game'
         self.create_game(name=game_name, nchains=2)
 
@@ -96,7 +98,7 @@ class SingleUserTest(FunctionalTest):
 
     @skip("Getting a broken pipe error when submitting a second time")
     def test_session_is_cleared_on_completion_page(self):
-        """Marcus plays the game once and wants to go back and play again."""
+        """Marcus plays the same game twice."""
         game_name = 'Short game'
         self.create_game(game_name, nchains=1)
 
@@ -133,6 +135,48 @@ class SingleUserTest(FunctionalTest):
         # He lands back at the completion page for a second time.
         self.assert_alert_message_contains("Your completion code is")
         self.assert_completion_code_length(1)
+
+
+class ParallelBranchTest(FunctionalTest):
+    def get_current_audio_url(self):
+        return self.browser.execute_script('return message.get("audio");')
+
+    def test_parallel_branches(self):
+        """Marcus and Lynn respond to different seeds in the same chain."""
+        game_name = 'Parallel Game'
+        self.create_game(name=game_name) # TODO: add num_seeds_per_chain kwarg
+
+        # Lynn gets set up to play the game
+        self.nav_to_games_list()
+        self.play_game(game_name)
+        self.accept_instructions()
+        self.simulate_sharing_mic()
+
+        # Save the url of the first seed
+        first_seed = self.get_current_audio_url()
+        self.assertRegexpMatches(first_seed, 'seed', 'message was not a seed')
+
+        # Lynn makes her response and leaves
+        self.upload_file()
+        self.wait_for(tag='body')
+        self.assert_alert_message_contains("Your completion code is")
+
+        # Marcus arrives
+        self.new_user()
+        self.nav_to_games_list()
+        self.play_game(game_name)
+        self.accept_instructions()
+        self.simulate_sharing_mic()
+
+        # Marcus does not hear the same seed that Lynn heard
+        second_seed = self.get_current_audio_url()
+        self.assertRegexpMatches(second_seed, 'seed', 'message was not a seed')
+        self.assertNotEqual(first_seed, second_seed)
+
+        # Marcus makes his recording and leaves
+        self.upload_file()
+        self.wait_for(tag='body')
+        self.assert_alert_message_contains("Your completion code is")
 
 
 class InterfaceTest(FunctionalTest):
