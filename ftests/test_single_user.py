@@ -1,9 +1,6 @@
 from unittest import skip
-
 from unipath import Path
-
 from django.conf import settings
-
 from .base import FunctionalTest
 
 class SingleUserTest(FunctionalTest):
@@ -39,7 +36,7 @@ class SingleUserTest(FunctionalTest):
         self.assert_alert_message_contains("Your completion code is")
         self.assert_completion_code_length(1)
 
-    def test_multi_entries(self):
+    def test_multiple_entries(self):
         """Lynn makes sequential recordings in a two-chain game."""
         game_name = 'Two Chain Game'
         self.create_game(name=game_name, nchains=2)
@@ -66,6 +63,36 @@ class SingleUserTest(FunctionalTest):
         # Her entry was successful
         self.assert_alert_message_contains("Your completion code is")
         self.assert_completion_code_length(2)
+
+    def test_player_with_quiet_submission_has_to_resubmit(self):
+        """Marcus makes a submission that's too quiet."""
+        game_name = 'Quiet Game'
+        self.create_game(game_name, nchains=1)
+
+        # Marcus navigates to the game page and plays the Game
+        self.nav_to_games_list()
+        self.play_game(game_name)
+
+        # He accepts the instructions and shares his microphone.
+        self.accept_instructions()
+        self.simulate_sharing_mic()
+
+        # He creates a recording that's too quiet.
+        quiet_recording = Path(
+            settings.APP_DIR,
+            'grunt/tests/media/crow_40.wav'
+        )
+        self.upload_file(quiet_recording)
+        self.wait_for(tag='body')
+
+        # He sees an alert message that says his recording was too quiet
+        self.assert_alert_message_contains("Your recording wasn't loud enough")
+
+        # He tries again and this time he passes.
+        self.upload_file()
+        self.wait_for(tag='body')
+        self.assert_alert_message_contains("Your completion code is")
+        self.assert_completion_code_length(1)
 
     @skip("Getting a broken pipe error when submitting a second time")
     def test_session_is_cleared_on_completion_page(self):
@@ -104,36 +131,6 @@ class SingleUserTest(FunctionalTest):
         self.wait_for(tag='body')
 
         # He lands back at the completion page for a second time.
-        self.assert_alert_message_contains("Your completion code is")
-        self.assert_completion_code_length(1)
-
-    def test_player_with_quiet_submission_has_to_resubmit(self):
-        """Marcus makes a submission that's too quiet."""
-        game_name = 'Quiet Game'
-        self.create_game(game_name, nchains=1)
-
-        # Marcus navigates to the game page and plays the Game
-        self.nav_to_games_list()
-        self.play_game(game_name)
-
-        # He accepts the instructions and shares his microphone.
-        self.accept_instructions()
-        self.simulate_sharing_mic()
-
-        # He creates a recording that's too quiet
-        quiet_recording = Path(
-            settings.APP_DIR,
-            'grunt/tests/media/crow_40.wav'
-        )
-        self.upload_file(quiet_recording)
-        self.wait_for(tag='body')
-
-        # He sees an alert message that says his recording was too quiet
-        self.assert_alert_message_contains("Your recording wasn't loud enough")
-
-        # He tries again and this time he passes.
-        self.upload_file()
-        self.wait_for(tag='body')
         self.assert_alert_message_contains("Your completion code is")
         self.assert_completion_code_length(1)
 
