@@ -223,9 +223,13 @@ class FunctionalTest(LiveServerTestCase):
         game_list_item = self.select_game_item_by_game_name(name)
         game_list_item.find_element_by_class_name('inspect').click()
 
-    def select_svg_messages(self):
+    def select_svg_nodes(self):
         svg = self.browser.find_element_by_tag_name('svg')
-        return svg.find_elements_by_css_selector('g.message')
+        return svg.find_elements_by_css_selector('g.node')
+
+    def select_message_nodes(self):
+        svg = self.browser.find_element_by_css_selector('svg.tree')
+        return svg.find_elements_by_css_selector('circle.message')
 
     def assert_filled_message(self, message_group):
         self.assertEquals(message_group.get_attribute('class'), 'message filled')
