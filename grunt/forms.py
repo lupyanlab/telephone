@@ -65,6 +65,7 @@ class NewChainForm(forms.ModelForm):
     class Meta:
         model = Chain
         fields = ('game', 'name')
+        widgets = {'game': forms.HiddenInput()}
 
     def __init__(self, *args, **kwargs):
         """Create the form and dynamically add FileFields for seed messages."""
