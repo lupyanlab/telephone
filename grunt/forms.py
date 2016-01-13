@@ -13,7 +13,7 @@ class ResponseForm(forms.ModelForm):
         fields = ('parent', 'audio')
 
     def save(self, **kwargs):
-        """ Create a new message and populate fields from parent. """
+        """Create a new message and populate fields from parent."""
         message = super(ResponseForm, self).save(**kwargs)
         message.chain = message.parent.chain
         message.generation = message.parent.generation + 1
@@ -49,6 +49,17 @@ class NewGameForm(forms.ModelForm):
 
 
 class NewChainForm(forms.ModelForm):
+    """A form for creating new chains populated with seed messages.
+
+    Form FileFields are added dynamically on form creation to allow for
+    building chains with muliple seed messages.
+
+    Attributes:
+        NUM_SEEDS: An int specifying the number of seeds to expect. This
+            is useful as a class attribute because it can be set prior to
+            using this form in a model formset view that allows for creating
+            multiple chains (with multiple seeds) on the same page.
+    """
     NUM_SEEDS = 1
 
     class Meta:
@@ -56,16 +67,23 @@ class NewChainForm(forms.ModelForm):
         fields = ('game', 'name')
 
     def __init__(self, *args, **kwargs):
+        """Create the form and dynamically add FileFields for seed messages."""
         super(NewChainForm, self).__init__(*args, **kwargs)
+
+        # save the field names to the form object for later use
         self.seed_fields = ['seed{}'.format(ix) for ix in range(self.NUM_SEEDS)]
+
         for seed_field_name in self.seed_fields:
             self.fields[seed_field_name] = forms.FileField()
 
     def save(self, **kwargs):
-        """Create a new chain and then create a seed message for it."""
+        """Create a new chain and then create seed messages for it."""
         chain = super(NewChainForm, self).save(**kwargs)
+
+        # create multiple seed messages for this chain
         for seed_field_name in self.seed_fields:
             chain.messages.create(audio=self.cleaned_data[seed_field_name])
+
         return chain
 
 
