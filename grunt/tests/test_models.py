@@ -14,13 +14,13 @@ TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 @override_settings(MEDIA_ROOT=TEST_MEDIA_ROOT)
 class ModelTest(TestCase):
     def tearDown(self):
-        """Remove the test media root"""
+        """Remove the test media root."""
         TEST_MEDIA_ROOT.rmtree()
 
 
 class GameTest(ModelTest):
     def test_make_a_game(self):
-        """ Make a game """
+        """Make a game."""
         game = Game(name='New Game')
         game.full_clean()
         game.save()
@@ -32,7 +32,7 @@ class ChainTest(ModelTest):
         self.game = mommy.make(Game)
 
     def test_make_a_chain(self):
-        """ Make a chain """
+        """Make a chain."""
         chain = Chain(game=self.game, name='New Chain')
         chain.full_clean()
         chain.save()
@@ -52,11 +52,13 @@ class MessageTest(ModelTest):
         self.audio.close()
 
     def test_make_a_seed_message(self):
+        """Make a seed message: a message without a parent."""
         message = Message(chain=self.chain, audio=self.audio)
         message.full_clean()
         message.save()
 
     def test_make_a_response_message(self):
+        """Make a message."""
         seed = mommy.make_recipe('grunt.seed')
         message = Message(parent=seed, audio=self.audio)
         message.full_clean()
