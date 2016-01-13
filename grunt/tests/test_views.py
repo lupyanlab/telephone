@@ -219,4 +219,32 @@ class NewGameViewTest(ViewTest):
             self.client.post(add_chains_url, new_chain_formset_data)
 
         self.assertEquals(game.chains.count(), 1)
-        self.assertEquals(game.chains.first().name, new_chain_name)
+        chain = game.chains.first()
+        self.assertEquals(chain.name, new_chain_name)
+        self.assertEquals(chain.messages.count(), 1)
+
+    def test_add_new_chains_with_multiple_seeds(self):
+        game = mommy.make(Game)
+        add_chains_url = reverse('new_chains', kwargs={'pk': game.pk})
+        add_chains_url += '?num_seeds_per_chain=2'
+        new_chain_name = 'new chain name'
+
+        seed0 = File(open(self.audio_path, 'rb'))
+        seed1 = File(open(self.audio_path, 'rb'))
+
+        new_chain_formset_data = {
+            'form-TOTAL_FORMS': '1',
+            'form-INITIAL_FORMS': '0',
+            'form-MAX_NUM_FORMS': '',
+            'form-0-game': game.pk,
+            'form-0-name': new_chain_name,
+            'form-0-seed0': seed0,
+            'form-0-seed1': seed1,
+        }
+
+        self.client.post(add_chains_url, new_chain_formset_data)
+
+        self.assertEquals(game.chains.count(), 1)
+        chain = game.chains.first()
+        self.assertEquals(chain.name, new_chain_name)
+        self.assertEquals(chain.messages.count(), 2)

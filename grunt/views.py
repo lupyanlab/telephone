@@ -132,6 +132,13 @@ def new_chains_view(request, pk):
     except TypeError:
         num_chain_forms = 1
 
+    try:
+        num_seeds_per_chain = int(request.GET.get('num_seeds_per_chain'))
+    except TypeError:
+        pass
+    else:
+        NewChainForm.NUM_SEEDS = num_seeds_per_chain
+
     NewChainModelFormSet = modelformset_factory(
         Chain, form=NewChainForm, formset=NewChainFormSet,
         extra=num_chain_forms
