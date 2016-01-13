@@ -49,11 +49,13 @@ class NewGameForm(forms.ModelForm):
 
 
 class NewChainForm(forms.ModelForm):
-    seed = forms.FileField()
-
     class Meta:
         model = Chain
         fields = ('game', 'name')
+
+    def __init__(self, *args, **kwargs):
+        super(NewChainForm, self).__init__(*args, **kwargs)
+        self.fields['seed'] = forms.FileField()
 
     def save(self, **kwargs):
         """Create a new chain and then create a seed message for it."""
