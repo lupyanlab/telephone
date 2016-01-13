@@ -110,12 +110,14 @@ class NewGameView(CreateView):
     template_name = 'grunt/new_game.html'
 
     def form_valid(self, form):
-        self.num_chains = form.cleaned_data['num_chains']
+        self.num_chains = form.cleaned_data.get('num_chains', 1)
+        self.num_seeds_per_chain = form.cleaned_data.get('num_seeds_per_chain', 1)
         return super(NewGameView, self).form_valid(form)
 
     def get_success_url(self):
         base_url = reverse_lazy('new_chains', kwargs={'pk': self.object.pk})
-        with_query = '{}?num_chains={}'.format(base_url, self.num_chains or 1)
+        with_query = '{}?num_chains={}&num_seeds_per_chain={}'.format(
+            base_url, self.num_chains, self.num_seeds_per_chain)
         return with_query
 
 

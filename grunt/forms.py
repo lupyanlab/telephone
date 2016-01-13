@@ -34,7 +34,7 @@ class NewGameForm(forms.ModelForm):
             uploaded for each chain.
     """
     num_chains = forms.IntegerField(initial=1, min_value=1)
-    # num_seeds_per_chain = forms.IntegerField(initial=1, min_value=1)
+    num_seeds_per_chain = forms.IntegerField(initial=1, min_value=1)
 
     class Meta:
         model = Game
