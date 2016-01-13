@@ -17,8 +17,10 @@ class FormTest(TestCase):
     def setUp(self):
         super(FormTest, self).setUp()
         self.seed = mommy.make_recipe('grunt.seed')
-        test_audio_path = Path(settings.APP_DIR,
-                               'grunt/tests/media/test-audio.wav')
+        test_audio_path = Path(
+            settings.APP_DIR,
+            'grunt/tests/media/test-audio.wav'
+        )
         self.audio = File(open(test_audio_path, 'rb'))
 
     def tearDown(self):

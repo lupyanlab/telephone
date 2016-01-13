@@ -102,7 +102,7 @@ class GameListView(ListView):
 
 
 class NewGameView(CreateView):
-    """ Create a new game.
+    """Create a new game.
 
     A successful post redirects to a page to create the chains.
     """
@@ -120,7 +120,7 @@ class NewGameView(CreateView):
 
 
 def new_chains_view(request, pk):
-    """ Add chains to the newly created game.
+    """Add chains to the newly created game.
 
     This view uses a model formset factory to render multiple chain forms
     on the same page.

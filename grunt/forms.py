@@ -7,7 +7,7 @@ from .models import Message, Game, Chain
 
 
 class ResponseForm(forms.ModelForm):
-    """ Save the message received from the player. """
+    """Save the message received from the player."""
     class Meta:
         model = Message
         fields = ('parent', 'audio')
@@ -22,19 +22,26 @@ class ResponseForm(forms.ModelForm):
 
 
 class NewGameForm(forms.ModelForm):
-    """ Creates a new game.
+    """Create a new game.
 
-    num_chains is used by the view to render the correct number
-    of new chain forms on the following page.
+    ModelForm fields:
+        name: The name of the game.
+
+    Additional fields:
+        num_chains: The number of chains in this game. Used by the view to
+            render the correct number of new chain forms on the following page.
+        num_seeds_per_chain: The number of seed audio files that will be
+            uploaded for each chain.
     """
     num_chains = forms.IntegerField(initial=1, min_value=1)
+    # num_seeds_per_chain = forms.IntegerField(initial=1, min_value=1)
 
     class Meta:
         model = Game
         fields = ('name', )
 
     def __init__(self, *args, **kwargs):
-        """ Crispy form """
+        """Crispy form."""
         super(NewGameForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_method = 'post'
@@ -49,7 +56,7 @@ class NewChainForm(forms.ModelForm):
         fields = ('game', 'name')
 
     def save(self, **kwargs):
-        """ Create a new chain and then create a seed message for it. """
+        """Create a new chain and then create a seed message for it."""
         chain = super(NewChainForm, self).save(**kwargs)
         chain.messages.create(audio=self.cleaned_data['seed'])
         return chain
@@ -60,7 +67,11 @@ class NewChainFormSet(forms.models.BaseModelFormSet):
 
 
 class NewChainFormSetHelper(FormHelper):
-    """ Styling specific to pages rendering multiple new chain forms """
+    """Styling specific to pages rendering multiple new chain forms.
+
+    Although the page will have multiple NewChainForms, it should only
+    have a single submit button, which Crispy can create for us.
+    """
     def __init__(self, *args, **kwargs):
         super(NewChainFormSetHelper, self).__init__(*args, **kwargs)
         self.form_method = 'post'
