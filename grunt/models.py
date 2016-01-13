@@ -34,11 +34,15 @@ class Chain(models.Model):
     name = models.CharField(max_length=30)
 
     def pick_parent(self):
-        """ Select a fertile message at random.
+        """Select a fertile message at random.
 
         TODO: move this function to handlers
         """
-        return self.messages.filter(num_children__gt=0).order_by('?')[0]
+        fertile = self.messages.filter(num_children__gt=0)
+        youngest_generation = fertile.aggregate(
+            min_gen=models.Min('generation')
+        )['min_gen']
+        return fertile.filter(generation=youngest_generation).order_by('?')[0]
 
     def __str__(self):
         return '{} - {}'.format(self.game, self.name)

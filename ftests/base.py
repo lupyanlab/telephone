@@ -31,7 +31,7 @@ class FunctionalTest(LiveServerTestCase):
 
         TEST_MEDIA_ROOT.rmtree()
 
-    def create_game(self, name, nchains=1, depth=0):
+    def create_game(self, name, nchains=1, depth=0, num_seeds_per_chain=1):
         """Create a game with the specified number of chains.
 
         Args:
@@ -39,6 +39,7 @@ class FunctionalTest(LiveServerTestCase):
             nchains: The number of chains to add to the game. Names for the
                 chains are created automatically.
             depth: The number of recordings to add to each chain.
+            num_seeds_per_chain: The number of seeds to add to each chain.
         """
         game = Game(name=name)
         game.full_clean()
@@ -49,11 +50,12 @@ class FunctionalTest(LiveServerTestCase):
             chain.full_clean()
             chain.save()
 
-            with open(self.path_to_test_audio(), 'rb') as seed_handle:
-                seed_file = File(seed_handle)
+            for seed_ix in range(num_seeds_per_chain):
+                seed_file = File(open(self.path_to_test_audio(), 'rb'))
                 seed_message = Message(chain=chain, audio=seed_file)
                 seed_message.full_clean()
                 seed_message.save()
+                seed_file.close()
 
         def add_child(chain):
             parent = chain.pick_parent()

@@ -144,7 +144,7 @@ class ParallelBranchTest(FunctionalTest):
     def test_parallel_branches(self):
         """Marcus and Lynn respond to different seeds in the same chain."""
         game_name = 'Parallel Game'
-        self.create_game(name=game_name) # TODO: add num_seeds_per_chain kwarg
+        self.create_game(name=game_name, num_seeds_per_chain=2)
 
         # Lynn gets set up to play the game
         self.nav_to_games_list()

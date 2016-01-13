@@ -37,6 +37,18 @@ class ChainTest(ModelTest):
         chain.full_clean()
         chain.save()
 
+    def test_pick_youngest_parent(self):
+        """Chains should pick the youngest parent message.
+
+        This is not a good test because it won't always fail even if
+        the picking isn't implemented correctly!
+        """
+        chain = mommy.make(Chain)
+        young = mommy.make(Message, chain=chain)
+        old = mommy.make(Message, chain=chain, generation=1)
+        parent = chain.pick_parent()
+        self.assertEquals(parent, young)
+
 
 class MessageTest(ModelTest):
     def setUp(self):
