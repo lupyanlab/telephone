@@ -214,7 +214,7 @@ class NewGameViewTest(ViewTest):
                 'form-MAX_NUM_FORMS': '',
                 'form-0-game': game.pk,
                 'form-0-name': new_chain_name,
-                'form-0-seed': audio_file
+                'form-0-seed0': audio_file
             }
             self.client.post(add_chains_url, new_chain_formset_data)
 

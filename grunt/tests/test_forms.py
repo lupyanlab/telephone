@@ -48,7 +48,7 @@ class NewChainFormTest(FormTest):
     def test_create_new_chain_from_form(self):
         game = mommy.make(Game)
         post_data = dict(game=game.pk, name='new chain')
-        files_data = dict(seed=self.audio)
+        files_data = dict(seed0=self.audio)
         new_chain_form = NewChainForm(post_data, files_data)
         new_chain_form.is_valid()
         self.assertTrue(new_chain_form.is_valid())
@@ -56,7 +56,7 @@ class NewChainFormTest(FormTest):
     def test_new_chain_form_creates_seed_message(self):
         game = mommy.make(Game)
         post_data = dict(game=game.pk, name='new chain')
-        files_data = dict(seed=self.audio)
+        files_data = dict(seed0=self.audio)
         new_chain_form = NewChainForm(post_data, files_data)
         new_chain_form.is_valid()
         chain = new_chain_form.save()
