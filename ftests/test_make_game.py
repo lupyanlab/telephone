@@ -73,6 +73,12 @@ class MakeGameTest(FunctionalTest):
         self.fill_out_new_chain_form(form_id=1, chain_name='second chain')
         self.browser.find_element_by_id('submit-id-submit').click()
 
+        # He sees the correct number of nodes on the inspect page
+        svg_nodes = self.select_svg_nodes()
+        # 1 game + 2 chains + 2 seeds
+        expected_num_nodes = 1 + 2 + 2
+        self.assertEquals(len(svg_nodes), expected_num_nodes)
+
         # He returns to the game list page
         self.nav_to_games_list()
 
@@ -108,3 +114,9 @@ class MakeGameTest(FunctionalTest):
         self.fill_out_new_chain_form(form_id=0, chain_name='first chain', num_seeds=2)
         self.fill_out_new_chain_form(form_id=1, chain_name='second chain', num_seeds=2)
         self.browser.find_element_by_id('submit-id-submit').click()
+
+        # He lands on the inspect page and sees the correct number of nodes
+        svg_nodes = self.select_svg_nodes()
+        # 1 game + 2 chains + 4 seeds (2 seeds per chain)
+        expected_num_nodes = 1 + 2 + 4
+        self.assertEquals(len(svg_nodes), expected_num_nodes)

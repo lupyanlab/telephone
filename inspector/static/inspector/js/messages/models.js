@@ -10,7 +10,7 @@ export class Message extends Backbone.Model {
    * @returns {Message} seed message (root of the hierarchy) with correctly set children
    */
   static constructMessageHierarchyFromPlainJson(plainJson) {
-    let seedMessageData = _.find(plainJson, messageData => messageData['generation'] === 0);
+    let seedMessagesData = _.filter(plainJson, messageData => messageData['generation'] === 0);
 
     let constructMessageSubtree = function(messageData) {
       let childrenMessageData = _.filter(plainJson, m => m['parent'] === messageData['id']);
@@ -18,7 +18,7 @@ export class Message extends Backbone.Model {
       return new Message(messageData);
     };
 
-    return constructMessageSubtree(seedMessageData);
+    return _.map(seedMessagesData, constructMessageSubtree);
   }
 
   get urlRoot() {

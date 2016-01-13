@@ -108,7 +108,7 @@ export class GameTreeView extends Backbone.View {
       id: chain.id,
       label: chain.name,
       type: 'chain',
-      children: [this.constructMessageTreeNode(chain.seedMessage)]
+      children: _.map(chain.seedMessages, seedMessage => this.constructMessageTreeNode(seedMessage))
     }
   }
 

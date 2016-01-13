@@ -59,7 +59,7 @@ class Chain extends Backbone.Model {
   /** Ensure that hierarchy of the chain messages is correctly reconstructed.
    */
   static prepareJson(attributes) {
-    attributes['seedMessage'] = Message.constructMessageHierarchyFromPlainJson(attributes['messages']);
+    attributes['seedMessages'] = Message.constructMessageHierarchyFromPlainJson(attributes['messages']);
     delete attributes['messages'];
     return attributes
   }
@@ -73,8 +73,8 @@ class Chain extends Backbone.Model {
     return this.get('name');
   }
 
-  get seedMessage() {
-    return this.get('seedMessage');
+  get seedMessages() {
+    return this.get('seedMessages');
   }
 
 }
