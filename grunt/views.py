@@ -81,6 +81,8 @@ class SwitchboardView(APIView):
 
         # add the receipt to the session
         # do *not* use append method!
+        if 'receipts' not in request.session:
+            request.session['receipts'] = []
         request.session['receipts'] += [message.pk]
         message.parent.kill()
 
