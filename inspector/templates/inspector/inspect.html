@@ -34,12 +34,10 @@
   <script>
     // Load CSRF config so Ajax can post to Django
     System.import("js/ajax.js");
-  </script>
-  <script>
+
+    // Load and initialise app once soundManager is ready
     System.import('soundmanager2').then(function () {
-      // Load and initialise app once soundManager is ready
       soundManager.setup({
-        url: "{% static 'SoundManager2/swf' %}",
         onready: function() {
           System.import('inspector/js/app.js');
         }
