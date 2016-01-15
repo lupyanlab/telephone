@@ -80,6 +80,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = Path(PROJ_DIR, 'static')
 
 STATICFILES_DIRS = (
+    'telephone/static',# Assets for all apps
     'jspm_components', # Packages managed by jspm
 )
 
