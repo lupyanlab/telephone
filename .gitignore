@@ -8,7 +8,6 @@
 # contain reproducible content
 /media/
 /static/
-# /components/
 
 .vagrant
 vagrant_ansible_inventory_default
@@ -16,5 +15,8 @@ ansible/env_vars/secrets.yml
 
 *.swp
 
-# Jspm packages
+# node modules
+node_modules/
+
+# jspm packages
 jspm_components/jspm_packages

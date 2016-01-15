@@ -36,7 +36,6 @@ INSTALLED_APPS = (
 
     # Third-party apps
     'crispy_forms',
-    'djangobower',
     'rest_framework',
 
     # Local apps
@@ -87,7 +86,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'djangobower.finders.BowerFinder',
 )
 
 MEDIA_URL = '/media/'
@@ -113,16 +111,3 @@ MOMMY_CUSTOM_FIELDS_GEN = {
 }
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
-
-BOWER_COMPONENTS_ROOT = Path(APP_DIR, 'components')
-
-BOWER_INSTALLED_APPS = (
-    'soundmanager2#e6394dafc3cdc99596a18a6625d32bd5831345ab',
-    'bootstrap#3.3.5',
-    'jquery#2.1.4',
-    'd3#3.5.6',
-    'colorbrewer#1.0.0',
-    'underscore#1.8.3',
-    'traceur#0.0.92',
-    'https://github.com/systemjs/systemjs.git#0.19.5',
-)

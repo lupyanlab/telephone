@@ -14,5 +14,3 @@ DATABASES = {
         'PORT': '',
     },
 }
-
-BOWER_PATH = '/usr/bin/bower'

@@ -34,20 +34,12 @@ Running the app locally using the Django test server
         source ~/.venvs/telephone/bin/activate
         pip install -r requirements.txt
 
-    You will also need <bower.io> and `jspm <http://jspm.io/>` for package management. First you'll need
-    to install node and npm <nodejs.org>, then install bower and jspm.
+    You will also need `jspm <http://jspm.io/>` for package management. First you'll need
+    to install node and npm <nodejs.org>, then install jspm.
 
     .. code::
 
-        npm install -g bower
-        nom install -g jspm
-
-    If you installed the django-bower package, you can download the packages
-    used in this project with a manage.py command.
-
-    .. code::
-
-        python manage.py bower install
+        nom install jspm --save-dev
 
     To install packages, managed by jspm, run:
 
