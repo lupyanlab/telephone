@@ -31,22 +31,19 @@
 {% endblock body %}
 
 {% block javascript %}
-  <script src="{% static 'colorbrewer/colorbrewer.js' %}" type="text/JavaScript"></script>
-  <script src="{% static 'SoundManager2/script/soundmanager2.js' %}" type="text/JavaScript"></script>
   <script>
     // Load CSRF config so Ajax can post to Django
     System.import("js/ajax.js");
   </script>
   <script>
-    System.import('inspector/js/app.js');
-
-    // // Load and initialise app once soundManager is ready
-    // soundManager.setup({
-    //   url: "{% static 'SoundManager2/swf' %}",
-    //   onready: function() {
-    //     System.import('inspector/js/app.js');
-    //   }
-    // });
-
+    System.import('soundmanager2').then(function () {
+      // Load and initialise app once soundManager is ready
+      soundManager.setup({
+        url: "{% static 'SoundManager2/swf' %}",
+        onready: function() {
+          System.import('inspector/js/app.js');
+        }
+      });
+    });
   </script>
 {% endblock javascript %}

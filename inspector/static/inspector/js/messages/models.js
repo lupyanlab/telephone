@@ -1,5 +1,6 @@
 import Backbone from 'backbone';
 import {_} from 'underscore';
+import 'soundmanager2';
 
 
 export class Message extends Backbone.Model {
