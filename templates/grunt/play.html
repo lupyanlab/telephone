@@ -46,7 +46,8 @@ var config = {
 
 soundManager.setup({
   url: "{% static 'SoundManager2/swf' %}",
-  debugMode: false,
+  debugMode: true,
+  flashVersion: 9,
   onready: function() {
     message.fetch();
   }

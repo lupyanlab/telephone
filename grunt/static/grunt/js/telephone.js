@@ -59,6 +59,17 @@ var MessageBase = Backbone.Model.extend({
         if (!that.get("end_at")) {
           that.set("end_at", soundManager.sounds[that.soundId].duration);
         }
+        // HACK:
+        // Trying to trigger finishedPlaying event when sound is done playing.
+        // Using "onfinish" callback works if the whole sound is being played.
+        // But when only a segment of the sound is being played, the callback
+        // isn't called multiple times.
+        // This hack sets a callback at a position 200 msec before the actual
+        // end of the sound, guaranteeing that it is reached each time the
+        // sound plays.
+        this.onPosition(that.get("end_at") - 200, function (eventPosition) {
+          that.trigger("finishedPlaying");
+        })
       }
     });
   }
@@ -77,9 +88,9 @@ var TelephoneView = Backbone.View.extend({
 
   initialize: function () {
     this.listenTo(this.model, "change", this.render);
+    this.listenTo(this.model, "finishedPlaying", this.finishedPlaying);
     this.on("alert", this.alert, this);
     this.on("disable", this.disable, this);
-    this.on("finishedPlaying", this.finishedPlaying, this);
 
     this.hasListened = false;
   },
@@ -133,10 +144,7 @@ var TelephoneView = Backbone.View.extend({
       var that = this;
       soundManager.play(this.model.soundId, {
         from: this.model.get("start_at"),
-        to: this.model.get("end_at"),
-        onfinish: function () {
-          that.trigger("finishedPlaying");
-        }
+        to: this.model.get("end_at")
       })
       this.$(".play").addClass("button-on");
     }
