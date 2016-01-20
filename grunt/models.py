@@ -91,4 +91,4 @@ class MessageSerializer(serializers.ModelSerializer):
     """ Represent a message in JSON. """
     class Meta:
         model = Message
-        fields = ('id', 'audio')
+        fields = ('id', 'audio', 'start_at', 'end_at')

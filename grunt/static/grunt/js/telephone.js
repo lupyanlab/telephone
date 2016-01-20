@@ -55,8 +55,10 @@ var MessageBase = Backbone.Model.extend({
     soundManager.createSound({
       id: this.soundId,
       url: this.get("audio"),
-      onfinish: function () {
-        that.trigger("finishedPlaying");
+      onload: function () {
+        if (!that.get("end_at")) {
+          that.set("end_at", soundManager.sounds[that.soundId].duration);
+        }
       }
     });
   }
@@ -75,9 +77,9 @@ var TelephoneView = Backbone.View.extend({
 
   initialize: function () {
     this.listenTo(this.model, "change", this.render);
-    this.listenTo(this.model, "finishedPlaying", this.finishedPlaying);
     this.on("alert", this.alert, this);
     this.on("disable", this.disable, this);
+    this.on("finishedPlaying", this.finishedPlaying, this);
 
     this.hasListened = false;
   },
@@ -128,7 +130,14 @@ var TelephoneView = Backbone.View.extend({
     } else if (!this.model.has("audio")) {
       this.trigger("alert", "There is not a message to imitate.", "info", 2000)
     } else {
-      soundManager.sounds[this.model.soundId].play();
+      var that = this;
+      soundManager.play(this.model.soundId, {
+        from: this.model.get("start_at"),
+        to: this.model.get("end_at"),
+        onfinish: function () {
+          that.trigger("finishedPlaying");
+        }
+      })
       this.$(".play").addClass("button-on");
     }
   },
