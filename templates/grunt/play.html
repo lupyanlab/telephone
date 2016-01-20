@@ -19,6 +19,7 @@
 {% block javascript %}
     <script src="{% static 'underscore/underscore-min.js' %}" type="text/Javascript"></script>
     <script src="{% static 'backbone/backbone.js' %}" type="text/Javascript"></script>
+    <script src="{% static 'SoundManager2/script/soundmanager2.js' %}" type="text/JavaScript"></script>
     <script src="{% static 'grunt/js/recorderjs/recorder.js' %}" type="text/Javascript"></script>
     <script src="{% static 'grunt/js/ajax.js' %}" type="text/Javascript"></script>
     <script src="{% static 'grunt/js/telephone.js' %}" type="text/Javascript"></script>
@@ -43,6 +44,12 @@ var config = {
   }
 };
 
-$(function () { message.fetch(); });
+soundManager.setup({
+  url: "{% static 'SoundManager2/swf' %}",
+  debugMode: false,
+  onready: function() {
+    message.fetch();
+  }
+});
     </script>
 {% endblock javascript %}

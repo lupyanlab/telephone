@@ -25,6 +25,9 @@ var seeIfDone = function (model, response, options) {
 }
 
 var MessageBase = Backbone.Model.extend({
+  initialize: function () {
+    this.on("createSound", this.createSound, this);
+  },
 
   sync: function (method, model, options) {
     if (method == "create") {
@@ -43,7 +46,21 @@ var MessageBase = Backbone.Model.extend({
       telephoneView.trigger("alert", "Sending your message. Please wait.", "info");
     }
     return Backbone.sync.call(this, method, model, options);
+  },
+
+  createSound: function () {
+    var that = this;
+    this.soundId = "s" + this.get("id");
+
+    soundManager.createSound({
+      id: this.soundId,
+      url: this.get("audio"),
+      onfinish: function () {
+        that.trigger("finishedPlaying");
+      }
+    });
   }
+
 });
 
 var TelephoneView = Backbone.View.extend({
@@ -56,23 +73,23 @@ var TelephoneView = Backbone.View.extend({
     "click .record": "record"
   },
 
-  initialize: function() {
+  initialize: function () {
     this.listenTo(this.model, "change", this.render);
+    this.listenTo(this.model, "finishedPlaying", this.finishedPlaying);
     this.on("alert", this.alert, this);
     this.on("disable", this.disable, this);
+
+    this.hasListened = false;
   },
 
   render: function () {
-    var that = this;
-    this.hasListened = false;
+    this.model.trigger("createSound");
+  },
 
-    this.$("#sound").attr("src", this.model.get("audio") || "");
-    this.$("#sound").bind("ended", function () {
-      that.hasListened = true;
-      that.$(".play").removeClass("button-on");
-      that.$(".record").removeClass("unavailable");
-    });
-    return this;
+  finishedPlaying: function () {
+    this.hasListened = true;
+    this.$(".play").removeClass("button-on");
+    this.$(".record").removeClass("unavailable");
   },
 
   share: function () {
@@ -111,7 +128,7 @@ var TelephoneView = Backbone.View.extend({
     } else if (!this.model.has("audio")) {
       this.trigger("alert", "There is not a message to imitate.", "info", 2000)
     } else {
-      this.$("#sound").trigger("play");
+      soundManager.sounds[this.model.soundId].play();
       this.$(".play").addClass("button-on");
     }
   },
