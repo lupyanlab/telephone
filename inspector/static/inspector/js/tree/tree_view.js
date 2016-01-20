@@ -35,6 +35,7 @@ export class GameTreeView extends Backbone.View {
   initialize() {
     this.listenTo(this.model, 'change', this.render);
     this.listenTo(this.model, 'destroy', this.remove);
+    this.listenTo(this.messageComponent, 'change', this.render);
     this.prepareLayout();
   }
 
@@ -113,9 +114,14 @@ export class GameTreeView extends Backbone.View {
   }
 
   constructMessageTreeNode(message) {
+    let type = "message";
+    if (message.isEdited) {
+      type = type + " edited"
+    }
+
     return {
       id: message.id,
-      type: 'message',
+      type: type,
       label: "#" + message.id,
       children: _.map(message.children, child => this.constructMessageTreeNode(child))
     }
