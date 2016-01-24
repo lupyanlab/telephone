@@ -123,10 +123,15 @@ export class GameTreeView extends Backbone.View {
     }
   }
 
+  /**
+   * Highlight only the message being detailed in the tree.
+   */
   highlightMessage(messageId) {
-    // Highlight the message being detailed in the tree
+    d3.selectAll(".node circle")
+      .classed("highlight", false);
+
     d3.select(`#message-${messageId}`)
-      .style({fill: "steelblue"});
+      .classed("highlight", true);
   }
 
 }
