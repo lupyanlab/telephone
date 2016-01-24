@@ -10,6 +10,7 @@ export class GameTreeView extends Backbone.View {
   constructor(options) {
     super(options);
     this.messageComponent = new MessageComponent({el: this.messageDetailsContainerElement});
+    this.messageComponent.on('route:showMessageDetails', this.highlightMessage)
   }
 
   get margin() {
@@ -97,7 +98,7 @@ export class GameTreeView extends Backbone.View {
   constructGameTreeRootNode() {
     return {
       id: this.model.id,
-      type: "game",
+      type: 'game',
       label: this.model.name,
       children: this.model.chains.map(chain => this.constructChainTreeNode(chain))
     };
@@ -119,6 +120,12 @@ export class GameTreeView extends Backbone.View {
       label: message.generation,
       children: _.map(message.children, child => this.constructMessageTreeNode(child))
     }
+  }
+
+  highlightMessage(messageId) {
+    // Highlight the message being detailed in the tree
+    console.log('tree view highlightMessage');
+    console.log('messageId ' + messageId);
   }
 
 }
