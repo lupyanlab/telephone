@@ -79,6 +79,7 @@ export class GameTreeView extends Backbone.View {
     nodeEnter.append(addLinkToMessageDetails)
       .append("circle")
       .attr("r", 5)
+      .attr("id", d => `${d.type}-${d.id}`)
       .attr("class", d => d.type);
 
     nodeEnter.append("text")
@@ -124,8 +125,8 @@ export class GameTreeView extends Backbone.View {
 
   highlightMessage(messageId) {
     // Highlight the message being detailed in the tree
-    console.log('tree view highlightMessage');
-    console.log('messageId ' + messageId);
+    d3.select(`#message-${messageId}`)
+      .style({fill: "steelblue"});
   }
 
 }
