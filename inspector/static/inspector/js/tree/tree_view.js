@@ -80,7 +80,10 @@ export class GameTreeView extends Backbone.View {
       .append("circle")
       .attr("r", 5)
       .attr("id", d => `${d.type}-${d.id}`)
-      .attr("class", d => d.type);
+      .attr("class", d => d.type)
+
+    nodeEnter.selectAll("circle.message")
+      .attr("class", d => d.edited ? d.type : d.type + " unedited");
 
     nodeEnter.append("text")
       .attr("x", -10)
@@ -118,6 +121,7 @@ export class GameTreeView extends Backbone.View {
     return {
       id: message.id,
       type: 'message',
+      edited: message.isEdited,
       label: `#${message.id}`,
       children: _.map(message.children, child => this.constructMessageTreeNode(child))
     }
