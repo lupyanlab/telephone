@@ -8,7 +8,7 @@
 # contain reproducible content
 /media/
 /static/
-# /components/
+node_modules/
 
 .vagrant
 vagrant_ansible_inventory_default
