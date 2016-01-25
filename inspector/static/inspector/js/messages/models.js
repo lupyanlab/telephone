@@ -68,6 +68,7 @@ export class Message extends Backbone.Model {
 
   initialize() {
     this.on('change:id', eventName => this.createSound());
+    this.on('change', eventName => Backbone.trigger('messageChanged'));
   }
 
   createSound() {

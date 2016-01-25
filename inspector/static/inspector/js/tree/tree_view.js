@@ -37,8 +37,10 @@ export class GameTreeView extends Backbone.View {
   }
 
   initialize() {
+    console.log("initializing tree view");
     this.listenTo(this.model, 'change', this.render);
     this.listenTo(this.model, 'destroy', this.remove);
+    this.listenTo(Backbone, 'messageChanged', this.render);
     this.prepareLayout();
   }
 
@@ -63,6 +65,7 @@ export class GameTreeView extends Backbone.View {
   }
 
   drawMessageTree() {
+    console.log("drawing message tree");
     // Counter for node ids
     let i = 0;
 
