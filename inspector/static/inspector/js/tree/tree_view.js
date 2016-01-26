@@ -35,7 +35,6 @@ export class GameTreeView extends Backbone.View {
   initialize() {
     this.listenTo(this.model, 'change', this.render);
     this.listenTo(this.model, 'destroy', this.remove);
-    this.listenTo(this.messageComponent, 'change', this.render);
     this.prepareLayout();
   }
 

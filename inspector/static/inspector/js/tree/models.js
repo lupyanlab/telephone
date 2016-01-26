@@ -18,6 +18,10 @@ export class GameTree extends Backbone.Model {
     return "/inspect/api/games/"
   }
 
+  initialize() {
+    this.listenTo(this.get('chains'), eventName => this.trigger('change'));
+  }
+
   //Correctly handles collections of child models.
   parse(response, options) {
     return GameTree.prepareJson(response);
@@ -62,6 +66,15 @@ class Chain extends Backbone.Model {
     attributes['seedMessages'] = Message.constructMessageHierarchyFromPlainJson(attributes['messages']);
     delete attributes['messages'];
     return attributes
+  }
+
+  initialize() {
+    // Recursively listen to all of this chain's messages
+    let listenToMessage = function (message) {
+      _.each(message.get('children'), listenToMessage, this);
+      this.listenTo(message, 'change', eventName => this.trigger('change'));
+    }
+    _.each(this.seedMessages, listenToMessage, this);
   }
 
   // Correctly handles message hierarchies.
