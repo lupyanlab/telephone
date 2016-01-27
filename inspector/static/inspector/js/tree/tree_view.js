@@ -10,6 +10,10 @@ export class GameTreeView extends Backbone.View {
   constructor(options) {
     super(options);
     this.messageComponent = new MessageComponent({el: this.messageDetailsContainerElement});
+    this.messageComponent.on('route:showMessageDetails', this.highlightMessage);
+    // want to be able to do this:
+    // this.messageComponent.on('route:showMessageDetails', this.render, this);
+    // for some reason, can't.
   }
 
   get margin() {
@@ -78,7 +82,11 @@ export class GameTreeView extends Backbone.View {
     nodeEnter.append(addLinkToMessageDetails)
       .append("circle")
       .attr("r", 5)
-      .attr("class", d => d.type);
+      .attr("id", d => `${d.type}-${d.id}`)
+      .attr("class", d => d.type)
+
+    nodeEnter.selectAll("circle.message")
+      .attr("class", d => d.edited ? d.type : d.type + " unedited");
 
     nodeEnter.append("text")
       .attr("x", -10)
@@ -97,7 +105,7 @@ export class GameTreeView extends Backbone.View {
   constructGameTreeRootNode() {
     return {
       id: this.model.id,
-      type: "game",
+      type: 'game',
       label: this.model.name,
       children: this.model.chains.map(chain => this.constructChainTreeNode(chain))
     };
@@ -113,17 +121,24 @@ export class GameTreeView extends Backbone.View {
   }
 
   constructMessageTreeNode(message) {
-    let type = "message";
-    if (message.isEdited) {
-      type = type + " edited"
-    }
-
     return {
       id: message.id,
-      type: type,
-      label: "#" + message.id,
+      type: 'message',
+      edited: message.isEdited,
+      label: `#${message.id}`,
       children: _.map(message.children, child => this.constructMessageTreeNode(child))
     }
+  }
+
+  /**
+   * Highlight only the message being detailed in the tree.
+   */
+  highlightMessage(messageId) {
+    d3.selectAll(".node circle")
+      .classed("highlight", false);
+
+    d3.select(`#message-${messageId}`)
+      .classed("highlight", true);
   }
 
 }

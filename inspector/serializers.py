@@ -8,7 +8,7 @@ from grunt.models import Chain, Message, Game
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ('id', 'parent', 'audio', 'generation', 'num_children')
+        fields = ('id', 'parent', 'audio', 'generation', 'edited', 'num_children')
 
 
 class MessageDetailsSerializer(serializers.ModelSerializer):

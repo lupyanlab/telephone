@@ -25,6 +25,9 @@ var seeIfDone = function (model, response, options) {
 }
 
 var MessageBase = Backbone.Model.extend({
+  initialize: function () {
+    this.on("createSound", this.createSound, this);
+  },
 
   sync: function (method, model, options) {
     if (method == "create") {
@@ -43,7 +46,34 @@ var MessageBase = Backbone.Model.extend({
       telephoneView.trigger("alert", "Sending your message. Please wait.", "info");
     }
     return Backbone.sync.call(this, method, model, options);
+  },
+
+  createSound: function () {
+    var that = this;
+    this.soundId = "s" + this.get("id");
+
+    soundManager.createSound({
+      id: this.soundId,
+      url: this.get("audio"),
+      onload: function () {
+        if (!that.get("end_at")) {
+          that.set("end_at", soundManager.sounds[that.soundId].duration);
+        }
+        // HACK:
+        // Trying to trigger finishedPlaying event when sound is done playing.
+        // Using "onfinish" callback works if the whole sound is being played.
+        // But when only a segment of the sound is being played, the callback
+        // isn't called multiple times.
+        // This hack sets a callback at a position 200 msec before the actual
+        // end of the sound, guaranteeing that it is reached each time the
+        // sound plays.
+        this.onPosition(that.get("end_at") - 200, function (eventPosition) {
+          that.trigger("finishedPlaying");
+        })
+      }
+    });
   }
+
 });
 
 var TelephoneView = Backbone.View.extend({
@@ -56,23 +86,23 @@ var TelephoneView = Backbone.View.extend({
     "click .record": "record"
   },
 
-  initialize: function() {
+  initialize: function () {
     this.listenTo(this.model, "change", this.render);
+    this.listenTo(this.model, "finishedPlaying", this.finishedPlaying);
     this.on("alert", this.alert, this);
     this.on("disable", this.disable, this);
+
+    this.hasListened = false;
   },
 
   render: function () {
-    var that = this;
-    this.hasListened = false;
+    this.model.trigger("createSound");
+  },
 
-    this.$("#sound").attr("src", this.model.get("audio") || "");
-    this.$("#sound").bind("ended", function () {
-      that.hasListened = true;
-      that.$(".play").removeClass("button-on");
-      that.$(".record").removeClass("unavailable");
-    });
-    return this;
+  finishedPlaying: function () {
+    this.hasListened = true;
+    this.$(".play").removeClass("button-on");
+    this.$(".record").removeClass("unavailable");
   },
 
   share: function () {
@@ -111,7 +141,11 @@ var TelephoneView = Backbone.View.extend({
     } else if (!this.model.has("audio")) {
       this.trigger("alert", "There is not a message to imitate.", "info", 2000)
     } else {
-      this.$("#sound").trigger("play");
+      var that = this;
+      soundManager.play(this.model.soundId, {
+        from: this.model.get("start_at"),
+        to: this.model.get("end_at")
+      })
       this.$(".play").addClass("button-on");
     }
   },
