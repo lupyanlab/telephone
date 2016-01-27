@@ -19,8 +19,9 @@ export class GameTree extends Backbone.Model {
   }
 
   initialize() {
-    console.log("GameTree: initialize: listening for change events on this model");
-    this.on("change", this.listenToChains, this);
+    // When this model changes, e.g., after a fetch,
+    // attach listeners to all messages.
+    this.on("change", this.listenToMessages, this);
   }
 
   //Correctly handles collections of child models.
@@ -36,9 +37,29 @@ export class GameTree extends Backbone.Model {
     return this.get('chains');
   }
 
-  listenToChains() {
-    console.log("GameTree: listenToChains: model changed so attaching listeners to chains");
-    this.listenTo(this.chains, eventName => this.trigger('change'));
+  /**
+   * Listen for changes on all messages in the game.
+   *
+   * HACK: I'm really bad with JavaScript scope so I just attached everything to `this` to get it to work
+   */
+  listenToMessages() {
+
+    this.listenToMessage = function (message) {
+      // recurse through children
+      _.each(message.children, this.listenToMessage, this);
+      console.log(message);
+      this.listenTo(message, 'change', eventName => {
+        console.log("detected a message change on the GameTree model");
+        this.trigger('change');
+      });
+    }
+
+    this.listenToMessagesInChain = function (chain) {
+      _.each(chain.seedMessages, seedMessage => this.listenToMessage(seedMessage));
+    }
+
+    _.each(this.chains.models, this.listenToMessagesInChain, this);
+
   }
 
 }
@@ -74,11 +95,6 @@ class Chain extends Backbone.Model {
     return attributes
   }
 
-  initialize() {
-    console.log("Chain: initialize: listening for change events on this model");
-    this.on('change', this.listenToMessages, this);
-  }
-
   // Correctly handles message hierarchies.
   parse(response, options) {
     return Chain.prepareJson(response);
@@ -90,16 +106,6 @@ class Chain extends Backbone.Model {
 
   get seedMessages() {
     return this.get('seedMessages');
-  }
-
-  listenToMessages() {
-    console.log("Chain: listenToMessages: model changed, so attaching listeners to messages");
-    // Recursively listen to all of this chain's messages
-    let listenToMessage = function (message) {
-      _.each(message.children, listenToMessage, this);
-      this.listenTo(message, 'change', eventName => this.trigger('change'));
-    }
-    _.each(this.seedMessages, listenToMessage, this);
   }
 
 }
