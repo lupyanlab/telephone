@@ -19,7 +19,8 @@ export class GameTree extends Backbone.Model {
   }
 
   initialize() {
-    this.listenTo(this.get('chains'), eventName => this.trigger('change'));
+    console.log("GameTree: initialize: listening for change events on this model");
+    this.on("change", this.listenToChains, this);
   }
 
   //Correctly handles collections of child models.
@@ -33,6 +34,11 @@ export class GameTree extends Backbone.Model {
 
   get chains() {
     return this.get('chains');
+  }
+
+  listenToChains() {
+    console.log("GameTree: listenToChains: model changed so attaching listeners to chains");
+    this.listenTo(this.chains, eventName => this.trigger('change'));
   }
 
 }
@@ -69,12 +75,8 @@ class Chain extends Backbone.Model {
   }
 
   initialize() {
-    // Recursively listen to all of this chain's messages
-    let listenToMessage = function (message) {
-      _.each(message.get('children'), listenToMessage, this);
-      this.listenTo(message, 'change', eventName => this.trigger('change'));
-    }
-    _.each(this.seedMessages, listenToMessage, this);
+    console.log("Chain: initialize: listening for change events on this model");
+    this.on('change', this.listenToMessages, this);
   }
 
   // Correctly handles message hierarchies.
@@ -88,6 +90,16 @@ class Chain extends Backbone.Model {
 
   get seedMessages() {
     return this.get('seedMessages');
+  }
+
+  listenToMessages() {
+    console.log("Chain: listenToMessages: model changed, so attaching listeners to messages");
+    // Recursively listen to all of this chain's messages
+    let listenToMessage = function (message) {
+      _.each(message.children, listenToMessage, this);
+      this.listenTo(message, 'change', eventName => this.trigger('change'));
+    }
+    _.each(this.seedMessages, listenToMessage, this);
   }
 
 }
