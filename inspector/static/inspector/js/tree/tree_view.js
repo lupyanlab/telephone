@@ -10,10 +10,7 @@ export class GameTreeView extends Backbone.View {
   constructor(options) {
     super(options);
     this.messageComponent = new MessageComponent({el: this.messageDetailsContainerElement});
-    this.messageComponent.on('route:showMessageDetails', this.highlightMessage);
-    // want to be able to do this:
-    // this.messageComponent.on('route:showMessageDetails', this.render, this);
-    // for some reason, can't.
+    this.listenTo(this.messageComponent, 'route:showMessageDetails', this.highlightMessage);
   }
 
   get margin() {

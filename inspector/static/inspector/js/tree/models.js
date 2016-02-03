@@ -18,12 +18,6 @@ export class GameTree extends Backbone.Model {
     return "/inspect/api/games/"
   }
 
-  initialize() {
-    // When this model changes, e.g., after a fetch,
-    // attach listeners to all messages.
-    this.on("change", this.listenToMessages, this);
-  }
-
   //Correctly handles collections of child models.
   parse(response, options) {
     return GameTree.prepareJson(response);
@@ -35,31 +29,6 @@ export class GameTree extends Backbone.Model {
 
   get chains() {
     return this.get('chains');
-  }
-
-  /**
-   * Listen for changes on all messages in the game.
-   *
-   * HACK: I'm really bad with JavaScript scope so I just attached everything to `this` to get it to work
-   */
-  listenToMessages() {
-
-    this.listenToMessage = function (message) {
-      // recurse through children
-      _.each(message.children, this.listenToMessage, this);
-      console.log(message);
-      this.listenTo(message, 'change', eventName => {
-        console.log("detected a message change on the GameTree model");
-        this.trigger('change');
-      });
-    }
-
-    this.listenToMessagesInChain = function (chain) {
-      _.each(chain.seedMessages, seedMessage => this.listenToMessage(seedMessage));
-    }
-
-    _.each(this.chains.models, this.listenToMessagesInChain, this);
-
   }
 
 }
