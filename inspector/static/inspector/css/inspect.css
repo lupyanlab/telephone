@@ -20,6 +20,11 @@ svg.tree {
   stroke: #fc8d62;
 }
 
+.node circle.dead {
+  fill: #808080;
+  stroke: #808080;
+}
+
 .node text {
   font: 10px sans-serif;
 }
