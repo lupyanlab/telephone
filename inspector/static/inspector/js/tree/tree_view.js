@@ -10,7 +10,7 @@ export class GameTreeView extends Backbone.View {
   constructor(options) {
     super(options);
     this.messageComponent = new MessageComponent({el: this.messageDetailsContainerElement});
-    this.messageComponent.on('route:showMessageDetails', this.highlightMessage)
+    this.listenTo(this.messageComponent, 'route:showMessageDetails', this.highlightMessage);
   }
 
   get margin() {
@@ -80,7 +80,18 @@ export class GameTreeView extends Backbone.View {
       .append("circle")
       .attr("r", 5)
       .attr("id", d => `${d.type}-${d.id}`)
-      .attr("class", d => d.type);
+      .attr("class", d => d.type)
+
+    nodeEnter.selectAll("circle.message")
+      .attr("class", d => {
+        let base_class = d.type;
+        if(d.num_children == 0) {
+          base_class = base_class + " dead";
+        } else if(!d.edited) {
+          base_class = base_class + " unedited";
+        }
+        return base_class;
+      });
 
     nodeEnter.append("text")
       .attr("x", -10)
@@ -118,7 +129,9 @@ export class GameTreeView extends Backbone.View {
     return {
       id: message.id,
       type: 'message',
+      edited: message.isEdited,
       label: `#${message.id}`,
+      num_children: message.numberOfChildrenLeft,
       children: _.map(message.children, child => this.constructMessageTreeNode(child))
     }
   }

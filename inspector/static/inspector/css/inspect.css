@@ -5,13 +5,24 @@ svg.tree {
 }
 
 .node circle {
-  fill: #fff;
-  stroke: steelblue;
+  fill: #8da0cb;
+  stroke: #8da0cb;
   stroke-width: 1.5px;
 }
 
+.node circle.unedited {
+  fill: #66c2a5;
+  stroke: #66c2a5;
+}
+
 .node circle.highlight {
-  fill: steelblue;
+  fill: #fc8d62;
+  stroke: #fc8d62;
+}
+
+.node circle.dead {
+  fill: #808080;
+  stroke: #808080;
 }
 
 .node text {
