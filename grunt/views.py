@@ -93,6 +93,8 @@ class SwitchboardView(APIView):
             return Response(data)
         except IndexError:
             completion_code = '-'.join(map(str, request.session['receipts']))
+            request.session['instructed'] = False
+            request.session['receipts'] = []
             return Response({'completion_code': completion_code})
 
 
