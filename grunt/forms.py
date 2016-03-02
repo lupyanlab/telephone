@@ -32,9 +32,12 @@ class NewGameForm(forms.ModelForm):
             render the correct number of new chain forms on the following page.
         num_seeds_per_chain: The number of seed audio files that will be
             uploaded for each chain.
+        num_children_per_seed: The number of children that the seed message
+            should have. Only applies to first generation.
     """
     num_chains = forms.IntegerField(initial=1, min_value=1)
     num_seeds_per_chain = forms.IntegerField(initial=1, min_value=1)
+    num_children_per_seed = forms.IntegerField(initial=1, min_value=1)
 
     class Meta:
         model = Game
@@ -61,6 +64,7 @@ class NewChainForm(forms.ModelForm):
             multiple chains (with multiple seeds) on the same page.
     """
     NUM_SEEDS = 1
+    NUM_CHILDREN_PER_SEED = 1
 
     class Meta:
         model = Chain
@@ -83,7 +87,10 @@ class NewChainForm(forms.ModelForm):
 
         # create multiple seed messages for this chain
         for seed_field_name in self.seed_fields:
-            chain.messages.create(audio=self.cleaned_data[seed_field_name])
+            chain.messages.create(
+                audio=self.cleaned_data[seed_field_name],
+                num_children=self.NUM_CHILDREN_PER_SEED
+            )
 
         return chain
 

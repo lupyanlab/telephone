@@ -112,12 +112,13 @@ class NewGameView(CreateView):
     def form_valid(self, form):
         self.num_chains = form.cleaned_data.get('num_chains', 1)
         self.num_seeds_per_chain = form.cleaned_data.get('num_seeds_per_chain', 1)
+        self.num_children_per_seed = form.cleaned_data.get('num_children_per_seed', 1)
         return super(NewGameView, self).form_valid(form)
 
     def get_success_url(self):
         base_url = reverse_lazy('new_chains', kwargs={'pk': self.object.pk})
-        with_query = '{}?num_chains={}&num_seeds_per_chain={}'.format(
-            base_url, self.num_chains, self.num_seeds_per_chain)
+        with_query = '{}?num_chains={}&num_seeds_per_chain={}&num_children_per_seed={}'.format(
+            base_url, self.num_chains, self.num_seeds_per_chain, self.num_children_per_seed)
         return with_query
 
 
@@ -140,6 +141,13 @@ def new_chains_view(request, pk):
         pass
     else:
         NewChainForm.NUM_SEEDS = num_seeds_per_chain
+
+    try:
+        num_children_per_seed = int(request.GET.get('num_children_per_seed'))
+    except TypeError:
+        pass
+    else:
+        NewChainForm.NUM_CHILDREN_PER_SEED = num_children_per_seed
 
     NewChainModelFormSet = modelformset_factory(
         Chain, form=NewChainForm, formset=NewChainFormSet,
