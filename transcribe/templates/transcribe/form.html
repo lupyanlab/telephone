@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block styling %}
+  <link href="{% static 'ratings/survey.css' %}" rel="stylesheet">
+{% endblock styling %}
+
+{% block jumbotron %}
+
+    <h1>Listen Up!</h1>
+
+    <p>
+      Click the play button and you'll hear a message. Try as best
+      you can to write down what you heard as a single word. Think
+      about someone reading the word you came up with.
+    </p>
+
+    <ul class="messages list-group" style="list-style-type:none">
+      {% include '_messages.html' %}
+    </ul>
+
+    <div id="id_target_audio" class="btn btn-default">
+      <span class="glyphicon glyphicon-play"></span>
+    </div>
+
+    {% crispy form form.helper %}
+
+{% endblock jumbotron %}
+
+{% block javascript %}
+  <script src="{% static 'd3/d3.min.js' %}" type="text/JavaScript"></script>
+  <script src="{% static 'soundmanager2/script/soundmanager2.js' %}"></script>
+  <script src="{% static 'ratings/survey.js' %}" type="text/JavaScript"></script>
+  <script>
+var question = {{ message | safe }};
+
+function soundId(message) {
+  return "message" + message.id;
+}
+
+soundManager.setup({
+  onready: function () {
+    soundManager.createSound({
+        id: "target",
+        url: question.audio,
+        onfinish: function () {
+          $("#submit-id-submit").attr("disabled", false);
+        }
+    });
+  }
+})
+
+$(function () {
+  $("#submit-id-submit").attr("disabled", true);
+
+  var target = d3.select("#id_target_audio");
+
+  target
+    .on("click", function () { soundManager.play("target"); });
+});
+
+  </script>
+{% endblock javascript %}
