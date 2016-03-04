@@ -139,6 +139,11 @@ class SwitchboardViewTest(ViewTest):
 
     def test_post_adds_receipt_to_session(self):
         """ Posting an entry adds a receipt to the session """
+        # Add a chain and message so that receipts don't clear
+        # on the way to the completion page
+        other = mommy.make(Chain, game=self.game)
+        mommy.make(Message, chain=other)
+
         self.post_response()
         self.assertEquals(len(self.client.session['receipts']), 1)
 
