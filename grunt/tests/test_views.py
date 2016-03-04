@@ -158,16 +158,18 @@ class NewGameViewTest(ViewTest):
         self.assertIsInstance(response.context['form'], NewGameForm)
 
     def test_create_new_game(self):
-        game_data = dict(name='New game!', num_chains=1, num_seeds_per_chain=1)
+        game_data = dict(name='New game!', num_chains=1, num_seeds_per_chain=1,
+                         num_children_per_seed=1)
         self.client.post(self.new_game_url, game_data)
         new_game = Game.objects.last()
         self.assertEquals(new_game.name, game_data['name'])
 
     def test_create_new_game_redirects_to_new_chains_view(self):
-        game_data = dict(name='New game!', num_chains=1, num_seeds_per_chain=1)
+        game_data = dict(name='New game!', num_chains=1, num_seeds_per_chain=1,
+                         num_children_per_seed=1)
         response = self.client.post(self.new_game_url, game_data)
         base_url = reverse('new_chains', kwargs={'pk': Game.objects.last().pk})
-        expected_url = base_url + '?num_chains=1&num_seeds_per_chain=1'
+        expected_url = base_url + '?num_chains=1&num_seeds_per_chain=1&num_children_per_seed=1'
         self.assertRedirects(response, expected_url)
 
     def test_add_new_chains_view_includes_formset_in_context(self):
