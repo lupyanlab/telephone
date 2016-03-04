@@ -55,7 +55,7 @@ class NewTranscriptionSurveyForm(forms.ModelForm):
 
     def save(self):
         """Create a transcription survey and messages for that survey."""
-        survey = super(NewTranscriptionSurveyForm).save()
+        survey = super(NewTranscriptionSurveyForm, self).save()
 
         game = self.cleaned_data['game']  # think this is a model
         generation = self.cleaned_data['generation']
