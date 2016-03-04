@@ -8,6 +8,7 @@ from django.contrib import admin
 from grunt import views as grunt_views
 from inspector import views as inspect_views
 from ratings import views as ratings_views
+from transcribe import views as transcribe_views
 
 
 urlpatterns = patterns(
@@ -38,6 +39,16 @@ urlpatterns = patterns(
         name='take_survey'),
     url(r'^surveys/(?P<pk>\d+)/inspect/$',
         ratings_views.InspectSurveyView.as_view(), name='inspect_survey'),
+
+    # transcribe views
+    url(r'^surveys/transcribe/', include([
+        url(r'^$', transcribe_views.TranscriptionSurveyList.as_view(),
+            name='transcribe_list'),
+        url(r'^new/$', transcribe_views.NewSurveyView.as_view(),
+            name='new_transcribe'),
+        url(r'^(?P<pk>\d+)/$', transcribe_views.TakeSurveyView.as_view(),
+            name='transcribe_messages'),
+    ])),
 
     # admin site
     url(r'^admin/', include(admin.site.urls)),

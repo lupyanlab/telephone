@@ -1,4 +1,5 @@
-from django.shortcuts import render, reverse_lazy, get_object_or_404
+from django.shortcuts import render, get_object_or_404
+from django.core.urlresolvers import reverse_lazy
 from django.views.generic import ListView, CreateView, FormView
 
 from .models import TranscriptionSurvey
@@ -8,12 +9,13 @@ from .exceptions import *
 
 class TranscriptionSurveyList(ListView):
     model = TranscriptionSurvey
+    template_name = 'transcribe/survey_list.html'
 
 
 class NewSurveyView(CreateView):
     template_name = 'ratings/new_survey.html'
     form_class = NewTranscriptionSurveyForm
-    success_url = reverse_lazy('survey_list')
+    success_url = reverse_lazy('transcribe_list')
 
 
 class TakeSurveyView(FormView):
