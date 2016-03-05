@@ -57,6 +57,11 @@ export class GameTreeView extends Backbone.View {
       .attr("height", this.height + this.margin.top + this.margin.bottom)
       .append("g")
       .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`);
+
+    const fontSizeMap = {game: 14, chain: 18, message: 10};
+    this.textScale = function(d) {
+      return fontSizeMap[d.type];
+    }
   }
 
   drawMessageTree() {
@@ -84,9 +89,15 @@ export class GameTreeView extends Backbone.View {
       .attr("id", d => `${d.type}-${d.id}`)
       .attr("class", d => d.type)
 
+    // Hide game and chain nodes
+    nodeEnter.selectAll("circle.game")
+      .attr("opacity", 0.0);
+    nodeEnter.selectAll("circle.chain")
+      .attr("opacity", 0.0);
+
     nodeEnter.selectAll("circle.message")
       .attr("class", d => {
-        // This is probably a terrible idea.
+        // need to retain "message" as base class
         let class_str = d.type;
         if(d.num_children > 0) {
           class_str += " alive";
@@ -106,10 +117,11 @@ export class GameTreeView extends Backbone.View {
         return map[d.type];
       })
       .attr("y", d => {
-        let above = -15, middle = 0,
-            map = {game: above, chain: middle, message: middle};
+        let middle = 0,
+            map = {game: middle, chain: middle, message: middle};
         return map[d.type];
       })
+      .attr("font-size", d => this.textScale(d.type))
       .attr("dy", ".35em")
       .attr("text-anchor", "middle")
       .text(d => d.label);
@@ -163,6 +175,7 @@ export class GameTreeView extends Backbone.View {
   highlightNode(d) {
     let node = d3.select(`#message-${d.id}`);
     node.classed("highlight", !node.classed("highlight"));
+    // TODO: toggle the message details view
   }
 
 }
