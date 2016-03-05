@@ -96,7 +96,8 @@ export class GameTreeView extends Backbone.View {
           class_str += " done";
         }
         return class_str;
-      });
+      })
+      .on("click", this.highlightNode);
 
     nodeEnter.append("text")
       .attr("x", d => {
@@ -112,6 +113,9 @@ export class GameTreeView extends Backbone.View {
       .attr("dy", ".35em")
       .attr("text-anchor", "middle")
       .text(d => d.label);
+
+    // Add click listener for highlighting nodes
+    // nodeEnter.selectAll("circle.message")
 
     // Add click listener for collapsing nodes to chain objects only
     // nodeEnter.selectAll("circle.")
@@ -156,12 +160,9 @@ export class GameTreeView extends Backbone.View {
   /**
    * Highlight only the message being detailed in the tree.
    */
-  highlightMessage(messageId) {
-    d3.selectAll(".node circle")
-      .classed("highlight", false);
-
-    d3.select(`#message-${messageId}`)
-      .classed("highlight", true);
+  highlightNode(d) {
+    let node = d3.select(`#message-${d.id}`);
+    node.classed("highlight", !node.classed("highlight"));
   }
 
 }
