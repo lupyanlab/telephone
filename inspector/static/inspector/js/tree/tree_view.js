@@ -84,13 +84,11 @@ export class GameTreeView extends Backbone.View {
 
     nodeEnter.selectAll("circle.message")
       .attr("class", d => {
-        let base_class = d.type;
-        if(d.num_children == 0) {
-          base_class = base_class + " dead";
-        } else if(!d.edited) {
-          base_class = base_class + " unedited";
-        }
-        return base_class;
+        // This is a terrible idea.
+        let class_str = d.type;
+        if(!d.edited) class_str += " unedited";
+        if(d.num_children == 0) class_str += " dead";
+        return class_str;
       });
 
     nodeEnter.append("text")
@@ -98,6 +96,9 @@ export class GameTreeView extends Backbone.View {
       .attr("dy", ".35em")
       .attr("text-anchor", "end")
       .text(d => d.label);
+
+    // Add click listener for collapsing nodes to chain objects only
+    // nodeEnter.selectAll("circle.")
 
     let link = this.svg.selectAll("path.link")
       .data(links, d => d.target.nid);

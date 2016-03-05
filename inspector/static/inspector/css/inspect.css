@@ -15,14 +15,14 @@ svg.tree {
   stroke: #66c2a5;
 }
 
-.node circle.highlight {
-  fill: #fc8d62;
-  stroke: #fc8d62;
-}
-
 .node circle.dead {
   fill: #808080;
   stroke: #808080;
+}
+
+.node circle.highlight {
+  stroke: #fc8d62;
+  stroke-width: 2.5px;
 }
 
 .node text {
