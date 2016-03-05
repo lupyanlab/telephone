@@ -24,6 +24,19 @@ class Game(models.Model):
         chain = self.chains.exclude(id__in=families).order_by('?')[0]
         return chain.pick_parent()
 
+    def get_messages_by_generation(self, generation):
+        """Filter this game's messages by generation.
+
+        Useful for getting a slice of messages to run in a survey, etc.
+        """
+        this_games_chains = self.chains.values_list('pk', flat=True)
+        selected_messages = Message.objects.filter(
+            chain__in=this_games_chains
+        ).filter(
+            generation=generation
+        )
+        return selected_messages
+
     def __str__(self):
         return 'G{} {}'.format(self.id, self.name)
 

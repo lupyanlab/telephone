@@ -25,6 +25,20 @@ class GameTest(ModelTest):
         game.full_clean()
         game.save()
 
+    def test_get_messages_by_generation(self):
+        """Select messages from a game by generation."""
+        game = mommy.make(Game)
+        chains = mommy.make(Chain, game=game, _quantity=2)
+        expected = []
+        for chain in chains:
+            first = mommy.make(Message, chain=chain)
+            second = mommy.make(Message, chain=chain, parent=first, generation=1)
+            expected.append(first)
+
+        actual = game.get_messages_by_generation(0)
+        for e, a in zip(expected, actual):
+            self.assertEquals(e, a)
+
 
 class ChainTest(ModelTest):
     def setUp(self):

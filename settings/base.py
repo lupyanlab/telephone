@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     'grunt',
     'inspector',
     'ratings',
+    'transcribe',
 )
 
 MIDDLEWARE_CLASSES = (
