@@ -22,10 +22,10 @@
 
       <h1>{{ game }}</h1>
 
-      <div class="message-details"></div>
-
       <svg class="tree">
       </svg>
+
+      <div class="message-details"></div>
 
   </div>
 {% endblock body %}
@@ -42,6 +42,7 @@
     // Load and initialise app once soundManager is ready
     soundManager.setup({
       url: "{% static 'SoundManager2/swf' %}",
+      debugMode: false,
       onready: function() {
         System.import('inspector/js/app.js');
       }
