@@ -90,8 +90,6 @@ class NewChainForm(forms.ModelForm):
             chain.messages.create(
                 audio=self.cleaned_data[seed_field_name],
                 num_children=self.NUM_CHILDREN_PER_SEED,
-                # if was uploaded it's probably good
-                rejected=True,
             )
 
         return chain
