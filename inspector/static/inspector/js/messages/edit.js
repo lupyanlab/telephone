@@ -30,7 +30,7 @@ export class MessageEditView extends Backbone.View {
   }
 
   get editStatusInputSelector() {
-    return ':input.message-is-edited';
+    return ':input.message-is-rejected';
   }
 
   get startAtInputSelector() {
@@ -115,7 +115,7 @@ export class MessageEditView extends Backbone.View {
   }
 
   setMessageEditStatus() {
-    this.model.set({'edited': this.editStatus}, {'silent': true});
+    this.model.set({'rejected': this.editStatus}, {'silent': true});
   }
 
   setMessageStart() { // TODO: Model-side validation

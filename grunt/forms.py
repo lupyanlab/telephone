@@ -91,7 +91,7 @@ class NewChainForm(forms.ModelForm):
                 audio=self.cleaned_data[seed_field_name],
                 num_children=self.NUM_CHILDREN_PER_SEED,
                 # if was uploaded it's probably good
-                edited=True,
+                rejected=True,
             )
 
         return chain

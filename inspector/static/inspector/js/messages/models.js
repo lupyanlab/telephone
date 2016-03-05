@@ -54,8 +54,8 @@ export class Message extends Backbone.Model {
     return this.get('num_children');
   }
 
-  get isEdited() {
-    return this.get('edited');
+  get rejected() {
+    return this.get('rejected');
   }
 
   get generation() {

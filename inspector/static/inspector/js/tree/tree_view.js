@@ -76,25 +76,41 @@ export class GameTreeView extends Backbone.View {
       .attr("class", "node")
       .attr("transform", d => `translate(${d.y},${d.x})`);
 
+    let circleSize = 12;
+
     nodeEnter.append(addLinkToMessageDetails)
       .append("circle")
-      .attr("r", 5)
+      .attr("r", circleSize)
       .attr("id", d => `${d.type}-${d.id}`)
       .attr("class", d => d.type)
 
     nodeEnter.selectAll("circle.message")
       .attr("class", d => {
-        // This is a terrible idea.
+        // This is probably a terrible idea.
         let class_str = d.type;
-        if(!d.edited) class_str += " unedited";
-        if(d.num_children == 0) class_str += " dead";
+        if(d.num_children > 0) {
+          class_str += " alive";
+        } else if(d.rejected) {
+          class_str += " dead";
+        } else {
+          class_str += " done";
+        }
         return class_str;
       });
 
     nodeEnter.append("text")
-      .attr("x", -10)
+      .attr("x", d => {
+        let center = 0, left = -10,
+            map = {game: center, chain: left, message: center};
+        return map[d.type];
+      })
+      .attr("y", d => {
+        let above = -15, middle = 0,
+            map = {game: above, chain: middle, message: middle};
+        return map[d.type];
+      })
       .attr("dy", ".35em")
-      .attr("text-anchor", "end")
+      .attr("text-anchor", "middle")
       .text(d => d.label);
 
     // Add click listener for collapsing nodes to chain objects only
@@ -130,7 +146,7 @@ export class GameTreeView extends Backbone.View {
     return {
       id: message.id,
       type: 'message',
-      edited: message.isEdited,
+      rejected: message.rejected,
       label: `#${message.id}`,
       num_children: message.numberOfChildrenLeft,
       children: _.map(message.children, child => this.constructMessageTreeNode(child))

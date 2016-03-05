@@ -44,4 +44,4 @@ class InspectGameTest(FunctionalTest):
 
         # He saves his changes.
 
-        # The node now shows that it is edited, and that it is closed.
+        # The node now shows that it is rejected, and that it is closed.
