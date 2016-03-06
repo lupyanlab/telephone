@@ -151,7 +151,10 @@ export class GameTreeView extends Backbone.View {
       .attr("font-size", d => this.textScale(d.type))
       .attr("dy", ".35em")
       .attr("text-anchor", "middle")
-      .text(d => d.label);
+      .attr("pointer-events", d => {
+        if(d.type == "message") return "none";
+      })
+      .text(d => d.label)
 
     // Add click listener for highlighting nodes
     // nodeEnter.selectAll("circle.message")
