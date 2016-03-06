@@ -47,7 +47,8 @@ export class GameTreeView extends Backbone.View {
   prepareLayout() {
     this.tree = d3.layout.tree()
       .size([this.width, this.height])
-      .children(node => node.children);
+      .children(node => node.children)
+      .sort((a,b) => a.id - b.id);
 
     this.diagonal = d3.svg.diagonal()
       .projection(node => [node.x, node.y]);
@@ -130,9 +131,11 @@ export class GameTreeView extends Backbone.View {
         }
         return class_str;
       });
-      //.on("click", d => this.highlightNode(d.id));
 
     nodeEnter.append("text")
+      .attr("y", d => {
+        if(d.type == "chain") { return -10; };
+      })
       .attr("dy", ".35em")
       .attr("text-anchor", "middle")
       .attr("class", d => d.type)
@@ -141,11 +144,9 @@ export class GameTreeView extends Backbone.View {
       })
       .text(d => d.label)
 
-    // Add click listener for highlighting nodes
-    // nodeEnter.selectAll("circle.message")
-
     // Add click listener for collapsing nodes to chain objects only
-    // nodeEnter.selectAll("circle.")
+    nodeEnter.selectAll("circle.chain")
+      .on("click", function(d) { console.log(d.label); });
 
     let link = this.svg.selectAll("path.link")
       .data(links, d => d.target.nid);
@@ -187,7 +188,7 @@ export class GameTreeView extends Backbone.View {
       id: message.id,
       type: 'message',
       rejected: message.rejected,
-      label: `#${message.id}`,
+      label: `${message.id}`,
       num_children: message.numberOfChildrenLeft,
       children: _.map(message.children, child => this.constructMessageTreeNode(child))
     }
