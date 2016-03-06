@@ -15,7 +15,7 @@ class Playbar {
   }
 
   get canvasWidth() {
-    return 660;
+    return 200;
   }
 
   get canvasHeight() {

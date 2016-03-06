@@ -14,11 +14,11 @@ export class GameTreeView extends Backbone.View {
   }
 
   get margin() {
-    return {top: 20, right: 120, bottom: 20, left: 120};
+    return {top: 0, right: 10, bottom: 0, left: 10};
   }
 
   get width() {
-    return 960 - this.margin.right - this.margin.left;
+    return 1170 - this.margin.right - this.margin.left;
   }
 
   get height() {
@@ -46,11 +46,11 @@ export class GameTreeView extends Backbone.View {
 
   prepareLayout() {
     this.tree = d3.layout.tree()
-      .size([this.height, this.width])
+      .size([this.width, this.height])
       .children(node => node.children);
 
     this.diagonal = d3.svg.diagonal()
-      .projection(node => [node.y, node.x]);
+      .projection(node => [node.x, node.y]);
 
     let x = d3.scale.linear()
       .domain([-this.width/2, this.width/2])
@@ -106,7 +106,7 @@ export class GameTreeView extends Backbone.View {
     let nodeEnter = node.enter()
       .append("g")
       .attr("class", "node")
-      .attr("transform", d => `translate(${d.y},${d.x})`);
+      .attr("transform", d => `translate(${d.x},${d.y})`);
 
     let circleSize = 12;
 

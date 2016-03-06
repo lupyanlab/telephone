@@ -1,41 +1,42 @@
-<h3>Edit message properties</h3>
+<h3>
+    #{{ message.id }} (gen {{ message.generation }})
+</h3>
 
 <div class="well">
     <form class="form-horizontal message-edit-form" onsubmit="">
         <fieldset>
             <div class="form-group">
-                <label class="control-label col-md-8"><div class="text-left">Number of children</div></label>
-                <div class="col-md-2">
+                <label class="control-label col-md-4"><div class="text-left">Offspring</div></label>
+                <div class="col-md-4">
                     <input class="form-control message-number-of-children" type="number" value="{{message.numberOfChildrenLeft}}">
                 </div>
             </div>
             <div class="form-group">
-                <label class="control-label col-md-8"><div class="text-left">Rejected</div></label>
-                <div class="col-md-2">
+                <label class="control-label col-md-4"><div class="text-left">Rejected</div></label>
+                <div class="col-md-4">
                     <input class="form-control message-is-rejected" type="checkbox" {{#if message.rejected}} checked {{/if}}>
                 </div>
             </div>
             <div class="message-cropping">
-                <h4>Message cropping</h4>
+                <h4>Crop</h4>
                 <div class="form-group">
-                    <label class="control-label col-md-8"><div class="text-left">Start at </div></label>
-                    <div class="col-md-2">
+                    <label class="control-label col-md-4"><div class="text-left">Start at </div></label>
+                    <div class="col-md-4">
                         <input class="form-control message-start-at" type="number" value="{{message.startAt}}">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label col-md-8"><div class="text-left">End at</div></label>
-                    <div class="col-md-2">
+                    <label class="control-label col-md-4"><div class="text-left">End at</div></label>
+                    <div class="col-md-4">
                         <input class="form-control message-end-at" type="number" value="{{message.endAt}}">
                     </div>
                 </div>
             </div>
         </fieldset>
-        <div class="message-status"></div>
         <div class="form-actions">
-            <button class="btn btn-primary message-save-button">Save</button>
-            <a class="btn btn-default" href="#messages/{{message.id}}/details" title="Discard all unsaved changes and switch to details view">View</a>
-            <button class="btn btn-default play-button">Play</button>
+            <button class="btn btn-primary play-button">Play Message</button>
+            <a class="btn btn-default" href="#messages/{{message.id}}/details" title="Discard all unsaved changes and switch to details view">Back</a>
+            <button class="btn btn-default message-save-button">Save</button>
         </div>
     </form>
 </div>

@@ -17,7 +17,14 @@ export class MessageDetailsView extends Backbone.View {
   }
 
   render() {
-    let html = messageDetailsTemplate({'message': this.model});
+
+    // should be able to do this in handlebars
+    let oneChildLeft = this.model.get("numberOfChildrenLeft") == 1;
+    console.log(oneChildLeft);
+    let html = messageDetailsTemplate({
+      'message': this.model,
+      'oneChildLeft': oneChildLeft
+    });
     this.$el.html(html);
     return this;
   }

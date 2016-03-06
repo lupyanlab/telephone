@@ -1,58 +1,65 @@
-{% extends "base.html" %}
-{% load static %}
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Grunt</title>
 
+        <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+          <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
 
-{% block styling %}
-  <link href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet">
-  <link href="{% static 'inspector/css/inspect.css' %}" rel="stylesheet">
-{% endblock styling %}
+        <link href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'inspector/css/inspect.css' %}" rel="stylesheet">
+    </head>
 
+    <body>
 
-{% block navbar %}
-    <li class="pull-left">
-      <h1>{{ game }}</h1>
-    </li>
-    <li class="btn btn-default pull-right" role="presentation">
-      <a id="id_games_list" href="{% url 'games_list' %}">
-        <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
-        All Games
-      </a>
-    </li>
-{% endblock navbar %}
+        <div class="container">
 
+            <ul class="nav nav-pills">
+                  <li class="pull-left">
+                    <h1>{{ game }}</h1>
+                  </li>
+                  <li class="btn btn-default pull-right" role="presentation">
+                    <a id="id_games_list" href="{% url 'games_list' %}">
+                      <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                      All Games
+                    </a>
+                  </li>
+            </ul>
 
-{% block body %}
-  <div class="game-tree row">
+            <div class="game-tree">
+              <svg class="tree">
+              </svg>
 
-    <div class="col-md-8">
-      <svg class="tree">
-      </svg>
-    </div>
+              <div class="message-details"></div>
+            </div>
 
-    <div class="col-md-4">
-      <div class="message-details"></div>
-    </div>
+        </div>
 
-  </div>
-{% endblock body %}
+        <script src="{% static 'jquery/dist/jquery.js' %}"></script>
+        <script src="{% static 'bootstrap/dist/js/bootstrap.js' %}"></script>
+        <script src="{% static 'colorbrewer/colorbrewer.js' %}" type="text/JavaScript"></script>
+        <script src="{% static 'SoundManager2/script/soundmanager2.js' %}" type="text/JavaScript"></script>
+        <script src="{% static 'grunt/js/ajax.js' %}" type="text/javascript"></script>
+        <script src="{% static 'jspm_packages/system.js' %}" type="text/javascript"></script>
+        <script src="{% static 'config.js' %}" type="text/javascript"></script>
 
-{% block javascript %}
-  <script src="{% static 'colorbrewer/colorbrewer.js' %}" type="text/JavaScript"></script>
-  <script src="{% static 'SoundManager2/script/soundmanager2.js' %}" type="text/JavaScript"></script>
-  <script src="{% static 'grunt/js/ajax.js' %}" type="text/javascript"></script>
-  <script src="{% static 'jspm_packages/system.js' %}" type="text/javascript"></script>
-  <script src="{% static 'config.js' %}" type="text/javascript"></script>
+        <script>
 
-  <script>
+          // Load and initialise app once soundManager is ready
+          soundManager.setup({
+            url: "{% static 'SoundManager2/swf' %}",
+            debugMode: false,
+            onready: function() {
+              System.import('inspector/js/app.js');
+            }
+          });
 
-    // Load and initialise app once soundManager is ready
-    soundManager.setup({
-      url: "{% static 'SoundManager2/swf' %}",
-      debugMode: false,
-      onready: function() {
-        System.import('inspector/js/app.js');
-      }
-    });
-
-  </script>
-{% endblock javascript %}
+        </script>
+    </body>
+</html>
