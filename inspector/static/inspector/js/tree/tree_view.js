@@ -92,7 +92,7 @@ export class GameTreeView extends Backbone.View {
     // Calculated width and depth for fixed width tree
     let widthPerNode = 60,
         heightPerGen = 20;
-    this.tree.size([widthPerNode * numFirstGeneration, heightPerGen * numGenerations]);
+    this.tree.size([widthPerNode * numSiblings, heightPerGen * numGenerations]);
 
     // Counter for node ids
     let i = 0;

@@ -50,8 +50,8 @@
         <script src="{% static 'config.js' %}" type="text/javascript"></script>
 
         <script>
-          var numFirstGeneration = 16; // {{ num_first_generation | safe }};
-          var numGenerations = 1; // {{ num_generations | safe }};
+          var numSiblings = {{ num_siblings | safe }};
+          var numGenerations = {{ num_generations | safe }};
 
           // Load and initialise app once soundManager is ready
           soundManager.setup({

@@ -27,7 +27,8 @@ class Game(models.Model):
     def get_messages_by_generation(self, generation):
         """Filter this game's messages by generation.
 
-        Useful for getting a slice of messages to run in a survey, etc.
+        Useful for getting a slice of messages to run in a survey,
+        determining how large to draw the SVG tree, etc.
         """
         this_games_chains = self.chains.values_list('pk', flat=True)
         selected_messages = Message.objects.filter(
@@ -36,6 +37,16 @@ class Game(models.Model):
             generation=generation
         )
         return selected_messages
+
+    def get_max_generation(self):
+        """Find out how big this game is."""
+        this_games_chains = self.chains.values_list('pk', flat=True)
+        aggregation = Message.objects.filter(
+            chain__in=this_games_chains
+        ).aggregate(
+            max_gen=models.Max('generation')
+        )
+        return aggregation['max_gen']
 
     def __str__(self):
         return 'G{} {}'.format(self.id, self.name)

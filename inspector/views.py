@@ -15,6 +15,14 @@ class InspectView(TemplateView):
         context_data = super(InspectView, self).get_context_data(**kwargs)
         game = get_object_or_404(Game, pk=self.kwargs.get('pk'))
         context_data['game'] = game
+
+        # Calculate some parameters for styling the tree
+        # based on the size of the game.
+        num_siblings = game.get_messages_by_generation(1).count()
+        if num_siblings == 0:
+            num_siblings = game.get_messages_by_generation(0).count()
+        context_data['num_siblings'] = num_siblings
+        context_data['num_generations'] = game.get_max_generation()
         return context_data
 
 
