@@ -46,7 +46,6 @@ export class GameTreeView extends Backbone.View {
 
   prepareLayout() {
     this.tree = d3.layout.tree()
-      .size([this.width, this.height])
       .children(node => node.children)
       .sort((a,b) => a.id - b.id);
 
@@ -88,10 +87,17 @@ export class GameTreeView extends Backbone.View {
   }
 
   drawMessageTree() {
+    let root = this.constructGameTreeRootNode();
+
+    // Calculated width and depth for fixed width tree
+    let widthPerNode = 60,
+        heightPerGen = 20;
+    this.tree.size([widthPerNode * numFirstGeneration, heightPerGen * numGenerations]);
+
     // Counter for node ids
     let i = 0;
 
-    let nodes = this.tree.nodes(this.constructGameTreeRootNode());
+    let nodes = this.tree.nodes(root);
     let links = this.tree.links(nodes);
 
     nodes.forEach(d => d.y = d.depth * 180);
