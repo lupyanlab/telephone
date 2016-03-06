@@ -52,16 +52,43 @@ export class GameTreeView extends Backbone.View {
     this.diagonal = d3.svg.diagonal()
       .projection(node => [node.y, node.x]);
 
+    let x = d3.scale.linear()
+      .domain([-this.width/2, this.width/2])
+      .range([0, this.width]);
+
+    let y = d3.scale.linear()
+      .domain([-this.height/2, this.height/2])
+      .range([this.height, 0]);
+
+    let zoom = d3.behavior.zoom()
+      .x(x)
+      .y(y)
+      .scaleExtent([1, 30])
+      .on("zoom", this.zoomed);
+
     this.svg = d3.selectAll(this.$('svg.tree'))
       .attr("width", this.width + this.margin.right + this.margin.left)
       .attr("height", this.height + this.margin.top + this.margin.bottom)
       .append("g")
-      .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`);
+      .call(zoom)
+      .append("g")
+      .attr("class", "port");
+
+    this.svg.append("rect")
+      .attr("class", "overlay")
+      .attr("width", this.width)
+      .attr("height", this.height);
 
     const fontSizeMap = {game: 14, chain: 18, message: 10};
     this.textScale = function(d) {
       return fontSizeMap[d.type];
     }
+
+  }
+
+  zoomed() {
+    let svg = d3.select('svg.tree').select('g.port');
+    svg.attr("transform", `translate(${d3.event.translate})scale(${d3.event.scale})`);
   }
 
   drawMessageTree() {

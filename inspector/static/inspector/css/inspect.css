@@ -1,5 +1,10 @@
 /* Game tree styles */
 
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
 svg.tree {
   background-color: #F0F0F0;
 }
@@ -82,40 +87,3 @@ svg.focus {
   stroke: #ccc;
   stroke-width: 2px;
 }
-
-/*circle {
-    stroke: black;
-    stroke-width: 2px;
-}
-
-g.filled > circle {
-    fill: blue;
-}
-g.empty > circle {
-    fill: white;
-}
-
-g.filled > circle.active {
-  fill: black;
-}
-
-g.filled > circle:hover {
-  fill: black;
-}
-
-text {
-  fill: gray;
-}
-
-text:hover {
-  fill: black;
-}
-
-g.filled > text.label {
-  fill: white;
-}
-
-g.empty > text.label {
-  fill: black;
-}
-*/
