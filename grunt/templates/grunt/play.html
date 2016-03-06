@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block styling %}
+    {{ block.super }}
     <link href="{% static "grunt/css/recorder.css" %}" rel="stylesheet" type="text/css">
 {% endblock styling %}
 
