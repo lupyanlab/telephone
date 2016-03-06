@@ -9,6 +9,9 @@
 
 
 {% block navbar %}
+    <li class="pull-left">
+      <h1>{{ game }}</h1>
+    </li>
     <li class="btn btn-default pull-right" role="presentation">
       <a id="id_games_list" href="{% url 'games_list' %}">
         <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
@@ -20,8 +23,6 @@
 
 {% block body %}
   <div class="game-tree">
-
-      <h1>{{ game }}</h1>
 
       <svg class="tree">
       </svg>
