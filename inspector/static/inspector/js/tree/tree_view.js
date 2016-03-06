@@ -10,7 +10,7 @@ export class GameTreeView extends Backbone.View {
   constructor(options) {
     super(options);
     this.messageComponent = new MessageComponent({el: this.messageDetailsContainerElement});
-    this.listenTo(this.messageComponent, 'route:showMessageDetails', this.highlightMessage);
+    this.listenTo(this.messageComponent, 'route:showMessageDetails', this.highlightNode);
   }
 
   get margin() {
@@ -107,8 +107,8 @@ export class GameTreeView extends Backbone.View {
           class_str += " done";
         }
         return class_str;
-      })
-      .on("click", this.highlightNode);
+      });
+      //.on("click", d => this.highlightNode(d.id));
 
     nodeEnter.append("text")
       .attr("x", d => {
@@ -172,10 +172,10 @@ export class GameTreeView extends Backbone.View {
   /**
    * Highlight only the message being detailed in the tree.
    */
-  highlightNode(d) {
-    let node = d3.select(`#message-${d.id}`);
-    node.classed("highlight", !node.classed("highlight"));
-    // TODO: toggle the message details view
+  highlightNode(messageId) {
+    d3.selectAll("circle.message").classed("highlight", false);
+    let node = d3.select(`#message-${messageId}`);
+    if(!node.empty()) node.classed("highlight", !node.classed("highlight"));
   }
 
 }
