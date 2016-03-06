@@ -40,6 +40,14 @@ svg.tree {
   font: 10px sans-serif;
 }
 
+.node text.chain {
+  font: 14px sans-serif;
+}
+
+.node text.message {
+  fill: white;
+}
+
 .link {
   fill: none;
   stroke: #ccc;
