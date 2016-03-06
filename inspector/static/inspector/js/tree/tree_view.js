@@ -79,11 +79,6 @@ export class GameTreeView extends Backbone.View {
       .attr("width", this.width)
       .attr("height", this.height);
 
-    const fontSizeMap = {game: 14, chain: 18, message: 10};
-    this.textScale = function(d) {
-      return fontSizeMap[d.type];
-    }
-
   }
 
   zoomed() {
@@ -138,19 +133,9 @@ export class GameTreeView extends Backbone.View {
       //.on("click", d => this.highlightNode(d.id));
 
     nodeEnter.append("text")
-      .attr("x", d => {
-        let center = 0, left = -10,
-            map = {game: center, chain: left, message: center};
-        return map[d.type];
-      })
-      .attr("y", d => {
-        let middle = 0,
-            map = {game: middle, chain: middle, message: middle};
-        return map[d.type];
-      })
-      .attr("font-size", d => this.textScale(d.type))
       .attr("dy", ".35em")
       .attr("text-anchor", "middle")
+      .attr("class", d => d.type)
       .attr("pointer-events", d => {
         if(d.type == "message") return "none";
       })
@@ -166,8 +151,17 @@ export class GameTreeView extends Backbone.View {
       .data(links, d => d.target.nid);
 
     link.enter().insert("path", "g")
-      .attr("class", "link")
+      .attr("class", d => {
+        if(d.source.type == "game") return "link root";
+        return "link";
+      })
       .attr("d", this.diagonal);
+
+    // Hide game label and root links
+    d3.selectAll("text.game")
+      .attr("opacity", 0.0);
+    d3.selectAll("path.root")
+      .attr("opacity", 0.0);
   }
 
   constructGameTreeRootNode() {
