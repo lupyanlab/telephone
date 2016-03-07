@@ -99,6 +99,7 @@ class Message(models.Model):
     start_at = models.FloatField(default=0.0)
     end_at = models.FloatField(null=True, blank=True)
     rejected = models.BooleanField(default=False)
+    verified = models.BooleanField(default=False)
     num_children = models.IntegerField(default=1)
 
     def kill(self):
