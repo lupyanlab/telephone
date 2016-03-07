@@ -127,8 +127,6 @@ export class GameTreeView extends Backbone.View {
         // need to retain "message" as base class
         let class_str = d.type;
 
-        console.log(d.verified);
-
         if(!d.verified) {
           class_str += " unverified";
         }
@@ -144,10 +142,13 @@ export class GameTreeView extends Backbone.View {
       });
 
     nodeEnter.append("text")
-      .attr("y", d => {
-        if(d.type == "chain") { return -10; };
+      .attr("dy", d => {
+        if(d.type == "chain") {
+          return "-.3em";
+        } else {
+          return ".35em";
+        }
       })
-      .attr("dy", ".35em")
       .attr("text-anchor", "middle")
       .attr("class", d => d.type)
       .attr("pointer-events", d => {
