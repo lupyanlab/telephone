@@ -85,11 +85,13 @@ class NewChainForm(forms.ModelForm):
         """Create a new chain and then create seed messages for it."""
         chain = super(NewChainForm, self).save(**kwargs)
 
-        # create multiple seed messages for this chain
+        # Create multiple seed messages for this chain.
+        # Assume they are verified.
         for seed_field_name in self.seed_fields:
             chain.messages.create(
                 audio=self.cleaned_data[seed_field_name],
                 num_children=self.NUM_CHILDREN_PER_SEED,
+                verified=True,
             )
 
         return chain

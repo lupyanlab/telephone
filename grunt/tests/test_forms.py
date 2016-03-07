@@ -61,3 +61,13 @@ class NewChainFormTest(FormTest):
         new_chain_form.is_valid()
         chain = new_chain_form.save()
         self.assertEquals(chain.messages.count(), 1)
+
+    def test_new_chain_form_seed_message_is_verified_by_default(self):
+        game = mommy.make(Game)
+        post_data = dict(game=game.pk, name='new chain')
+        files_data = dict(seed0=self.audio)
+        new_chain_form = NewChainForm(post_data, files_data)
+        new_chain_form.is_valid()
+        chain = new_chain_form.save()
+        message = chain.messages.first()
+        self.assertTrue(message.verified)
