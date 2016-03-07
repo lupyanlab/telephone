@@ -58,6 +58,10 @@ export class Message extends Backbone.Model {
     return this.get('rejected');
   }
 
+  get verified() {
+    return this.get('verified');
+  }
+
   get generation() {
     return this.get('generation');
   }

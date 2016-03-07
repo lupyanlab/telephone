@@ -19,6 +19,7 @@ export class MessageEditView extends Backbone.View {
       'click .play-button': 'playSound',
       'click .message-save-button': 'saveMessage',
       [`input ${this.numberOfChildrenInputSelector}`]: 'setNumberOfRemainedChildren',
+      [`change ${this.editVerifiedStatusInputSelector}`]: 'setMessageVerifiedStatus',
       [`change ${this.editStatusInputSelector}`]: 'setMessageEditStatus',
       [`input ${this.startAtInputSelector}`]: 'setMessageStart',
       [`input ${this.endAtInputSelector}`]: 'setMessageEnd'
@@ -27,6 +28,10 @@ export class MessageEditView extends Backbone.View {
 
   get numberOfChildrenInputSelector() {
     return ':input.message-number-of-children';
+  }
+
+  get editVerifiedStatusInputSelector() {
+    return ':input.message-is-verified';
   }
 
   get editStatusInputSelector() {
@@ -59,6 +64,10 @@ export class MessageEditView extends Backbone.View {
 
   get editStatus() {
     return this.$(this.editStatusInputSelector).is(':checked');
+  }
+
+  get editVerifiedStatus() {
+    return this.$(this.editVerifiedStatusInputSelector).is(':checked');
   }
 
   get enteredStartAt() {
@@ -112,6 +121,10 @@ export class MessageEditView extends Backbone.View {
 
   setNumberOfRemainedChildren() {
     this.model.set({'num_children': this.enteredNumberOfChildren}, {'silent': true});
+  }
+
+  setMessageVerifiedStatus() {
+    this.model.set({'verified': this.editStatus}, {'silent': true});
   }
 
   setMessageEditStatus() {
