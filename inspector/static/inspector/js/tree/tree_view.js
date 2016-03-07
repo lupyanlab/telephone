@@ -131,10 +131,10 @@ export class GameTreeView extends Backbone.View {
           class_str += " unverified";
         }
 
-        if(d.num_children > 0) {
-          class_str += " alive";
-        } else if(d.rejected) {
+        if(d.rejected) {
           class_str += " dead";
+        } else if(d.num_children > 0) {
+          class_str += " alive";
         } else {
           class_str += " done";
         }
