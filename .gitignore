@@ -18,3 +18,4 @@ ansible/env_vars/secrets.yml
 
 # Jspm packages
 jspm_components/jspm_packages
+fixtures/
