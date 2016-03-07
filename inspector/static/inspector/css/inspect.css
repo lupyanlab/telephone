@@ -44,10 +44,11 @@ svg.tree {
 }
 
 .node text.chain {
-  font: 14px sans-serif;
+  font: 60px sans-serif;
 }
 
 .node text.message {
+  font: 10px sans-serif;
   fill: white;
 }
 
