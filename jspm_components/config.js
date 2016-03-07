@@ -14,17 +14,17 @@ System.config({
   },
 
   map: {
-    "babel": "npm:babel-core@5.8.33",
-    "babel-runtime": "npm:babel-runtime@5.8.29",
-    "backbone": "npm:backbone@1.2.3",
-    "core-js": "npm:core-js@1.2.5",
-    "d3": "github:mbostock/d3@3.5.6",
-    "handlebars": "github:components/handlebars.js@4.0.4",
+    "babel": "npm:babel-core@5.8.35",
+    "babel-runtime": "npm:babel-runtime@5.8.35",
+    "backbone": "npm:backbone@1.3.1",
+    "core-js": "npm:core-js@1.2.6",
+    "d3": "github:mbostock/d3@3.5.16",
+    "handlebars": "github:components/handlebars.js@4.0.5",
     "hbs": "github:davis/plugin-hbs@1.2.1",
-    "jquery": "github:components/jquery@2.1.4",
+    "jquery": "github:components/jquery@2.2.1",
     "underscore": "npm:underscore@1.8.3",
     "github:davis/plugin-hbs@1.2.1": {
-      "handlebars": "github:components/handlebars.js@4.0.4"
+      "handlebars": "github:components/handlebars.js@4.0.5"
     },
     "github:jspm/nodelibs-assert@0.1.0": {
       "assert": "npm:assert@1.3.0"
@@ -41,14 +41,14 @@ System.config({
     "npm:assert@1.3.0": {
       "util": "npm:util@0.10.3"
     },
-    "npm:babel-runtime@5.8.29": {
+    "npm:babel-runtime@5.8.35": {
       "process": "github:jspm/nodelibs-process@0.1.2"
     },
-    "npm:backbone@1.2.3": {
+    "npm:backbone@1.3.1": {
       "process": "github:jspm/nodelibs-process@0.1.2",
       "underscore": "npm:underscore@1.8.3"
     },
-    "npm:core-js@1.2.5": {
+    "npm:core-js@1.2.6": {
       "fs": "github:jspm/nodelibs-fs@0.1.2",
       "path": "github:jspm/nodelibs-path@0.1.0",
       "process": "github:jspm/nodelibs-process@0.1.2",
