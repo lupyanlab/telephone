@@ -124,7 +124,7 @@ export class MessageEditView extends Backbone.View {
   }
 
   setMessageVerifiedStatus() {
-    this.model.set({'verified': this.editStatus}, {'silent': true});
+    this.model.set({'verified': this.editVerifiedStatus}, {'silent': true});
   }
 
   setMessageEditStatus() {
