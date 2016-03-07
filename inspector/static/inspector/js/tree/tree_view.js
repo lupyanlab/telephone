@@ -63,26 +63,24 @@ export class GameTreeView extends Backbone.View {
     let zoom = d3.behavior.zoom()
       .x(x)
       .y(y)
-      .scaleExtent([1, 30])
+      .scaleExtent([0, 2])
       .on("zoom", this.zoomed);
 
-    this.svg = d3.selectAll(this.$('svg.tree'))
+    let svg = d3.selectAll(this.$('svg.tree'))
+      .attr("width", this.width + this.margin.right + this.margin.left)
+      .attr("height", this.height + this.margin.top + this.margin.bottom);
+
+    svg.append("rect")
+      .attr("class", "overlay")
       .attr("width", this.width + this.margin.right + this.margin.left)
       .attr("height", this.height + this.margin.top + this.margin.bottom)
-      .append("g")
-      .call(zoom)
-      .append("g")
-      .attr("class", "port");
+      .call(zoom);
 
-    this.svg.append("rect")
-      .attr("class", "overlay")
-      .attr("width", this.width)
-      .attr("height", this.height);
-
+    this.svg = svg.append("g");
   }
 
   zoomed() {
-    let svg = d3.select('svg.tree').select('g.port');
+    let svg = d3.select('svg.tree').select('g');
     svg.attr("transform", `translate(${d3.event.translate})scale(${d3.event.scale})`);
   }
 
@@ -91,7 +89,7 @@ export class GameTreeView extends Backbone.View {
 
     // Calculated width and depth for fixed width tree
     let widthPerNode = 60,
-        heightPerGen = 20;
+        heightPerGen = 80;
     this.tree.size([widthPerNode * numSiblings, heightPerGen * numGenerations]);
 
     // Counter for node ids
