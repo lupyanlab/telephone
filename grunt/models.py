@@ -21,8 +21,13 @@ class Game(models.Model):
         families = Message.objects.filter(id__in=receipts).values_list(
             'chain', flat=True
         )
-        chain = self.chains.exclude(id__in=families).order_by('?')[0]
-        return chain.pick_parent()
+        available_chains = self.chains.exclude(id__in=families)
+        try:
+            selected_chain = available_chains.order_by('?')[0]
+        except IndexError:
+            raise Chain.DoesNotExist()
+        else:
+            return selected_chain.pick_parent()
 
     def get_messages_by_generation(self, generation):
         """Filter this game's messages by generation.
@@ -62,11 +67,23 @@ class Chain(models.Model):
 
         TODO: move this function to handlers
         """
-        fertile = self.messages.filter(num_children__gt=0)
+        fertile = self.messages.filter(
+            num_children__gt=0
+        ).filter(
+            rejected=False
+        )
         youngest_generation = fertile.aggregate(
             min_gen=models.Min('generation')
         )['min_gen']
-        return fertile.filter(generation=youngest_generation).order_by('?')[0]
+        available_parents = fertile.filter(
+            generation=youngest_generation
+        )
+        try:
+            selected_message = available_parents.order_by('?')[0]
+        except IndexError:
+            raise Message.DoesNotExist()
+        else:
+            return selected_message
 
     def __str__(self):
         return '{} - {}'.format(self.game, self.name)

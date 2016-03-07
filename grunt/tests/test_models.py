@@ -63,6 +63,13 @@ class ChainTest(ModelTest):
         parent = chain.pick_parent()
         self.assertEquals(parent, young)
 
+    def test_ignore_rejected_messages(self):
+        """Chains should only pick from messages that haven't been rejected."""
+        chain = mommy.make(Chain)
+        rejected = mommy.make(Message, chain=chain, rejected=True)
+        with self.assertRaises(Message.DoesNotExist):
+            chain.pick_parent()
+
 
 class MessageTest(ModelTest):
     def setUp(self):

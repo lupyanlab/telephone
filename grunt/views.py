@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import APIException
 
-from .models import Game, Chain, MessageSerializer
+from .models import Game, Chain, Message, MessageSerializer
 from .forms import (ResponseForm, NewGameForm, NewChainForm, NewChainFormSet,
                     NewChainFormSetHelper)
 from .handlers import check_volume
@@ -91,7 +91,8 @@ class SwitchboardView(APIView):
             next_message = game.pick_next_message(request.session['receipts'])
             data = MessageSerializer(next_message).data
             return Response(data)
-        except IndexError:
+        except (Message.DoesNotExist, Chain.DoesNotExist):
+            # TODO: messages not existing shouldn't lead to a completion code
             completion_code = '-'.join(map(str, request.session['receipts']))
             request.session['instructed'] = False
             request.session['receipts'] = []
