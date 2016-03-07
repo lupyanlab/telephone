@@ -39,6 +39,11 @@ svg.tree {
   stroke-width: 2.5px;
 }
 
+.node circle.unverified {
+  stroke-width: 3.5px;
+  stroke-dasharray: 3,3;
+}
+
 .node text {
   font: 10px sans-serif;
 }

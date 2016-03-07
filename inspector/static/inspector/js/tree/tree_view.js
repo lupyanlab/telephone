@@ -126,6 +126,13 @@ export class GameTreeView extends Backbone.View {
       .attr("class", d => {
         // need to retain "message" as base class
         let class_str = d.type;
+
+        console.log(d.verified);
+
+        if(!d.verified) {
+          class_str += " unverified";
+        }
+
         if(d.num_children > 0) {
           class_str += " alive";
         } else if(d.rejected) {
@@ -192,6 +199,7 @@ export class GameTreeView extends Backbone.View {
       id: message.id,
       type: 'message',
       rejected: message.rejected,
+      verified: message.verified,
       label: `${message.id}`,
       num_children: message.numberOfChildrenLeft,
       children: _.map(message.children, child => this.constructMessageTreeNode(child))
