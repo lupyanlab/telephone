@@ -3,6 +3,7 @@
 .overlay {
   fill: none;
   pointer-events: all;
+  z-index: -1;
 }
 
 svg.tree {
@@ -13,6 +14,8 @@ svg.tree {
 
 .node circle {
   stroke-width: 1.5px;
+  fill: #bababa;
+  stroke: #bababa;
 }
 
 .node circle.alive {
@@ -26,8 +29,8 @@ svg.tree {
 }
 
 .node cirle.dead {
-  fill: #808080;
-  stroke: #808080;
+  fill: #bababa;
+  stroke: #bababa;
 }
 
 .node circle.highlight {
