@@ -33,6 +33,10 @@ export class Message extends Backbone.Model {
     return this.get('audio');
   }
 
+  get parent() {
+    return this.get('parent');
+  }
+
   get children() {
     return this.get('children');
   }

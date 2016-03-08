@@ -98,7 +98,7 @@ export class GameTreeView extends Backbone.View {
     let nodes = this.tree.nodes(root);
     let links = this.tree.links(nodes);
 
-    nodes.forEach(d => d.y = d.depth * 180);
+    nodes.forEach(d => d.y = d.depth * 160);
 
     let node = this.svg.selectAll("g.node")
       .data(nodes, node => node.nid || (node.nid = ++i));
@@ -170,6 +170,39 @@ export class GameTreeView extends Backbone.View {
       })
       .attr("d", this.diagonal);
 
+    // Create a map of ancestors
+    // Keys are node ids.
+    // Items are arrays of message models
+    let ancestors = {};
+
+    let saveBranches = function(message) {
+      // Add the current message to its ancestry
+      let messageAncestors = ancestors[message.id] || [];
+      messageAncestors.push(message);
+      ancestors[message.id] = messageAncestors
+
+      // Add the current message as the parent of all its children.
+      _.each(message.children, child => {
+        console.log(child);
+        let childAncestors = ancestors[child.id] || [];
+        childAncestors.push(message);
+        ancestors[child.id] = childAncestors;
+        saveBranches(child);
+      });
+    }
+
+    this.model.chains.forEach(chain => {
+      chain.seedMessages.forEach(seed => {
+        saveBranches(seed);
+      });
+    });
+
+    console.log(ancestors);
+
+    link
+      .on("mouseover", d => this.highlightBranch(ancestors[d.target.id]))
+      .on("click", d => this.playBranch(ancestors[d.target.id]));
+
     // Hide game label and root links
     d3.selectAll("text.game")
       .attr("opacity", 0.0);
@@ -214,6 +247,20 @@ export class GameTreeView extends Backbone.View {
     d3.selectAll("circle.message").classed("highlight", false);
     let node = d3.select(`#message-${messageId}`);
     if(!node.empty()) node.classed("highlight", !node.classed("highlight"));
+  }
+
+  /**
+   * Highlight the branch of nodes.
+   */
+  highlightBranch(messageIds) {
+    d3.selectAll("circle.message").classed("highlight", false);
+    _.each(messageIds, i => {
+      d3.select(`#message-${i}`).classed("highlight", true);
+    });
+  }
+
+  playBranch(messageIds) {
+    _.each(messageIds, i => console.log(i));
   }
 
 }
