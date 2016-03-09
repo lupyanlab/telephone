@@ -156,7 +156,7 @@ export class GameTreeView extends Backbone.View {
       })
       .text(d => d.label)
 
-    // Add click listener for collapsing nodes to chain objects only
+    // TODO: Add click listener for collapsing nodes to chain objects only
     nodeEnter.selectAll("circle.chain")
       .on("click", function(d) { console.log(d.label); });
 
@@ -170,38 +170,60 @@ export class GameTreeView extends Backbone.View {
       })
       .attr("d", this.diagonal);
 
-    // Create a map of ancestors
-    // Keys are node ids.
-    // Items are arrays of message models
-    let ancestors = {};
+    // Create a map of ancestors from message id to message models
+    let ancestorMap = {};
 
-    let saveBranches = function(message) {
-      // Add the current message to its ancestry
-      let messageAncestors = ancestors[message.id] || [];
-      messageAncestors.push(message);
-      ancestors[message.id] = messageAncestors
-
-      // Add the current message as the parent of all its children.
-      _.each(message.children, child => {
-        console.log(child);
-        let childAncestors = ancestors[child.id] || [];
-        childAncestors.push(message);
-        ancestors[child.id] = childAncestors;
-        saveBranches(child);
-      });
-    }
-
-    this.model.chains.forEach(chain => {
-      chain.seedMessages.forEach(seed => {
-        saveBranches(seed);
-      });
+    // First create a map of ids to ancestor ids in an array
+    let ancestorIds = {};
+    nodes.forEach(d => {
+      if(d.type == "message") {
+        let familyIds = [],
+            addParent = function(message) {
+          familyIds.push(message.id);
+          if(message.parent) {
+            addParent(message.parent);
+          }
+        };
+        addParent(d);
+        ancestorIds[d.id] = familyIds;
+      }
     });
 
-    console.log(ancestors);
+    // Iterate through the Backbone models to create a map of
+    // ids to model objects so we can play the sounds.
+    let idModels = {};
+    this.model.chains.forEach(c => {
+      c.seedMessages.forEach(m => {
+        let addChildren = function(message) {
+          idModels[message.id] = message;
+          message.children.forEach(addChildren);
+        }
+        addChildren(m);
+      });
+    });
+    this.idModels = idModels;
+
+    // Create the map of ancestors from message id to message models
+    nodes.forEach(d => {
+      if(d.type == "message") {
+        let ancestors = ancestorIds[d.id] || [];
+        if(ancestors.length > 0) {
+          let ancestorModels = [];
+          ancestors.reverse();
+          _.each(ancestors, i => {
+            if(this.idModels.hasOwnProperty(i)) {
+              ancestorModels.push(this.idModels[i]);
+            }
+          })
+          ancestorMap[d.id] = ancestorModels;
+        }
+      }
+    });
 
     link
-      .on("mouseover", d => this.highlightBranch(ancestors[d.target.id]))
-      .on("click", d => this.playBranch(ancestors[d.target.id]));
+      .on("mouseover", d => this.highlightBranch(ancestorIds[d.target.id]))
+      .on("mouseleave", d => this.unhighlightNodes())
+      .on("click", d => this.playBranch(ancestorMap[d.target.id]));
 
     // Hide game label and root links
     d3.selectAll("text.game")
@@ -249,6 +271,10 @@ export class GameTreeView extends Backbone.View {
     if(!node.empty()) node.classed("highlight", !node.classed("highlight"));
   }
 
+  unhighlightNodes() {
+    d3.selectAll("circle.message").classed("highlight", false);
+  }
+
   /**
    * Highlight the branch of nodes.
    */
@@ -259,8 +285,25 @@ export class GameTreeView extends Backbone.View {
     });
   }
 
-  playBranch(messageIds) {
-    _.each(messageIds, i => console.log(i));
+  playBranch(models) {
+    let that = this,
+        counter = 0;
+
+    _.each(models, m => m.createSound());
+
+    let playSoundChain = function(message) {
+      message.sound.play({
+        from: message.startAt,
+        to: message.endAt,
+        onfinish: function() {
+          counter += 1;
+          if(counter < models.length) {
+            playSoundChain(models[counter]);
+          }
+        }
+      });
+    }
+    playSoundChain(models[0]);
   }
 
 }
