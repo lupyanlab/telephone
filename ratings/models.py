@@ -12,7 +12,7 @@ class Survey(models.Model):
     num_questions_per_player = models.IntegerField(default=10)
 
     def pick_next_question(self, receipts=[]):
-        if len(receipts) > self.num_questions_per_player:
+        if len(receipts) >= self.num_questions_per_player:
             raise Question.DoesNotExist('No questions left to take')
 
         completed_questions = Response.objects.filter(id__in=receipts).values_list('question', flat=True)

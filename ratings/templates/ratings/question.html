@@ -48,6 +48,8 @@ soundManager.setup({
     soundManager.createSound({
         id: "target",
         url: question.audio,
+        from: question.start_at,
+        to: question.end_at,
         onfinish: function () {
           $("#submit-id-submit").attr("disabled", false);
         }
