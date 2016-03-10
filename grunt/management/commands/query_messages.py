@@ -5,7 +5,7 @@ from grunt.models import Game, Chain, Message
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--game', '-g', type=int, required=True)
-        parser.add_argument('--generation', '-n', type=int, required=True)
+        parser.add_argument('--generation', '-n', type=int, default=-1)
         parser.add_argument('--include', '-i', nargs='+', type=int, required=False)
         parser.add_argument('--exclude', '-x', nargs='+', type=int, required=False)
         parser.add_argument('--include-rejects', action='store_true', default=False)
@@ -20,7 +20,7 @@ class Command(BaseCommand):
         messages = game.get_messages_by_generation(options['generation'])
 
         if not options['include_rejects']:
-            message = messages.filter(rejected=False)
+            messages = messages.filter(rejected=False)
 
         def find_seed(message):
             if message.generation == 0:

@@ -29,7 +29,7 @@ class Game(models.Model):
         else:
             return selected_chain.pick_parent()
 
-    def get_messages_by_generation(self, generation):
+    def get_messages_by_generation(self, generation=-1):
         """Filter this game's messages by generation.
 
         Useful for getting a slice of messages to run in a survey,
@@ -38,9 +38,11 @@ class Game(models.Model):
         this_games_chains = self.chains.values_list('pk', flat=True)
         selected_messages = Message.objects.filter(
             chain__in=this_games_chains
-        ).filter(
-            generation=generation
         )
+        
+        if generation > -1:
+            selected_messages = selected_messages.filter(generation=generation)
+
         return selected_messages
 
     def get_max_generation(self):
