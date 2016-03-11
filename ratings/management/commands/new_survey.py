@@ -43,12 +43,12 @@ def determine_questions(game_id, generation=-1, include_rejects=False,
                         include=None, exclude=None, extra=None, **options):
     """Select some subset of a game's messages to use in a survey."""
     try:
-        game = Game.objects.get(pk=game_id)
+        game = Game.objects.get(pk=int(game_id))
     except Game.DoesNotExist:
         msg = 'game {} does not exist'
-        raise CommandError(msg.format(options['game']))
+        raise CommandError(msg.format(options['game_id']))
 
-    messages = game.get_messages_by_generation(generation)
+    messages = game.get_messages_by_generation(int(generation))
 
     if not include_rejects:
         messages = messages.filter(rejected=False)
