@@ -27,7 +27,7 @@ class ResponseForm(forms.ModelForm):
 
         self.fields['selection'].required = True
         self.fields['selection'].empty_label = None
-        self.fields['selection'].label = 'Select the imitation most like the sound above.'
+        self.fields['selection'].label = 'Select the sound most like the imitation above.'
 
         if 'question' in self.initial:
             message_choices = self.initial['question'].choices.all()
