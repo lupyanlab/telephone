@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from grunt.models import Game, Chain, Message
+from ratings.forms import NewSurveyForm
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
@@ -14,7 +15,7 @@ class Command(BaseCommand):
                             required=True, help='Choices (message ids) for this survey')
 
         # Args for selecting the questions for the survey
-        parser.add_argument('--game', '-g', type=int, required=True,
+        parser.add_argument('--game-id', '-g', type=int, required=True,
                             help='The id of the game to search for messages')
         parser.add_argument('--generation', '-n', type=int, default=-1,
                             help='Defaults to all generations')
@@ -28,7 +29,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """Create a survey via form kwargs passed from the command line."""
-        questions = select_questions(**options)
+        questions = determine_questions(**options)
         keys = ['name', 'num_questions_per_player', 'determine_correct']
         data = {k: options[k] for k in keys}
         data['choices'] = id_str(options['choices'])
@@ -39,7 +40,7 @@ class Command(BaseCommand):
         survey = form.save()
 
 def determine_questions(game_id, generation=-1, include_rejects=False,
-                        include=None, exclude=None, extra=None):
+                        include=None, exclude=None, extra=None, **options):
     """Select some subset of a game's messages to use in a survey."""
     try:
         game = Game.objects.get(pk=game_id)
