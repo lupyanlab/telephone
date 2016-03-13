@@ -8,7 +8,7 @@ from grunt.models import Message
 
 
 class Survey(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30, unique=True)
     num_questions_per_player = models.IntegerField(default=10)
 
     def pick_next_question(self, receipts=[]):
