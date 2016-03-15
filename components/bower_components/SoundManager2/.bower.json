@@ -21,13 +21,14 @@
     "package.js",
     "package.json"
   ],
-  "_release": "e6394dafc3",
+  "_release": "e7d3f00169",
   "_resolution": {
-    "type": "commit",
-    "commit": "e6394dafc3cdc99596a18a6625d32bd5831345ab"
+    "type": "branch",
+    "branch": "master",
+    "commit": "e7d3f0016912cf1e41dd7e78fd04e145c5e3f167"
   },
   "_source": "git://github.com/scottschiller/SoundManager2.git",
-  "_target": "e6394dafc3cdc99596a18a6625d32bd5831345ab",
+  "_target": "*",
   "_originalSource": "soundmanager2",
   "_direct": true
 }
