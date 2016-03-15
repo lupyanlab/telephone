@@ -44,13 +44,24 @@ function soundId(message) {
 
 
 soundManager.setup({
-  preferFlash: false,
+  flashVersion: 9,
   onready: function () {
     soundManager.createSound({
         id: "target",
         url: question.audio,
-        onfinish: function () {
-          $("#submit-id-submit").attr("disabled", false);
+        onload: function () {
+          var end_at = question.end_at;
+          if (end_at === null) {
+            end_at = soundManager.sounds["target"].duration;
+          }
+          // HACK:
+          // Using "onfinish" callback works if the whole sound is being played.
+          // This hack sets a callback at a position 200 msec before the actual
+          // end of the sound, guaranteeing that it is reached each time the
+          // sound plays.
+          this.onPosition(end_at - 200, function (eventPosition) {
+            $("#submit-id-submit").attr("disabled", false);
+          });
         }
     });
 
