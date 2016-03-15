@@ -48,8 +48,6 @@ soundManager.setup({
     soundManager.createSound({
         id: "target",
         url: question.audio,
-        from: question.start_at,
-        to: question.end_at,
         onfinish: function () {
           $("#submit-id-submit").attr("disabled", false);
         }
@@ -73,7 +71,15 @@ $(function () {
   var target = d3.select("#id_target_audio");
 
   target
-    .on("click", function () { soundManager.play("target"); });
+    .on("click", function () {
+      // Play the sound all the way through if end_at is not set
+      var sound = soundManager.getSoundById("target"),
+          end_at = question.end_at;
+      if (end_at === null) {
+        end_at = sound.durationEstimate;
+      }
+      sound.play({from: question.start_at, to: end_at});
+    });
 
   var radios = d3.selectAll("label.radio-inline");
 
