@@ -73,9 +73,6 @@ def determine_questions(game_id=None, generations=None, include_rejects=False,
     if extra:
         message_ids += extra
 
-    print message_ids
-    raise Exception
-
     return message_ids
 
 def id_str(message_ids):
