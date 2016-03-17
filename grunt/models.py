@@ -39,8 +39,10 @@ class Game(models.Model):
         selected_messages = Message.objects.filter(
             chain__in=this_games_chains
         )
-        
-        if generation > -1:
+
+        if isinstance(generation, list):
+            selected_messages = selected_messages.filter(generation__in=generation)
+        elif generation > -1:
             selected_messages = selected_messages.filter(generation=generation)
 
         return selected_messages

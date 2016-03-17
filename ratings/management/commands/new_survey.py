@@ -17,7 +17,7 @@ class Command(BaseCommand):
         # Args for selecting the questions for the survey
         parser.add_argument('--game-id', '-g', type=int, required=True,
                             help='The id of the game to search for messages')
-        parser.add_argument('--generation', '-n', type=int, default=-1,
+        parser.add_argument('--generations', '-n', nargs='+', type=int, default=-1,
                             help='Defaults to all generations')
         parser.add_argument('--include', '-i', nargs='+', type=int,
                             required=False, help='Branches of messages to include (seed message ids)')
@@ -39,7 +39,7 @@ class Command(BaseCommand):
             raise CommandError('form not valid:\n\n{}\n\n'.format(form.errors))
         survey = form.save()
 
-def determine_questions(game_id=None, generation=None, include_rejects=False,
+def determine_questions(game_id=None, generations=None, include_rejects=False,
                         include=None, exclude=None, extra=None, **options):
     """Select some subset of a game's messages to use in a survey."""
     try:
@@ -48,7 +48,7 @@ def determine_questions(game_id=None, generation=None, include_rejects=False,
         msg = 'game {} does not exist'
         raise CommandError(msg.format(game_id))
 
-    messages = game.get_messages_by_generation(int(generation))
+    messages = game.get_messages_by_generation(generations)
 
     if not include_rejects:
         messages = messages.filter(rejected=False)
@@ -72,6 +72,9 @@ def determine_questions(game_id=None, generation=None, include_rejects=False,
 
     if extra:
         message_ids += extra
+
+    print message_ids
+    raise Exception
 
     return message_ids
 
