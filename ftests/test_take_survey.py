@@ -1,5 +1,9 @@
 import random
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 from .base import FunctionalTest
 
 class TakeSurveyTest(FunctionalTest):
@@ -12,8 +16,7 @@ class TakeSurveyTest(FunctionalTest):
         # Simulate an ongoing game and a survey created from those messages
         game_name = 'Ongoing Game'
         num_questions = 4
-        self.create_game(game_name, nchains=num_questions, with_seed=True,
-                         depth=3)
+        self.create_game(game_name, nchains=num_questions, depth=3)
         survey_name = 'Test Survey'
         survey = self.create_survey(survey_name, from_game=game_name)
 
@@ -32,6 +35,12 @@ class TakeSurveyTest(FunctionalTest):
         target = self.browser.find_element_by_id('id_target_audio')
         target.click()
 
+        # He waits for the message to finish playing
+        # and the submit button to become available.
+        submit = WebDriverWait(self.browser, 10).until(
+            EC.element_to_be_clickable((By.ID, 'submit-id-submit'))
+        )
+
         # Then he listens to the four choices
         # by mousing over the labels
 
@@ -40,20 +49,33 @@ class TakeSurveyTest(FunctionalTest):
         choices = self.browser.find_elements_by_css_selector(choices_css)
         choices[1].click()
 
-        # He submits the survey
-        self.browser.find_element_by_id('submit-id-submit').click()
+        # Then he clicks submit
+        submit.click()
 
         # He sees an alert message telling him that his submission was
         # successful
-        messages = self.browser.find_elements_by_class_name('alert-success')
-        self.assertEquals(len(messages), 1)
+        alert = WebDriverWait(self.browser, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, 'alert-success'))
+        )
+        alert.click()  # dismiss?
 
         # He selects choices for the remaining three questions
         num_remaining = num_questions - 1
-        for _ in range(num_remaining):
+        for i in range(num_remaining):
+            target = self.browser.find_element_by_id('id_target_audio')
+            target.click()
+            submit = WebDriverWait(self.browser, 10).until(
+                EC.element_to_be_clickable((By.ID, 'submit-id-submit'))
+            )
             choices = self.browser.find_elements_by_css_selector(choices_css)
             random.choice(choices).click()
-            self.browser.find_element_by_id('submit-id-submit').click()
+            submit.click()
+
+            if i != num_remaining - 1:
+                alert = WebDriverWait(self.browser, 10).until(
+                    EC.presence_of_element_located((By.CLASS_NAME, 'alert-success'))
+                )
+                alert.click()  # dismiss?
 
         # He gets to the completion page
         # His completion code comprises the four pks for his responses,

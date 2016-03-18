@@ -72,13 +72,13 @@ class FunctionalTest(LiveServerTestCase):
 
     def create_survey(self, survey_name, from_game):
         game = Game.objects.get(name=from_game)
-        chains = game.chain_set.all()
+        chains = game.chains.all()
 
         questions = []
         choices = []
 
         for chain in chains:
-            filled_messages = list(chain.message_set.exclude(audio=''))
+            filled_messages = list(chain.messages.exclude(audio=''))
             choices.append(filled_messages[0].id)
             questions.append(filled_messages[-1].id)
 
@@ -87,6 +87,7 @@ class FunctionalTest(LiveServerTestCase):
 
         survey_form = NewSurveyForm({
             'name': survey_name,
+            'num_questions_per_player': 10,
             'questions': questions_str,
             'choices': choices_str,
         })
