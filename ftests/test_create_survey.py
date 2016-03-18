@@ -1,11 +1,6 @@
 from .base import FunctionalTest
 
 class CreateSurveyTest(FunctionalTest):
-    def extract_id_from_message_group(self, message_group):
-        """ Get the message ids from the svg text element """
-        svg_text_element = message_group.find_element_by_tag_name('text')
-        id_text = svg_text_element.text
-        return int(id_text)
 
     def test_create_survey(self):
         """ Create a new survey using a form """
@@ -22,31 +17,17 @@ class CreateSurveyTest(FunctionalTest):
         # He inspects the game and confirms that the first chain has
         # three entries
         self.inspect_game(game_name)
-        message_groups = self.select_svg_messages()
-        self.assertEquals(len(message_groups), 1+depth+1)  # seed + filled + empty
+        message_nodes = self.select_message_nodes()
+        expected_messages = nchains * (1 + depth)  # seed plus depth generations
+        self.assertEquals(len(message_nodes), nchains * (depth + 1))
 
         # Marcus takes out a piece of paper to note the messages he wants
         # to test
-        messages = []
-        choices = []
-
-        # He notes the id of the first message and the last messages
-        # to use in the survey
-        messages.append(self.extract_id_from_message_group(message_groups[-2]))
-        choices.append(self.extract_id_from_message_group(message_groups[0]))
-
-        # He does the same for the other chains in the game
-        remaining_chains = nchains - 1
-        for _ in range(remaining_chains):
-            self.browser.find_element_by_id('id_next_chain').click()
-            self.wait_for(tag='body')
-
-            message_groups = self.select_svg_messages()
-            messages.append(self.extract_id_from_message_group(message_groups[-2]))
-            choices.append(self.extract_id_from_message_group(message_groups[0]))
+        choices = [extract_id_from_message_node(m) for m in message_nodes[:4]]
+        messages = [extract_id_from_message_node(m) for m in message_nodes]
 
         # Marcus goes back to the game list page
-        self.browser.find_element_by_id('id_game_list').click()
+        self.browser.find_element_by_id('id_games_list').click()
 
         # Marcus navigates to the survey list page from the home page
         # by clicking the survey list button in the nav bar
@@ -90,3 +71,9 @@ class CreateSurveyTest(FunctionalTest):
         question_list = self.browser.find_element_by_id('id_question_list')
         question_items = question_list.find_elements_by_tag_name('li')
         self.assertEquals(len(question_items), len(messages))
+
+def extract_id_from_message_node(message_node):
+    """Get the message ids from the svg text element."""
+    svg_text_element = message_node.find_element_by_tag_name('text')
+    id_text = svg_text_element.text
+    return int(id_text)

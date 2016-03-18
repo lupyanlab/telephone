@@ -105,7 +105,7 @@ export class GameTreeView extends Backbone.View {
 
     let nodeEnter = node.enter()
       .append("g")
-      .attr("class", "node")
+      .attr("class", d => `node ${d.type}`)
       .attr("transform", d => `translate(${d.x},${d.y})`);
 
     let circleSize = 12;

@@ -106,13 +106,18 @@ class Message(models.Model):
     verified = models.BooleanField(default=False)
     num_children = models.IntegerField(default=1)
 
+    def full_clean(self, *args, **kwargs):
+        if not self.generation and self.parent:
+            self.generation = self.parent.generation + 1
+        return super(Message, self).full_clean(*args, **kwargs)
+
     def kill(self):
         if self.num_children > 0:
             self.num_children -= 1
             self.save()
 
     def find_ancestor(self, possible_ancestors):
-        """ Trace lineage trying to find someone in possible_ancestors.
+        """Trace lineage trying to find someone in possible_ancestors.
 
         TODO: move this function to handlers
         """
@@ -124,7 +129,7 @@ class Message(models.Model):
             return self.parent.find_ancestor(possible_ancestors)
 
     def __str__(self):
-        """ An uninterpretable hash of this message.
+        """An uninterpretable hash of this message.
 
         str(message) is used to label the choices in surveys!
         """
@@ -134,7 +139,7 @@ class Message(models.Model):
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    """ Represent a message in JSON. """
+    """Represent a message in JSON."""
     class Meta:
         model = Message
         fields = ('id', 'audio', 'start_at', 'end_at')

@@ -64,6 +64,7 @@ class FunctionalTest(LiveServerTestCase):
                 child = Message(chain=chain, parent=parent, audio=test_audio)
                 child.full_clean()
                 child.save()
+                parent.kill()
 
         for chain in game.chains.all():
             for _ in range(depth):
@@ -221,17 +222,19 @@ class FunctionalTest(LiveServerTestCase):
         audio_src = self.browser.find_element_by_id('sound').get_attribute('src')
         self.assertRegexpMatches(audio_src, expected)
 
+    # Inspect view
+
     def inspect_game(self, name):
         game_list_item = self.select_game_item_by_game_name(name)
         game_list_item.find_element_by_class_name('inspect').click()
 
     def select_svg_nodes(self):
-        svg = self.browser.find_element_by_tag_name('svg')
+        svg = self.browser.find_element_by_css_selector('svg.tree')
         return svg.find_elements_by_css_selector('g.node')
 
     def select_message_nodes(self):
         svg = self.browser.find_element_by_css_selector('svg.tree')
-        return svg.find_elements_by_css_selector('circle.message')
+        return svg.find_elements_by_css_selector('g.node.message')
 
     def assert_filled_message(self, message_group):
         self.assertEquals(message_group.get_attribute('class'), 'message filled')
