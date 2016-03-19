@@ -47,6 +47,9 @@ class ResponseForm(forms.ModelForm):
 
 class MessageIdField(forms.Field):
     def to_python(self, value):
+        if value is None and not self.required:
+            return ''
+
         try:
             return map(int, value.split(','))
         except AttributeError:

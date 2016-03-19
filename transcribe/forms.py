@@ -4,6 +4,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Submit
 
 from grunt.models import Game
+from ratings.forms import MessageIdField
 from transcribe.models import Transcription, TranscriptionSurvey
 
 
@@ -34,7 +35,8 @@ class TranscriptionForm(forms.ModelForm):
 
 class NewTranscriptionSurveyForm(forms.ModelForm):
     game = forms.ModelChoiceField(Game.objects.all(), empty_label=None)
-    generation = forms.IntegerField(min_value=0)
+    generation = forms.IntegerField(min_value=0, required=False)
+    messages =  MessageIdField(required=False)
 
     class Meta:
         model = TranscriptionSurvey
