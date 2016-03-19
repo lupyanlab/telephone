@@ -34,7 +34,7 @@ class TranscriptionForm(forms.ModelForm):
 
 
 class NewTranscriptionSurveyForm(forms.ModelForm):
-    game = forms.ModelChoiceField(Game.objects.all(), empty_label=None)
+    game = forms.ModelChoiceField(Game.objects.all(), empty_label=None, required=False)
     generation = forms.IntegerField(min_value=0, required=False)
     messages =  MessageIdField(required=False)
 
@@ -50,6 +50,7 @@ class NewTranscriptionSurveyForm(forms.ModelForm):
         self.helper.add_input(Submit('submit', 'Create'))
         self.helper.layout = Layout(
             'name',
+            'messages',
             'game',
             'generation',
             'num_transcriptions_per_taker'
