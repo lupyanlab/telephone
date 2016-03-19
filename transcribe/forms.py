@@ -30,6 +30,7 @@ class TranscriptionForm(forms.ModelForm):
         self.helper.layout = Layout(
             Field('message', type='hidden'),
             'text',
+            Submit('submit', 'Submit'),
         )
 
 

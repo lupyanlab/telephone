@@ -9,7 +9,7 @@
 
 {% block jumbotron %}
 
-    <h1>Listen Up!</h1>
+    <h1>Write it down!</h1>
 
     <p>
       Click the play button and you'll hear a message. Try as best
@@ -41,16 +41,28 @@ function soundId(message) {
 }
 
 soundManager.setup({
+  flashVersion: 9,
   onready: function () {
     soundManager.createSound({
         id: "target",
         url: question.audio,
-        onfinish: function () {
-          $("#submit-id-submit").attr("disabled", false);
+        onload: function () {
+          var end_at = question.end_at;
+          if (end_at === null) {
+            end_at = soundManager.sounds["target"].duration;
+          }
+          // HACK:
+          // Using "onfinish" callback works if the whole sound is being played.
+          // This hack sets a callback at a position 200 msec before the actual
+          // end of the sound, guaranteeing that it is reached each time the
+          // sound plays.
+          this.onPosition(end_at - 200, function (eventPosition) {
+            $("#submit-id-submit").attr("disabled", false);
+          });
         }
     });
   }
-})
+});
 
 $(function () {
   $("#submit-id-submit").attr("disabled", true);
@@ -58,7 +70,15 @@ $(function () {
   var target = d3.select("#id_target_audio");
 
   target
-    .on("click", function () { soundManager.play("target"); });
+    .on("click", function () {
+      // Play the sound all the way through if end_at is not set
+      var sound = soundManager.getSoundById("target"),
+          end_at = question.end_at;
+      if (end_at === null) {
+        end_at = sound.durationEstimate;
+      }
+      sound.play({from: question.start_at, to: end_at});
+    });
 });
 
   </script>

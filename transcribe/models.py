@@ -34,7 +34,7 @@ class TranscriptionSurvey(models.Model):
         # than there are messages.
         completed_messages = Transcription.objects.\
             filter(id__in=receipts).\
-            values_list('messages', flat=True)
+            values_list('message', flat=True)
 
         try:
             selected_message = self.messages.\
@@ -46,7 +46,7 @@ class TranscriptionSurvey(models.Model):
             return selected_message
 
     def __str__(self):
-        return '<TranscriptionSurvey {}>'.format(self.name)
+        return '{}: {}'.format(self.pk, self.name)
 
 
 class MessageToTranscribe(models.Model):
@@ -56,5 +56,5 @@ class MessageToTranscribe(models.Model):
 
 class Transcription(models.Model):
     message = models.ForeignKey(MessageToTranscribe,
-                                related_name='transcriptions')
+                                related_name='transcribed_messages')
     text = models.CharField(max_length=60)
