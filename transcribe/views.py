@@ -13,7 +13,7 @@ class TranscriptionSurveyList(ListView):
 
 
 class NewSurveyView(CreateView):
-    template_name = 'ratings/new_survey.html'
+    template_name = 'transcribe/new_survey.html'
     form_class = NewTranscriptionSurveyForm
     success_url = reverse_lazy('transcribe_list')
 

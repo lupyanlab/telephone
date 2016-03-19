@@ -9,14 +9,9 @@ class TranscriptionsTest(FunctionalTest):
         super(TranscriptionsTest, self).setUp()
         mommy.make_recipe('grunt.seed', _quantity=2)
 
-    def test_create_transcriptions_survey(self):
-        """Create a transcriptions survey.
-
-        Requires a few messages to be available and their IDs to be known.
-        """
+    def test_create_transcriptions_survey_from_message_ids(self):
         self.assertEquals(Message.objects.count(), 2)
         ids_in_hand = Message.objects.values_list('id', flat=True)
-
         self.browser.get(self.live_server_url)
 
         # Navigate to new transcription form.
@@ -29,3 +24,12 @@ class TranscriptionsTest(FunctionalTest):
         self.browser.find_element_by_id('id_name').send_keys(survey_name)
         self.browser.find_element_by_id('id_messages').send_keys(messages_str)
         self.browser.find_element_by_id('submit-id-submit').click()
+
+        # Redirected to transcription survey list view.
+        self.assertRegexpMatches(self.browser.current_url,
+                                 r'/surveys/transcribe/$')
+
+
+    def test_create_survey_with_catch_trials(self):
+        """Create a transcription survey with catch trials."""
+        ids_in_hand = Message.objects.values_list('id', flat=True)
