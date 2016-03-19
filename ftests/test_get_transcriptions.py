@@ -12,6 +12,7 @@ class TranscriptionsTest(FunctionalTest):
         super(TranscriptionsTest, self).setUp()
         mommy.make_recipe('grunt.seed', _quantity=2)
 
+
     def test_create_transcriptions_survey_from_message_ids(self):
         self.assertEquals(Message.objects.count(), 2)
         ids_in_hand = Message.objects.values_list('id', flat=True)
@@ -50,6 +51,12 @@ class TranscriptionsTest(FunctionalTest):
         # Redirected to transcription survey list view.
         self.assertRegexpMatches(self.browser.current_url,
                                  r'/surveys/transcribe/$')
+
+
+    def test_take_transcription_survey(self):
+        """Transcribe a single message."""
+        pass
+
 
     def navigate_to_new_transcription_form(self):
         self.browser.find_element_by_id('id_transcriptions_list').click()
