@@ -1,4 +1,5 @@
 from unipath import Path
+from unittest import skip
 
 from django.test import TestCase, override_settings
 from django.conf import settings
@@ -7,12 +8,13 @@ from django.core.files import File
 from model_mommy import mommy
 
 from grunt.models import Game, Chain, Message
-from transcribe.forms import NewTranscriptionSurveyForm
+from transcribe.models import MessageToTranscribe
+from transcribe.forms import NewTranscriptionSurveyForm, TranscriptionForm
 
 
-class TranscribeModelTest(TestCase):
+class TranscribeFormTest(TestCase):
     def setUp(self):
-        super(TranscribeModelTest, self).setUp()
+        super(TranscribeFormTest, self).setUp()
         self.game = mommy.make(Game)
 
 
@@ -81,3 +83,10 @@ class TranscribeModelTest(TestCase):
 
         survey = survey.save()
         self.assertIsNotNone(survey.catch_trial_id)
+
+
+    @skip("Ignore minimum transcription length for now")
+    def test_minimum_transcription_length(self):
+        message = mommy.make(MessageToTranscribe)
+        form = TranscriptionForm({'message': message.pk, 'text': 'a'})
+        self.assertFalse(form.is_valid())
