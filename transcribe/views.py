@@ -58,10 +58,11 @@ class TakeSurveyView(View):
         transcription_form = TranscriptionForm(request.POST)
         if transcription_form.is_valid():
             transcription = transcription_form.save()
-            request.session['receipts'] += [transcription.pk, ]
+            receipts += [transcription.pk, ]
+            request.session['receipts'] = receipts
             validation_msg = 'Your response was saved! Another message was loaded.'
             messages.add_message(request, messages.SUCCESS, validation_msg)
-            return redirect('transcribe_messages', pk=self.kwargs['pk'])
+            return redirect('transcribe_messages', pk=pk)
         else:
             message = MessageToTranscribe.objects.get(pk=request.POST['message'])
             transcription_form.initial['message'] = message
