@@ -9,6 +9,7 @@ from transcribe.exceptions import *
 class TranscriptionSurvey(models.Model):
     name = models.CharField(max_length=100)
     num_transcriptions_per_taker = models.IntegerField(default=10)
+    catch_trial_id = models.IntegerField(blank=True, null=True)
 
     def pick_next_message(self, receipts=[]):
         """Randomly select the next message to transcribe for this user.

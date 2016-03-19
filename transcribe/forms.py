@@ -81,6 +81,11 @@ class NewTranscriptionSurveyForm(forms.ModelForm):
             catch_message = Message(audio=catch_trial)
             catch_message.full_clean()
             catch_message.save()
+
+            # Let the survey know which is a catch trial
+            survey.catch_trial_id = catch_message.pk
+            survey.save()
+
             grunt_messages.append(catch_message)
 
         # Create MessageToTranscribe objects for each grunt message
