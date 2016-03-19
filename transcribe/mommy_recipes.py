@@ -7,6 +7,7 @@ from model_mommy.recipe import Recipe, foreign_key, related
 
 import grunt.models as grunt_models
 import ratings.models as ratings_models
+import transcribe.models as transcribe_models
 
 
 django_file_path = Path(settings.APP_DIR, 'grunt/tests/media/test-audio.wav')
@@ -25,14 +26,10 @@ recording = Recipe(grunt_models.Message,
     parent = foreign_key(seed),
     audio = django_file)
 
-survey = Recipe(ratings_models.Survey)
-
-empty_question = Recipe(ratings_models.Question,
-    survey = foreign_key(survey),
+transcription_survey = Recipe(transcribe_models.TranscriptionSurvey)
+message_to_transcribe = Recipe(transcribe_models.MessageToTranscribe,
+    survey = foreign_key(transcription_survey),
     given = foreign_key(recording),
-    answer = foreign_key(seed),
 )
-
-response = Recipe(ratings_models.Response,
-    question = foreign_key(empty_question),
-    selection = foreign_key(seed))
+transcription = Recipe(transcribe_models.Transcription,
+    message = foreign_key(message_to_transcribe))
