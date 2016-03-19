@@ -8,15 +8,18 @@ def message_file_name(instance, filename):
 
     Non-unique file names will not be overwritten.
     """
-    chain = instance.chain or instance.parent.chain
-    game_dir = slugify(chain.game.name)
-    chain_dir = slugify(chain.name)
-    if instance.parent:
-        gen = instance.parent.generation + 1
-        message_name = 'gen-'+str(gen)
-    else:
-        message_name = 'seed'
-    return '{}/{}/{}.wav'.format(game_dir, chain_dir, message_name)
+    try:
+        chain = instance.chain or instance.parent.chain
+        game_dir = slugify(chain.game.name)
+        chain_dir = slugify(chain.name)
+        if instance.parent:
+            gen = instance.parent.generation + 1
+            message_name = 'gen-'+str(gen)
+        else:
+            message_name = 'seed'
+        return '{}/{}/{}.wav'.format(game_dir, chain_dir, message_name)
+    except AttributeError:
+        return 'bin/{}'.format(filename)
 
 def check_volume(recording):
     return pydub.AudioSegment(recording).dBFS

@@ -17,6 +17,10 @@ class NewSurveyView(CreateView):
     form_class = NewTranscriptionSurveyForm
     success_url = reverse_lazy('transcribe_list')
 
+    def form_valid(self, form):
+        print "form valid"
+        return super(NewSurveyView, self).form_valid(form)
+
 
 class TakeSurveyView(FormView):
     form_class = TranscriptionForm
