@@ -88,8 +88,8 @@ export class GameTreeView extends Backbone.View {
     let root = this.constructGameTreeRootNode();
 
     // Calculated width and depth for fixed width tree
-    let widthPerNode = 60,
-        heightPerGen = 80;
+    let widthPerNode = 82,
+        heightPerGen = 60;
     this.tree.size([widthPerNode * numSiblings, heightPerGen * numGenerations]);
 
     // Counter for node ids
@@ -98,7 +98,7 @@ export class GameTreeView extends Backbone.View {
     let nodes = this.tree.nodes(root);
     let links = this.tree.links(nodes);
 
-    nodes.forEach(d => d.y = d.depth * 160);
+    nodes.forEach(d => d.y = d.depth * 120);
 
     let node = this.svg.selectAll("g.node")
       .data(nodes, node => node.nid || (node.nid = ++i));
@@ -108,7 +108,7 @@ export class GameTreeView extends Backbone.View {
       .attr("class", "node")
       .attr("transform", d => `translate(${d.x},${d.y})`);
 
-    let circleSize = 12;
+    let circleSize = 22;
 
     nodeEnter.append(addLinkToMessageDetails)
       .append("circle")
