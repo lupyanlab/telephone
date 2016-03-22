@@ -53,14 +53,14 @@ svg.tree {
 }
 
 .node text.message {
-  font: 10px sans-serif;
+  font: 20px sans-serif;
   fill: white;
 }
 
 .link {
   fill: none;
   stroke: #ccc;
-  stroke-width: 2.5px;
+  stroke-width: 8px;
 }
 
 
