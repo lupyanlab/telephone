@@ -9,6 +9,7 @@ from grunt import views as grunt_views
 from inspector import views as inspect_views
 from ratings import views as ratings_views
 from transcribe import views as transcribe_views
+from words import views as words_views
 
 
 urlpatterns = patterns(
@@ -48,6 +49,12 @@ urlpatterns = patterns(
             name='new_transcribe'),
         url(r'^(?P<pk>\d+)/$', transcribe_views.TakeSurveyView.as_view(),
             name='transcribe_messages'),
+    ])),
+
+    # words views
+    url(r'^surveys/words/', include([
+        url(r'^$', words_views.WordSurveyList.as_view(), name='words_list'),
+        url(r'^new/$', words_views.NewSurveyView.as_view(), name='new_words'),
     ])),
 
     # admin site
