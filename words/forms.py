@@ -23,6 +23,7 @@ class WordListField(forms.Field):
 
 
 class NewWordSurveyForm(forms.ModelForm):
+    """Create a new survey to obtain match to seed ratings from words."""
     words = WordListField()
     choices = MessageIdField()
 
@@ -54,6 +55,7 @@ class NewWordSurveyForm(forms.ModelForm):
         return survey
 
 class NewWordQuestionForm(forms.ModelForm):
+    """Simple ModelForm around questions for word surveys."""
     choices = MessageIdField()
 
     class Meta:

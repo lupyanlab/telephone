@@ -5,7 +5,7 @@
     },
     "dependencies": {
       "backbone": "npm:backbone@^1.2.3",
-      "d3": "github:mbostock/d3@^3.5.6",
+      "d3": "github:d3/d3@^3.5.6",
       "handlebars": "github:components/handlebars.js@^4.0.4",
       "hbs": "github:davis/plugin-hbs@^1.2.1",
       "jquery": "github:components/jquery@^2.1.4",

@@ -71,9 +71,7 @@ class TranscriptionsTest(FunctionalTest):
         self.browser.get(self.live_server_url)
         self.browser.find_element_by_id('id_transcriptions_list').click()
 
-        
+
     def navigate_to_new_transcription_form(self):
         self.browser.find_element_by_id('id_transcriptions_list').click()
         self.browser.find_element_by_id('id_new_transcription').click()
-
-    def select_transcription_survey_by_name(self, name):
