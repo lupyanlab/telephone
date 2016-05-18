@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'inspector',
     'ratings',
     'transcribe',
+    'words',
 )
 
 MIDDLEWARE_CLASSES = (
