@@ -11,17 +11,28 @@ class WordsTest(FunctionalTest):
         mommy.make_recipe('grunt.seed', _quantity=4)
 
     def test_create_words_survey_from_message_ids(self):
-        self.assertEquals(Message.objects.count(), 4)
+        # Get data required for new word form
+        choices = Message.objects.values_list('id', flat=True)
+        words = ['booba', 'kiki']
 
-        # data for form
-        name = 'test new words'
-        ids_in_hand = Message.objects.values_list('id', flat=True)
-        choices_str = ','.join(map(str, ids_in_hand))
-        word_list = 'booba,kiki'
-
-        # navigate to new word survey form
+        # Navigate to new word survey form
         self.browser.get(self.live_server_url)
         self.browser.find_element_by_id('id_words_list').click()
         self.browser.find_element_by_id('id_new_words').click()
 
-        self.fail()
+        # Fill out new word survey form
+        self.fill_form('id_name', 'test new words')
+        self.fill_form('id_choices', stringify(choices))
+        self.fill_form('id_words', stringify(words))
+        self.browser.find_element_by_id('submit-id-submit').click()
+
+        # Land back at the word survey list page
+        page_title = self.browser.find_element_by_tag_name('h1').text
+        self.assertEquals(page_title, 'Word Surveys')
+
+    def fill_form(self, element_id, text):
+        self.browser.find_element_by_id(element_id).send_keys(text)
+
+
+def stringify(items):
+    return ','.join(map(str, items))

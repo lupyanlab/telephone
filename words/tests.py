@@ -3,8 +3,8 @@ from django.test import TestCase
 from model_mommy import mommy
 
 from grunt.models import Message
-from words.models import Survey, Word, Question, Response
-from words.forms import NewWordSurveyForm
+from words.models import Survey, Question, Response
+from words.forms import NewWordSurveyForm, NewWordQuestionForm
 
 class CreateWordSurveyTest(TestCase):
     def test_create_word_survey(self):
@@ -20,4 +20,15 @@ class CreateWordSurveyTest(TestCase):
         )
 
         form = NewWordSurveyForm(form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_create_word_question(self):
+        survey = mommy.make(Survey)
+        choices = mommy.make_recipe('ratings.seed', _quantity=4)
+        data = dict(
+            survey=survey.id,
+            word='booba',
+            choices=[message.id for message in choices],
+        )
+        form = NewWordQuestionForm(data)
         self.assertTrue(form.is_valid())

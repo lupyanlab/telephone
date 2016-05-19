@@ -29,15 +29,9 @@ class Survey(models.Model):
         return self.name
 
 
-class Word(models.Model):
-    """A word to guess the meaning of."""
-    survey = models.ForeignKey(Survey)
-    text = models.CharField(max_length=60)
-
-
 class Question(models.Model):
     survey = models.ForeignKey(Survey, related_name='questions')
-    word = models.ForeignKey(Word, related_name='questions')
+    word = models.CharField(max_length=60)
     choices = models.ManyToManyField(Message, related_name='word_questions')
 
 

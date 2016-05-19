@@ -56,7 +56,7 @@ class CreateSurveyTest(FunctionalTest):
 
         # He is redirected back to the survey list page
         # and he sees the new survey on the page
-        surveys = surveys = self.select_survey_items()
+        surveys = self.select_survey_items()
         self.assertEquals(len(surveys), 1)
 
         # Marcus views the survey by clicking on the view survey button
