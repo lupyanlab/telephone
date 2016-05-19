@@ -55,6 +55,8 @@ urlpatterns = patterns(
     url(r'^surveys/words/', include([
         url(r'^$', words_views.WordSurveyList.as_view(), name='words_list'),
         url(r'^new/$', words_views.NewSurveyView.as_view(), name='new_words'),
+        url(r'(?P<pk>\d+)/$', words_views.TakeWordsSurveyView.as_view(),
+            name='take_words'),
     ])),
 
     # admin site

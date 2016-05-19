@@ -1,10 +1,13 @@
+import string
+
 from django import forms
 
+from crispy_forms.bootstrap import InlineRadios
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
+from crispy_forms.layout import Layout, Field, Submit
 
 from ratings.forms import MessageIdField
-from words.models import Survey, Question
+from words.models import Survey, Question, Response
 
 
 class WordListField(forms.Field):
@@ -54,6 +57,7 @@ class NewWordSurveyForm(forms.ModelForm):
 
         return survey
 
+
 class NewWordQuestionForm(forms.ModelForm):
     """Simple ModelForm around questions for word surveys."""
     choices = MessageIdField()
@@ -61,3 +65,36 @@ class NewWordQuestionForm(forms.ModelForm):
     class Meta:
         model = Question
         fields = ('survey', 'word', 'choices')
+
+
+class ResponseForm(forms.ModelForm):
+    class Meta:
+        model = Response
+        fields = ('question', 'selection')
+        error_messages = {
+            'selection': {
+                'required': 'You must select one of the choices.',
+            },
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ResponseForm, self).__init__(*args, **kwargs)
+
+        self.fields['selection'].required = True
+        self.fields['selection'].empty_label = None
+        self.fields['selection'].label = 'Select the sound most like the word above.'
+
+        if 'question' in self.initial:
+            message_choices = self.initial['question'].choices.all()
+            self.fields['selection'].queryset = message_choices
+            choice_labels = list(string.letters[:len(message_choices)])
+            choice_map = [(message.id, label) for message, label in zip(message_choices, choice_labels)]
+            self.fields['selection'].widget.choices = choice_map
+
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+            Field('question', type='hidden'),
+            InlineRadios('selection'),
+            Submit('submit', 'Submit')
+        )
