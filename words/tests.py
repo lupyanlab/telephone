@@ -1,4 +1,7 @@
-from django.test import TestCase
+import unipath
+
+from django.conf import settings
+from django.test import TestCase, override_settings
 
 from model_mommy import mommy
 
@@ -6,7 +9,15 @@ from grunt.models import Message
 from words.models import Survey, Question, Response
 from words.forms import NewWordSurveyForm, NewWordQuestionForm
 
+
+TEST_MEDIA_ROOT = unipath.Path(settings.MEDIA_ROOT + '-test')
+
+@override_settings(MEDIA_ROOT=TEST_MEDIA_ROOT)
 class CreateWordSurveyTest(TestCase):
+    def tearDown(self):
+        super(CreateWordSurveyTest, self).tearDown()
+        TEST_MEDIA_ROOT.rmtree()
+
     def test_create_word_survey(self):
         words_str = 'booba,kiki'
         choices = mommy.make_recipe('ratings.seed', _quantity=4)

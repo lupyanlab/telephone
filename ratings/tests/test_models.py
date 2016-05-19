@@ -8,7 +8,7 @@ from ratings.models import Survey, Question, Response
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
-@override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
+@override_settings(MEDIA_ROOT=TEST_MEDIA_ROOT)
 class RatingsModelTest(TestCase):
     def tearDown(self):
         super(RatingsModelTest, self).tearDown()

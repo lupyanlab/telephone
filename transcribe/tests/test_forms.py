@@ -1,4 +1,4 @@
-from unipath import Path
+import unipath
 from unittest import skip
 
 from django.test import TestCase, override_settings
@@ -11,11 +11,17 @@ from grunt.models import Game, Chain, Message
 from transcribe.models import MessageToTranscribe
 from transcribe.forms import NewTranscriptionSurveyForm, TranscriptionForm
 
+TEST_MEDIA_ROOT = unipath.Path(settings.MEDIA_ROOT + '-test')
 
+@override_settings(MEDIA_ROOT=TEST_MEDIA_ROOT)
 class TranscribeFormTest(TestCase):
     def setUp(self):
         super(TranscribeFormTest, self).setUp()
         self.game = mommy.make(Game)
+
+    def tearDown(self):
+        super(TranscribeFormTest, self).tearDown()
+        TEST_MEDIA_ROOT.rmtree()
 
 
     def test_make_new_survey(self):
@@ -46,8 +52,9 @@ class TranscribeFormTest(TestCase):
         mommy.make(Message, chain=chain, _quantity=2)
         message_ids = Message.objects.filter(chain=chain.id).values_list('id', flat=True)
 
-        catch_trial_message = Path(settings.APP_DIR,
-                                   'transcribe/tests/media/catch_trial.wav')
+        catch_trial_message = unipath.Path(
+            settings.APP_DIR, 'transcribe/tests/media/catch_trial.wav'
+        )
         catch_trial = File(open(catch_trial_message, 'rb'))
 
         post_data = {
@@ -68,8 +75,9 @@ class TranscribeFormTest(TestCase):
         mommy.make(Message, chain=chain, _quantity=2)
         message_ids = Message.objects.filter(chain=chain.id).values_list('id', flat=True)
 
-        catch_trial_message = Path(settings.APP_DIR,
-                                   'transcribe/tests/media/catch_trial.wav')
+        catch_trial_message = unipath.Path(
+            settings.APP_DIR, 'transcribe/tests/media/catch_trial.wav'
+        )
         catch_trial = File(open(catch_trial_message, 'rb'))
 
         post_data = {

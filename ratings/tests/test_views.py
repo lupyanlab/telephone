@@ -15,7 +15,14 @@ from ratings.forms import NewSurveyForm, ResponseForm
 
 TEST_MEDIA_ROOT = Path(settings.MEDIA_ROOT + '-test')
 
-class SurveyViewTest(TestCase):
+@override_settings(MEDIA_ROOT=TEST_MEDIA_ROOT)
+class RatingsViewTest(TestCase):
+    def tearDown(self):
+        super(RatingsViewTest, self).tearDown()
+        TEST_MEDIA_ROOT.rmtree()
+
+
+class SurveyViewTest(RatingsViewTest):
     def setUp(self):
         self.survey_list_url = reverse('survey_list')
 
@@ -47,20 +54,15 @@ class SurveyViewTest(TestCase):
         self.assertEquals(len(questions), num_questions)
 
 
-@override_settings(MEDIA_ROOT = TEST_MEDIA_ROOT)
-class TakeSurveyTest(SurveyViewTest):
+class TakeSurveyTest(RatingsViewTest):
     def setUp(self):
-        super(TakeSurveyTest, self).setUp()
+        super(RatingsViewTest, self).setUp()
         self.survey = mommy.make(Survey)
         given, choice = mommy.make(Message, _fill_optional=['chain', 'audio'], _quantity=2)
         self.question = mommy.make(Question, given=given, survey=self.survey)
         self.question.choices.add(choice)
 
         self.survey_url = reverse('take_survey', kwargs={'pk': self.survey.pk})
-
-    def tearDown(self):
-        super(TakeSurveyTest, self).tearDown()
-        TEST_MEDIA_ROOT.rmtree()
 
     def add_question_to_session(self):
         selection = mommy.make(Message, _fill_optional=['chain', 'audio'])
