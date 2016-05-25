@@ -1,6 +1,7 @@
 import string
 
 from django import forms
+from django.core.exceptions import ValidationError
 
 from crispy_forms.bootstrap import InlineRadios
 from crispy_forms.helper import FormHelper
@@ -27,7 +28,8 @@ class WordListField(forms.Field):
 
 class NewWordSurveyForm(forms.ModelForm):
     """Create a new survey to obtain match to seed ratings from words."""
-    words = WordListField()
+    words = WordListField(required=False)
+    words_file = forms.FileField(required=False)
     choices = MessageIdField()
     catch_trial = forms.CharField(required=False)
 
@@ -41,12 +43,21 @@ class NewWordSurveyForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.add_input(Submit('submit', 'Create'))
 
+    def clean(self):
+        super(NewWordSurveyForm, self).clean()
+        if not (self.cleaned_data['words'] or self.data['words_file']):
+            raise ValidationError('either words or words_file must be given')
+
     def save(self):
         """Create a survey and then create questions for that survey."""
         survey = super(NewWordSurveyForm, self).save()
 
         choices = self.cleaned_data['choices']
-        for word in self.cleaned_data.get('words'):
+
+        words = (self.cleaned_data.get('words') or
+                 words_from_file(self.data['words_file']))
+
+        for word in words:
             question_data = {
                 'survey': survey.id,
                 'word': word,
@@ -111,3 +122,7 @@ class ResponseForm(forms.ModelForm):
             InlineRadios('selection'),
             Submit('submit', 'Submit')
         )
+
+
+def words_from_file(django_file):
+    return django_file.read().splitlines()
