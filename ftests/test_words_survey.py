@@ -15,7 +15,7 @@ class WordsTest(FunctionalTest):
 
         # Use the same words in string and file form
         self.words = ['booba', 'kiki']
-        self.txt_path = unipath.Path('test-words-upload.txt')
+        self.txt_path = unipath.Path('test-words-upload.txt').absolute()
         with open(self.txt_path, 'w') as f:
             for w in self.words:
                 f.write(w+'\n')
@@ -56,7 +56,8 @@ class CreateWordsTest(WordsTest):
         # Fill out new word survey form
         self.fill_form('id_name', 'test new words')
         self.fill_form('id_choices', stringify(self.choices))
-        self.fill_form('id_words_file', self.txt_path)
+        self.fill_form('id_words_file', str(self.txt_path))
+
         self.browser.find_element_by_id('submit-id-submit').click()
 
         # Land back at the word survey list page

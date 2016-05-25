@@ -54,8 +54,10 @@ class NewWordSurveyForm(forms.ModelForm):
 
         choices = self.cleaned_data['choices']
 
-        words = (self.cleaned_data.get('words') or
-                 words_from_file(self.data['words_file']))
+        words = self.cleaned_data.get('words')
+        if not words or words == [u'']:
+            # !!! Watch out for words being a list of an empty string
+            words = words_from_file(self.cleaned_data['words_file'])
 
         for word in words:
             question_data = {
