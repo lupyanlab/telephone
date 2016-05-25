@@ -18,8 +18,7 @@ class WordsTest(FunctionalTest):
         words = ['booba', 'kiki']
 
         # Navigate to new word survey form
-        self.browser.get(self.live_server_url)
-        self.browser.find_element_by_id('id_words_list').click()
+        self.nav_to_word_surveys()
         self.browser.find_element_by_id('id_new_words').click()
 
         # Fill out new word survey form
@@ -47,8 +46,7 @@ class WordsTest(FunctionalTest):
         form.save()
 
         # Navigate to take survey
-        self.browser.get(self.live_server_url)
-        self.browser.find_element_by_id('id_words_list').click()
+        self.nav_to_word_surveys()
         self.browser.find_element_by_class_name('take').click()
 
         # See the first question
@@ -69,6 +67,34 @@ class WordsTest(FunctionalTest):
         parts = completion_code.split('-')
         self.assertEquals(len(parts), 2)
 
+
+    def test_words_survey_with_catch_trial(self):
+        # Create a word survey with a catch trial
+        choices = Message.objects.values_list('id', flat=True)
+        words = ['booba', 'kiki']
+        catch_trial = 'this is the catch trial'
+        data = dict(
+            name='ftest',
+            num_questions_per_player=1,
+            words=stringify(words),
+            choices=stringify(choices),
+            catch_trial='this is the catch trial'
+        )
+        form = NewWordSurveyForm(data)
+        form.save()
+
+        # Navigate to take survey
+        self.nav_to_word_surveys()
+        self.browser.find_element_by_class_name('take').click()
+
+        # See the catch trial text
+        given = self.browser.find_element_by_id('id_word').text
+        self.assertEquals(given, catch_trial)
+
+
+    def nav_to_word_surveys(self):
+        self.browser.get(self.live_server_url)
+        self.browser.find_element_by_id('id_words_list').click()
 
     def fill_form(self, element_id, text):
         self.browser.find_element_by_id(element_id).send_keys(text)
