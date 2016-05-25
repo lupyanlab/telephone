@@ -18,7 +18,7 @@ class WordsTest(FunctionalTest):
         self.txt_path = unipath.Path('test-words-upload.txt')
         with open(self.txt_path, 'w') as f:
             for w in self.words:
-                f.write(w)
+                f.write(w+'\n')
 
     def tearDown(self):
         super(WordsTest, self).tearDown()
