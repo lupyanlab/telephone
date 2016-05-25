@@ -18,6 +18,7 @@ class CreateWordSurveyTest(TestCase):
         super(CreateWordSurveyTest, self).tearDown()
         TEST_MEDIA_ROOT.rmtree()
 
+
     def test_create_word_survey(self):
         words_str = 'booba,kiki'
         choices = mommy.make_recipe('ratings.seed', _quantity=4)
@@ -33,6 +34,10 @@ class CreateWordSurveyTest(TestCase):
         form = NewWordSurveyForm(form_data)
         self.assertTrue(form.is_valid())
 
+        survey = form.save()
+        self.assertTrue(survey.questions.count(), 2)
+
+
     def test_create_word_question(self):
         survey = mommy.make(Survey)
         choices = mommy.make_recipe('ratings.seed', _quantity=4)
@@ -43,3 +48,10 @@ class CreateWordSurveyTest(TestCase):
         )
         form = NewWordQuestionForm(data)
         self.assertTrue(form.is_valid())
+
+
+    def test_pick_next_question(self):
+        survey = mommy.make(Survey)
+        question = mommy.make(Question, survey=survey)
+        received = survey.pick_next_question()
+        self.assertEquals(question, received)

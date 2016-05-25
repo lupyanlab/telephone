@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse_lazy
 
 from rest_framework.renderers import JSONRenderer
 
+from grunt.models import MessageSerializer
 from words.models import Survey, Question
 from words.forms import NewWordSurveyForm, ResponseForm
 

@@ -50,6 +50,9 @@ class WordsTest(FunctionalTest):
         self.browser.find_element_by_class_name('take').click()
 
         # See the first question
+        given = self.browser.find_element_by_id('id_word').text
+        self.assertIn(given, words)
+
         self.fail()
 
     def fill_form(self, element_id, text):
