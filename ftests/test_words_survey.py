@@ -11,6 +11,7 @@ class WordsTest(FunctionalTest):
         super(WordsTest, self).setUp()
         mommy.make_recipe('grunt.seed', _quantity=4)
 
+
     def test_create_words_survey_from_message_ids(self):
         # Get data required for new word survey form
         choices = Message.objects.values_list('id', flat=True)
@@ -30,6 +31,7 @@ class WordsTest(FunctionalTest):
         # Land back at the word survey list page
         page_title = self.browser.find_element_by_tag_name('h1').text
         self.assertEquals(page_title, 'Word Surveys')
+
 
     def test_take_words_survey(self):
         # Create a word survey
@@ -52,12 +54,30 @@ class WordsTest(FunctionalTest):
         # See the first question
         given = self.browser.find_element_by_id('id_word').text
         self.assertIn(given, words)
+        words.remove(given)
 
-        self.fail()
+        # Select a choice
+        self.submit_answer()
+
+        # See the second question and answer it
+        given = self.browser.find_element_by_id('id_word').text
+        self.assertIn(given, words)
+        self.submit_answer()
+
+        # Get completion code
+        completion_code = self.browser.find_element_by_tag_name('code').text
+        parts = completion_code.split('-')
+        self.assertEquals(len(parts), 2)
+
 
     def fill_form(self, element_id, text):
         self.browser.find_element_by_id(element_id).send_keys(text)
 
+    def submit_answer(self):
+        choices_css = "[type='radio']"
+        choices = self.browser.find_elements_by_css_selector(choices_css)
+        choices[1].click()
+        self.browser.find_element_by_id('submit-id-submit').click()
 
 def stringify(items):
     return ','.join(map(str, items))
