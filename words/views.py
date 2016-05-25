@@ -43,7 +43,7 @@ class TakeWordsSurveyView(View):
         response_form = ResponseForm(initial = {'question': question})
         form = self.prepare_response_form(response_form)
 
-        context_data = {'form': form}
+        context_data = {'form': form, 'word': question.word}
 
         # Serialize choice messages as JSON for playing the audio
         choices_data = MessageSerializer(question.choices.all(), many=True).data
@@ -64,7 +64,7 @@ class TakeWordsSurveyView(View):
             validation_msg = ('Your response was saved! '
                               'Another message was loaded.')
             messages.add_message(request, messages.SUCCESS, validation_msg)
-            return redirect('take_survey', pk=survey.pk)
+            return redirect('take_words', pk=survey.pk)
         else:
             question = Question.objects.get(pk=request.POST['question'])
 

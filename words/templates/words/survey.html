@@ -9,34 +9,32 @@
 
 {% block jumbotron %}
 
-    <h1>Listen Up!</h1>
+    <h1 id="id_word" class="text-center">{{ word }}</h1>
 
     <p>
-      Click the play button and you'll hear a message. After it finishes,
-      mouse over the radio options to hear some choices of what sound that
-      person was imitating. Select the sound that you think the person
-      was trying to imitate.
+      Someone invented the word above to name one of the sounds below. Which one is it?
     </p>
 
     <ul class="messages list-group" style="list-style-type:none">
       {% include '_messages.html' %}
     </ul>
 
-    <div id="id_target_audio" class="btn btn-default">
-      <span class="glyphicon glyphicon-play"></span>
-    </div>
-
     {% crispy form form.helper %}
 
 {% endblock jumbotron %}
+
+{% block instructions %}
+<div class="alert alert-info" role="alert">
+<strong>Instructions:</strong> Mouse over the labels to hear the choices. Select the sound most like the word at the top of the page. Note that the labels (e.g., "f8bb0dc088") are meaningless identifiers for the sounds. Make your choice based on the sound you hear when you mouse over the label, not on the label itself. If you do not hear a sound when you mouse over the options, there has been an error, and you should report this to the experimenters.
+</div>
+{% endblock instructions %}
 
 {% block javascript %}
   <script src="{% static 'd3/d3.min.js' %}" type="text/JavaScript"></script>
   <script src="{% static 'SoundManager2/script/soundmanager2.js' %}"></script>
   <script src="{% static 'ratings/survey.js' %}" type="text/JavaScript"></script>
   <script>
-var question = {{ question | safe }},
-    choices = {{ choices | safe }};
+var choices = {{ choices | safe }};
 
 function soundId(message) {
   return "message" + message.id;
@@ -46,25 +44,6 @@ function soundId(message) {
 soundManager.setup({
   flashVersion: 9,
   onready: function () {
-    soundManager.createSound({
-        id: "target",
-        url: question.audio,
-        onload: function () {
-          var end_at = question.end_at;
-          if (end_at === null) {
-            end_at = soundManager.sounds["target"].duration;
-          }
-          // HACK:
-          // Using "onfinish" callback works if the whole sound is being played.
-          // This hack sets a callback at a position 200 msec before the actual
-          // end of the sound, guaranteeing that it is reached each time the
-          // sound plays.
-          this.onPosition(end_at - 200, function (eventPosition) {
-            $("#submit-id-submit").attr("disabled", false);
-          });
-        }
-    });
-
     var radios = d3.selectAll("label.radio-inline");
     radios
       .each(function (choice) {
@@ -78,21 +57,6 @@ soundManager.setup({
 })
 
 $(function () {
-  $("#submit-id-submit").attr("disabled", true);
-
-  var target = d3.select("#id_target_audio");
-
-  target
-    .on("click", function () {
-      // Play the sound all the way through if end_at is not set
-      var sound = soundManager.getSoundById("target"),
-          end_at = question.end_at;
-      if (end_at === null) {
-        end_at = sound.durationEstimate;
-      }
-      sound.play({from: question.start_at, to: end_at});
-    });
-
   var radios = d3.selectAll("label.radio-inline");
 
   // !!! Assumes that this selection happens in the order of the choices
@@ -100,17 +64,8 @@ $(function () {
   radios
     .data(choices);
 
-  var playMessage = function (choice) {
-    if (!($("#submit-id-submit")).attr("disabled")) {
-      choice.soundObj.play();
-    }
-  }
-
-  var pauseAll = function () {
-    if (!($("#submit-id-submit")).attr("disabled")) {
-      soundManager.stopAll();
-    }
-  }
+  var playMessage = function (choice) { choice.soundObj.play(); };
+  var pauseAll = function () { soundManager.stopAll(); };
 
   radios
     .on("mouseover", playMessage)
