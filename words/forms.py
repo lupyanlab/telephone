@@ -29,10 +29,11 @@ class NewWordSurveyForm(forms.ModelForm):
     """Create a new survey to obtain match to seed ratings from words."""
     words = WordListField()
     choices = MessageIdField()
+    catch_trial = forms.CharField(required=False)
 
     class Meta:
         model = Survey
-        fields = ('name', 'num_questions_per_player', 'words', 'choices')
+        fields = ('name', 'num_questions_per_player')
 
     def __init__(self, *args, **kwargs):
         super(NewWordSurveyForm, self).__init__(*args, **kwargs)
@@ -54,6 +55,18 @@ class NewWordSurveyForm(forms.ModelForm):
 
             question_form = NewWordQuestionForm(question_data)
             question_form.save()
+
+        catch_trial = self.cleaned_data.get('catch_trial')
+        if catch_trial:
+            catch_trial_data = {
+                'survey': survey.id,
+                'word': catch_trial,
+                'choices': choices,
+            }
+            question_form = NewWordQuestionForm(catch_trial_data)
+            catch_question = question_form.save()
+            survey.catch_trial_id = catch_question.pk
+            survey.save()
 
         return survey
 
