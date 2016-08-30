@@ -57,7 +57,8 @@ class NewWordSurveyForm(forms.ModelForm):
         words = self.cleaned_data.get('words')
         if not words or words == [u'']:
             # !!! Watch out for words being a list of an empty string
-            words = words_from_file(self.data['words_file'])
+            words = words_from_file(self.cleaned_data.get('words_file') or
+                                    self.data.get('words_file'))
 
         for word in words:
             question_data = {
