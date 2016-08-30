@@ -20,7 +20,7 @@ class CreateWordSurveyTest(TestCase):
         self.words = ['booba', 'kiki']
         self.words_str = ','.join(self.words)
 
-        self.txt_path = unipath.Path('test-words-upload.txt')
+        self.txt_path = unipath.Path('test-words-upload.txt').absolute()
         with open(self.txt_path, 'w') as f:
             for w in self.words:
                 f.write(w+'\n')

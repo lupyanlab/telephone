@@ -45,7 +45,7 @@ class NewWordSurveyForm(forms.ModelForm):
 
     def clean(self):
         super(NewWordSurveyForm, self).clean()
-        if not (self.cleaned_data['words'] or self.data['words_file']):
+        if not (self.cleaned_data.get('words') or self.data.get('words_file')):
             raise ValidationError('either words or words_file must be given')
 
     def save(self):
@@ -57,7 +57,7 @@ class NewWordSurveyForm(forms.ModelForm):
         words = self.cleaned_data.get('words')
         if not words or words == [u'']:
             # !!! Watch out for words being a list of an empty string
-            words = words_from_file(self.cleaned_data['words_file'])
+            words = words_from_file(self.data['words_file'])
 
         for word in words:
             question_data = {
