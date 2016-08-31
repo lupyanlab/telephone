@@ -1,1 +1,2 @@
 -r base.txt
+selenium==2.53.6
