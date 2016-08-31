@@ -122,6 +122,21 @@ class TakeSurvey(WordsTest):
         given = self.browser.find_element_by_id('id_word').text
         self.assertEquals(given, catch_trial)
 
+    def test_target_word_is_repopulated_after_form_error(self):
+        """If there is an error in the form, it should be repopulated correctly.
+
+        If someone just clicks "Submit" on a words survey, the target word
+        disappears.
+        """
+        self.create_word_survey()
+        self.nav_to_word_surveys()
+        self.browser.find_element_by_class_name('take').click()
+        given = self.browser.find_element_by_id('id_word').text
+        # Try to submit without selection an answer
+        self.browser.find_element_by_id('submit-id-submit').click()
+        repopulated = self.browser.find_element_by_id('id_word').text
+        self.assertEquals(given, repopulated)
+
 
 def stringify(items):
     return ','.join(map(str, items))

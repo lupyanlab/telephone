@@ -71,7 +71,7 @@ class TakeWordsSurveyView(View):
             response_form.initial['question'] = question
             fresh_form = self.prepare_response_form(response_form)
 
-            context_data = {'form': fresh_form}
+            context_data = {'form': fresh_form, 'word': question.word}
 
             # Serialize choice messages as JSON for playing the audio
             choices_data = MessageSerializer(question.choices.all(), many=True).data
