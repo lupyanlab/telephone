@@ -4,6 +4,20 @@
 
     <h1>Survey Complete!</h1>
 
-    <p class="lead">Your completion code is: <code>{{ completion_code }}</code></p>
+    <p class="lead">Your completion code is: <br />
+      <code id="completion-code">{{ completion_code }}</code>
+    </p>
+
+    <button class="btn btn-default completion-code" data-clipboard-target="#completion-code">
+        Copy to clipboard
+    </button>
 
 {% endblock jumbotron %}
+
+{% block javascript %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.12/clipboard.min.js"></script>
+<script>
+new Clipboard('.completion-code');
+</script>
+
+{% endblock javascript %}
