@@ -28,14 +28,15 @@
             </ul>
 
             {% block body %}
+
+            {% block instructions %}
+            {% endblock instructions %}
+
             <div class="jumbotron">
                 {% block jumbotron %}
                     <h1>Telephone Game</h1>
                 {% endblock jumbotron %}
             </div>
-
-            {% block instructions %}
-            {% endblock instructions %}
 
             {% endblock body %}
 
